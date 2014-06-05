@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Replicate Paper with R and rCharts</title>
+  <!-- Always force latest IE rendering engine -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Timely Portfolio">
+  
+  <link rel="icon" type="image/png" href="img/slidify_logo_notext.png">
+  
+  <link href="libraries/frameworks/bootplus/assets/css/bootplus.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/bootplus-responsive.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/font-awesome.min.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/docs.css" rel="stylesheet">
+  <link href="libraries/highlighters/prettify/css/twitter-bootstrap.css" rel="stylesheet">
+  
+  <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+  
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+  <script src="../assets/js/html5shiv.js"></script>
+  <![endif]-->
+  
+  
+  <style>
+    p {
+      text-align: justify;
+    }
+    .nav [class^="icon-"] {
+      line-height: normal;
+    }
+    
+    ol.linenums {
+      
+    }
+  </style>
+  
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="libraries/frameworks/bootplus/assets/ico/favicon.png">  <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Raleway:300"></link>
+<link rel=stylesheet href="http://fonts.googleapis.com/css?family=Oxygen"></link>
+
+  <script src="libraries/frameworks/bootplus/assets/js/jquery.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://dimplejs.org/dist/dimple.v1.1.5.min.js"></script>
+
+</head>
+<body data-spy="scroll" data-target=".bs-docs-sidebar">
+  
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">
+              <!-- <img src='assets/img/slidify_logo.png' width='100px' /> -->
+              
+            </a>
+            <iframe class="pull-right" style="margin-top:10px;" src="http://ghbtns.com/github-btn.html?user=timelyportfolio&repo=rCharts_factor_analytics&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+            <iframe class="pull-right" style="margin-top:10px;" src="http://ghbtns.com/github-btn.html?user=timelyportfolio&repo=rCharts_factor_analytics&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+  <header class="jumbotron subhead" id="overview">
+    <div class="container">
+      <h1>Replicate Paper with R and rCharts</h1>
+      <p class="lead">
+        Fact, Fiction and Momentum Investing
+
+      </p>
+    </div>
+  </header>
+  
+  <div class="container">
+  <div class="row">
+    <div class="span3 bs-docs-sidebar">
+      <ul class="nav nav-list bs-docs-sidenav">
+        <li><a href="#slide-1"> New Working Paper on Momentum</a></li>
+        <li><a href="#slide-2"> Data Source</a></li>
+        <li><a href="#slide-3"> Table 1</a></li>
+        <li><a href="#slide-4"> Table 2</a></li>
+        <li><a href="#slide-5"> Table 3</a></li>
+        <li><a href="#slide-6"> More French Data</a></li>
+        <li><a href="#slide-7"> Table 4</a></li>
+        <li><a href="#slide-8"> Table 5</a></li>
+      </ul>
+    </div>
+    
+    <div class="span8">
+      <section id="slide-1">
+  <div class="page-header">
+    <h1>New Working Paper on Momentum</h1>
+  </div>
+  <style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.tooltip{
+  opacity:1 !important
+}
+</style>
+
+<p>It seems that <a href="http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html">Gary Antonacci from Optimal Momentum</a> and I were simultaneously enjoy this fine working paper on momentum.</p>
+
+<blockquote>
+<strong>Fact, Fiction and Momentum Investing</strong><br>
+Asness, Clifford S. and Frazzini, Andrea and Israel, Ronen and Moskowitz, Tobias J.<br>
+available at <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323">SSRN</a><br>
+May 9, 2014<br>
+</blockquote>
+
+<p>I have had it in an open Chrome tab since the day it was posted to SSRN.  Since the data was available and the math was understandable, I intended to attempt a replication in R and then add some <a href="http://rcharts.io">rCharts</a>.</p>
+
+</section>
+<section id="slide-2">
+  <div class="page-header">
+    <h1>Data Source</h1>
+  </div>
+  <p>Once again this amazing resource <a href="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Kenneth French Data Library</a> will be our data source. We will use the monthly data files.  The below code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.</p>
+
+<pre><code class="r">require(quantmod)
+require(PerformanceAnalytics)
+
+#use monthly French data to replicate research on momentum in R
+# data source : Kenneth French Data Library
+#               http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html 
+# paper       : Fact, Fiction and Momentum Investing
+#               Asness, Clifford S. and Frazzini, Andrea and Israel, Ronen and Moskowitz, Tobias J.
+#               May 9, 2014
+#               http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323
+
+#gather french factor data
+my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors.zip&quot;
+my.tempfile&lt;-paste(tempdir(),&quot;\\frenchfactors.zip&quot;,sep=&quot;&quot;)
+my.usefile&lt;-paste(tempdir(),&quot;\\F-F_Research_Data_Factors.txt&quot;,sep=&quot;&quot;)
+download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_factors &lt;- read.table(file=my.usefile,
+                             header = TRUE, sep = &quot;&quot;,
+                             as.is = TRUE,
+                             skip = 3, nrows=1054)
+#get xts for analysis
+french_factors_xts &lt;- as.xts(
+  french_factors,
+  order.by=as.Date(
+    paste0(rownames(french_factors),&quot;01&quot;),
+    format=&quot;%Y%m%d&quot;
+  )
+)
+
+#now get the momentum factor
+my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor.zip&quot;
+my.usefile&lt;-paste(tempdir(),&quot;\\F-F_Momentum_Factor.txt&quot;,sep=&quot;&quot;)
+download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_momentum &lt;- read.table(file=my.usefile,
+                              header = TRUE, sep = &quot;&quot;,
+                              as.is = TRUE,
+                              skip = 12, nrows=1048)
+#get xts for analysis
+french_momentum_xts &lt;- as.xts(
+  french_momentum,
+  order.by=as.Date(
+    paste(rownames(french_momentum),&quot;01&quot;),
+    format=&quot;%Y%m%d&quot;
+  )
+)
+
+#merge UMD (momentum) with other french factors
+french_factors_xts &lt;- na.omit( merge( french_factors_xts, french_momentum_xts ) )
+french_factors_xts &lt;- french_factors_xts/100
+</code></pre>
+
+</section>
+<section id="slide-3">
+  <div class="page-header">
+    <h1>Table 1</h1>
+  </div>
+  <pre><code class="r">#test our numbers
+periods &lt;- c(&quot;1927::2013&quot;,&quot;1963::2013&quot;,&quot;1991::2013&quot;)
+t(sapply(
+  periods,
+  function(x){
+    return(data.frame(Return.annualized(french_factors_xts[x,-4],geometric=F)))
+  }
+))
+</code></pre>
+
+<pre><code>       Mkt.RF  SMB     HML     Mom    
+</code></pre>
+
+<p>1927::2013 0.07739 0.02892 0.04734 0.08279
+1963::2013 0.06121 0.03056 0.04652 0.0838 
+1991::2013 0.08196 0.0331  0.03563 0.06296</p>
+
+<pre><code class="r">t(do.call(cbind,lapply(
+  periods,
+  function(x){
+    df &lt;- data.frame(
+      SharpeRatio.annualized(
+        french_factors_xts[x,-4],
+        Rf = 0,
+        geometric=F
+      )[1,]
+    )
+    colnames(df) &lt;- x
+    return(df)
+  }
+)))
+</code></pre>
+
+<pre><code>       Mkt.RF    SMB    HML    Mom
+</code></pre>
+
+<p>1927::2013 0.4117 0.2577 0.3884 0.5017
+1963::2013 0.3948 0.2850 0.4684 0.5704
+1991::2013 0.5423 0.2864 0.3216 0.3597</p>
+
+</section>
+<section id="slide-4">
+  <div class="page-header">
+    <h1>Table 2</h1>
+  </div>
+  <pre><code class="r">#ok Table 1 matches so now let&#39;s move on to other calculations
+#Table 2
+do.call(rbind,lapply(
+  periods,
+  function(x){
+    df &lt;- data.frame(lapply(
+      rollapply(french_factors_xts[x,-4], width = 12, by = 1, FUN = Return.cumulative, geometric=F),
+      function(y){sum(na.omit(y)&gt;=0)/nrow(na.omit(y))}
+    ))
+    rownames(df) &lt;- x
+    return(df)
+  }
+))
+</code></pre>
+
+<pre><code>       Mkt.RF    SMB    HML    Mom
+</code></pre>
+
+<p>1927::2013 0.7096 0.5808 0.6341 0.8054
+1963::2013 0.7188 0.6007 0.6423 0.8003
+1991::2013 0.7811 0.6189 0.6113 0.7585</p>
+
+<pre><code class="r">
+do.call(rbind,lapply(
+  periods,
+  function(x){
+    df &lt;- data.frame(lapply(
+      rollapply(french_factors_xts[x,-4], width = 60, by = 1, FUN = Return.cumulative, geometric=F),
+      function(y){sum(na.omit(y)&gt;=0)/nrow(na.omit(y))}
+    ))
+    rownames(df) &lt;- x
+    return(df)
+  }
+))
+</code></pre>
+
+<pre><code>       Mkt.RF    SMB    HML    Mom
+</code></pre>
+
+<p>1927::2013 0.8173 0.6497 0.8853 0.8761
+1963::2013 0.7703 0.6510 0.8752 0.8879
+1991::2013 0.7327 0.7465 0.7419 0.7143</p>
+
+</section>
+<section id="slide-5">
+  <div class="page-header">
+    <h1>Table 3</h1>
+  </div>
+  <pre><code class="r">#Table 3
+SharpeRatio.annualized(
+  apply(
+    french_factors_xts[periods[1],c(3,5)],
+    MARGIN = 1,
+    function(x){ x[1] * 0.6 + x[2] * 0.4}
+  ),
+  Rf = 0,
+  geometric=F
+)
+</code></pre>
+
+<pre><code>                              [,1]
+</code></pre>
+
+<p>Annualized Sharpe Ratio (Rf=0%) 0.8002</p>
+
+<pre><code class="r">
+lapply(
+  c(12,60),
+  function(width){
+    y = rollapply(
+      apply(
+        french_factors_xts[,c(3,5)],
+        MARGIN = 1,
+        function(x){ x[1] * 0.6 + x[2] * 0.4}
+      ),
+      width = width,
+      by = 1,
+      FUN = Return.cumulative,
+      geometric=F
+    )
+    return(sum(na.omit(y)&gt;=0)/length(na.omit(y)))
+  }
+)
+</code></pre>
+
+<p>[[1]]
+[1] 0.8081</p>
+
+<p>[[2]]
+[1] 0.9161</p>
+
+</section>
+<section id="slide-6">
+  <div class="page-header">
+    <h1>More French Data</h1>
+  </div>
+  <pre><code class="r">#Table 4
+#need some additional data here
+#http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip
+my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip&quot;
+my.tempfile&lt;-paste(tempdir(),&quot;\\frenchfactors.zip&quot;,sep=&quot;&quot;)
+my.usefile&lt;-paste(tempdir(),&quot;\\6_Portfolios_ME_Prior_12_2.txt&quot;,sep=&quot;&quot;)
+download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_hml_smb &lt;- read.table(file=my.usefile,
+                             header = TRUE, sep = &quot;&quot;,
+                             as.is = TRUE,
+                             skip = 12, nrows=1048)
+colnames(french_hml_smb) &lt;- c(
+  paste0(
+    &quot;Small.&quot;,
+    colnames(french_hml_smb)[1:3]
+  ),
+  paste0(
+    &quot;Big.&quot;,
+    colnames(french_hml_smb)[1:3]
+  )
+)
+#get xts for analysis
+french_hml_smb_xts &lt;- as.xts(
+  french_hml_smb/100,
+  order.by=as.Date(
+    paste0(rownames(french_hml_smb),&quot;01&quot;),
+    format=&quot;%Y%m%d&quot;
+  )
+)
+
+#so short side will be average of Small.Low and Big.Low
+#and long side will be the average of Small.High and Big.High
+french_short_long_xts &lt;- as.xts(do.call(rbind,apply(
+  french_hml_smb_xts,
+  MARGIN=1,
+  function(period){
+    data.frame(
+      shortside = mean(period[c(1,4)]),
+      longside = mean(period[c(3,6)])
+    )
+  }
+)),order.by = index(french_hml_smb_xts))
+
+#add umd from the factors
+#as check this should be same as sum of -short and long
+french_short_long_xts &lt;- merge(
+  french_short_long_xts,
+  french_factors_xts[,c(5,1,4)] #Market and Mom (UMD)
+)
+</code></pre>
+
+</section>
+<section id="slide-7">
+  <div class="page-header">
+    <h1>Table 4</h1>
+  </div>
+  <pre><code class="r">#UMD market-adjusted returns (alpha)
+do.call(rbind,lapply(
+  periods,
+  function(period){
+    df &lt;- data.frame(
+      shortside = -((CAPM.alpha(
+        Ra = french_short_long_xts[period,]$shortside,
+        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
+        Rf = french_short_long_xts[period,]$RF
+      )+1)^12-1),
+      longside = (CAPM.alpha(
+        Ra = french_short_long_xts[period,]$longside,
+        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
+        Rf = french_short_long_xts[period,]$RF
+      )+1)^12-1
+    )
+    df$UMD &lt;- df$shortside + df$longside
+    rownames(df) &lt;- period
+    return(df)
+  }
+))
+</code></pre>
+
+<pre><code>       shortside longside     UMD
+</code></pre>
+
+<p>1927::2013   0.04977  0.05618 0.10594
+1963::2013   0.03753  0.05432 0.09184
+1991::2013   0.03740  0.04956 0.08696</p>
+
+<pre><code class="r">
+#UMD returns minus market
+do.call(rbind,lapply(
+  periods,
+  function(period){
+    df &lt;- data.frame(
+      shortside = -Return.annualized(
+        french_short_long_xts[period,]$shortside - 
+          french_short_long_xts[period,]$Mkt.RF - 
+          french_short_long_xts[period,]$RF,
+        geometric=F
+      ),
+      longside = Return.annualized(
+        french_short_long_xts[period,]$longside - 
+          french_short_long_xts[period,]$Mkt.RF - 
+          french_short_long_xts[period,]$RF,
+        geometric=F
+      )
+    )
+    df$UMD &lt;- df$shortside + df$longside
+    rownames(df) &lt;- period
+    return(df)
+  }
+))
+</code></pre>
+
+<pre><code>       shortside longside     UMD
+</code></pre>
+
+<p>1927::2013   0.02189  0.06090 0.08279
+1963::2013   0.02454  0.05925 0.08379
+1991::2013   0.01054  0.05239 0.06293</p>
+
+</section>
+<section id="slide-8">
+  <div class="page-header">
+    <h1>Table 5</h1>
+  </div>
+  <pre><code class="r">#table 5
+table5 &lt;- do.call(rbind,lapply(
+  periods,
+  function(period){
+    df &lt;- data.frame(Return.annualized(
+      french_hml_smb_xts[period,],
+      geometric = F
+    ))
+    rownames(df) &lt;- period
+    return(df)
+  }
+))
+#umd small
+umdsmall &lt;- data.frame(table5$Small.High - table5$Small.Low)
+rownames(umdsmall) &lt;- periods
+colnames(umdsmall) &lt;- &quot;UMD Small&quot;
+umdsmall
+</code></pre>
+
+<pre><code>       UMD Small
+</code></pre>
+
+<p>1927::2013   0.09751
+1963::2013   0.11256
+1991::2013   0.08096</p>
+
+<pre><code class="r">
+#umd big
+umdbig &lt;- data.frame(table5$Big.High - table5$Big.Low)
+rownames(umdbig) &lt;- periods
+colnames(umdbig) &lt;- &quot;UMD Big&quot;
+umdbig
+</code></pre>
+
+<pre><code>       UMD Big
+</code></pre>
+
+<p>1927::2013 0.06807
+1963::2013 0.05502
+1991::2013 0.04491</p>
+
+<pre><code class="r">
+#by this point I hope you can do the Value piece of table 5 on your own
+#if you really can&#39;t figure it out, let me know
+</code></pre>
+
+</section>
+    </div>
+  </div>
+  </div> <!-- container -->
+  
+  
+</body>
+  <script src="libraries/frameworks/bootplus/assets/js/bootstrap.min.js"></script>
+  <script src="libraries/frameworks/bootplus/assets/js/application.js"></script>
+  
+  <!-- Google Prettify -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+  <script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+  <script>
+    var pres = document.getElementsByTagName("pre");
+    for (var i=0; i < pres.length; ++i) {
+      pres[i].className = "prettyprint linenums";
+    }
+    prettyPrint();
+  </script>
+  <!-- End Google Prettify --> 
+  </html>

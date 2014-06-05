@@ -1,0 +1,390 @@
+---
+title: Replicate Paper with R and rCharts
+author: Timely Portfolio
+github: {user: timelyportfolio, repo: rCharts_factor_analytics, branch: "gh-pages"}
+framework: bootplus
+layout: post
+mode: selfcontained
+highlighter: prettify
+hitheme: twitter-bootstrap
+lead : >
+  Fact, Fiction and Momentum Investing
+assets:
+  jshead:
+    - http://d3js.org/d3.v3.min.js
+    - http://dimplejs.org/dist/dimple.v1.1.5.min.js
+  css:
+    - "http://fonts.googleapis.com/css?family=Raleway:300"
+    - "http://fonts.googleapis.com/css?family=Oxygen"    
+---
+
+# New Working Paper on Momentum
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+.tooltip{
+  opacity:1 !important
+}
+</style>
+
+```{r echo = F, warning=F, error=F, message=F}
+require(knitr)
+opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
+options(rcharts.mode="inline")
+```
+
+It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoy this fine working paper on momentum.
+
+<blockquote>
+<strong>Fact, Fiction and Momentum Investing</strong><br>
+Asness, Clifford S. and Frazzini, Andrea and Israel, Ronen and Moskowitz, Tobias J.<br>
+available at <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323">SSRN</a><br>
+May 9, 2014<br>
+</blockquote>
+
+I have had it in an open Chrome tab since the day it was posted to SSRN.  Since the data was available and the math was understandable, I intended to attempt a replication in R and then add some [rCharts](http://rcharts.io).
+
+
+---
+### Data Source
+
+Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) will be our data source. We will use the monthly data files.  The below code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.
+
+
+```{r eval = F}
+require(reshape2)
+require(quantmod)
+require(PerformanceAnalytics)
+require(rCharts)
+
+#use monthly French data to replicate research on momentum in R
+# data source : Kenneth French Data Library
+#               http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html 
+# paper       : Fact, Fiction and Momentum Investing
+#               Asness, Clifford S. and Frazzini, Andrea and Israel, Ronen and Moskowitz, Tobias J.
+#               May 9, 2014
+#               http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323
+
+#gather french factor data
+my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors.zip"
+my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
+my.usefile<-paste(tempdir(),"\\F-F_Research_Data_Factors.txt",sep="")
+download.file(my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_factors <- read.table(file=my.usefile,
+                             header = TRUE, sep = "",
+                             as.is = TRUE,
+                             skip = 3, nrows=1054)
+#get xts for analysis
+french_factors_xts <- as.xts(
+  french_factors,
+  order.by=as.Date(
+    paste0(rownames(french_factors),"01"),
+    format="%Y%m%d"
+  )
+)
+
+#now get the momentum factor
+my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor.zip"
+my.usefile<-paste(tempdir(),"\\F-F_Momentum_Factor.txt",sep="")
+download.file(my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_momentum <- read.table(file=my.usefile,
+                              header = TRUE, sep = "",
+                              as.is = TRUE,
+                              skip = 12, nrows=1048)
+#get xts for analysis
+french_momentum_xts <- as.xts(
+  french_momentum,
+  order.by=as.Date(
+    paste(rownames(french_momentum),"01"),
+    format="%Y%m%d"
+  )
+)
+
+#merge UMD (momentum) with other french factors
+french_factors_xts <- na.omit( merge( french_factors_xts, french_momentum_xts ) )
+french_factors_xts <- french_factors_xts/100
+```
+
+---
+### Table 1
+
+```{r}
+#test our numbers
+#these are the sample periods
+periods <- c("1927::2013","1963::2013","1991::2013")
+table1.returns <- t(sapply(
+  periods,
+  function(x){
+    return(data.frame(Return.annualized(french_factors_xts[x,-4],geometric=F)))
+  }
+))
+
+table1 <- melt(
+  data.frame(
+    Sample = rownames(table1.returns),
+    table1.returns,
+    Metric = rep("Returns",nrow(table1.returns))
+  ),
+  id.vars = c("Sample","Metric"),
+  variable.name = "factor"
+)
+
+table2.sharpe <- t(do.call(cbind,lapply(
+  periods,
+  function(x){
+    df <- data.frame(
+      SharpeRatio.annualized(
+        french_factors_xts[x,-4],
+        Rf = 0,
+        geometric=F
+      )[1,]
+    )
+    colnames(df) <- x
+    return(df)
+  }
+)))
+
+table1 <- rbind(
+  table1,
+  melt(
+    data.frame(
+      Sample = rownames(table1.returns),
+      table1.returns,
+      Metric = rep("Sharpe",nrow(table1.returns))
+    ),
+    id.vars = c("Sample","Metric"),
+    variable.name = "factor"
+  )
+)
+
+d1 <- dPlot(
+  y = "value",
+  x = c("Metric","Sample","factor"),
+  groups = c("Metric","factor"),
+  data = table1,
+  type = "line",
+  yAxis = list( outputFormat = "0.2%" )
+)
+d1$show("static")
+
+```
+
+---
+### Table 2
+
+```{r}
+#ok Table 1 matches so now let's move on to other calculations
+#Table 2
+do.call(rbind,lapply(
+  periods,
+  function(x){
+    df <- data.frame(lapply(
+      rollapply(french_factors_xts[x,-4], width = 12, by = 1, FUN = Return.cumulative, geometric=F),
+      function(y){sum(na.omit(y)>=0)/nrow(na.omit(y))}
+    ))
+    rownames(df) <- x
+    return(df)
+  }
+))
+
+do.call(rbind,lapply(
+  periods,
+  function(x){
+    df <- data.frame(lapply(
+      rollapply(french_factors_xts[x,-4], width = 60, by = 1, FUN = Return.cumulative, geometric=F),
+      function(y){sum(na.omit(y)>=0)/nrow(na.omit(y))}
+    ))
+    rownames(df) <- x
+    return(df)
+  }
+))
+```
+
+---
+### Table 3
+
+```{r}
+#Table 3
+SharpeRatio.annualized(
+  apply(
+    french_factors_xts[periods[1],c(3,5)],
+    MARGIN = 1,
+    function(x){ x[1] * 0.6 + x[2] * 0.4}
+  ),
+  Rf = 0,
+  geometric=F
+)
+
+lapply(
+  c(12,60),
+  function(width){
+    y = rollapply(
+      apply(
+        french_factors_xts[,c(3,5)],
+        MARGIN = 1,
+        function(x){ x[1] * 0.6 + x[2] * 0.4}
+      ),
+      width = width,
+      by = 1,
+      FUN = Return.cumulative,
+      geometric=F
+    )
+    return(sum(na.omit(y)>=0)/length(na.omit(y)))
+  }
+)
+```
+
+---
+### More French Data
+
+```{r eval = F}
+#Table 4
+#need some additional data here
+#http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip
+my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip"
+my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
+my.usefile<-paste(tempdir(),"\\6_Portfolios_ME_Prior_12_2.txt",sep="")
+download.file(my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_hml_smb <- read.table(file=my.usefile,
+                             header = TRUE, sep = "",
+                             as.is = TRUE,
+                             skip = 12, nrows=1048)
+colnames(french_hml_smb) <- c(
+  paste0(
+    "Small.",
+    colnames(french_hml_smb)[1:3]
+  ),
+  paste0(
+    "Big.",
+    colnames(french_hml_smb)[1:3]
+  )
+)
+#get xts for analysis
+french_hml_smb_xts <- as.xts(
+  french_hml_smb/100,
+  order.by=as.Date(
+    paste0(rownames(french_hml_smb),"01"),
+    format="%Y%m%d"
+  )
+)
+
+#so short side will be average of Small.Low and Big.Low
+#and long side will be the average of Small.High and Big.High
+french_short_long_xts <- as.xts(do.call(rbind,apply(
+  french_hml_smb_xts,
+  MARGIN=1,
+  function(period){
+    data.frame(
+      shortside = mean(period[c(1,4)]),
+      longside = mean(period[c(3,6)])
+    )
+  }
+)),order.by = index(french_hml_smb_xts))
+
+#add umd from the factors
+#as check this should be same as sum of -short and long
+french_short_long_xts <- merge(
+  french_short_long_xts,
+  french_factors_xts[,c(5,1,4)] #Market and Mom (UMD)
+)
+```
+
+---
+### Table 4
+```{r}
+#UMD market-adjusted returns (alpha)
+do.call(rbind,lapply(
+  periods,
+  function(period){
+    df <- data.frame(
+      shortside = -((CAPM.alpha(
+        Ra = french_short_long_xts[period,]$shortside,
+        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
+        Rf = french_short_long_xts[period,]$RF
+      )+1)^12-1),
+      longside = (CAPM.alpha(
+        Ra = french_short_long_xts[period,]$longside,
+        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
+        Rf = french_short_long_xts[period,]$RF
+      )+1)^12-1
+    )
+    df$UMD <- df$shortside + df$longside
+    rownames(df) <- period
+    return(df)
+  }
+))
+
+#UMD returns minus market
+do.call(rbind,lapply(
+  periods,
+  function(period){
+    df <- data.frame(
+      shortside = -Return.annualized(
+        french_short_long_xts[period,]$shortside - 
+          french_short_long_xts[period,]$Mkt.RF - 
+          french_short_long_xts[period,]$RF,
+        geometric=F
+      ),
+      longside = Return.annualized(
+        french_short_long_xts[period,]$longside - 
+          french_short_long_xts[period,]$Mkt.RF - 
+          french_short_long_xts[period,]$RF,
+        geometric=F
+      )
+    )
+    df$UMD <- df$shortside + df$longside
+    rownames(df) <- period
+    return(df)
+  }
+))
+```
+
+---
+### Table 5
+
+```{r}
+#table 5
+table5 <- do.call(rbind,lapply(
+  periods,
+  function(period){
+    df <- data.frame(Return.annualized(
+      french_hml_smb_xts[period,],
+      geometric = F
+    ))
+    rownames(df) <- period
+    return(df)
+  }
+))
+#umd small
+umdsmall <- data.frame(table5$Small.High - table5$Small.Low)
+rownames(umdsmall) <- periods
+colnames(umdsmall) <- "UMD Small"
+umdsmall
+
+#umd big
+umdbig <- data.frame(table5$Big.High - table5$Big.Low)
+rownames(umdbig) <- periods
+colnames(umdbig) <- "UMD Big"
+umdbig
+
+#by this point I hope you can do the Value piece of table 5 on your own
+#if you really can't figure it out, let me know
+```

@@ -11,8 +11,8 @@
 
 
 require(gdata)
-require(PerformanceAnalytics)
-require(factorAnalytics)
+#require(PerformanceAnalytics)
+#require(factorAnalytics)
 require(quantmod)
 require(reshape2)
 require(rCharts)
