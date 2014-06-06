@@ -174,11 +174,15 @@ table1 <- rbind(
 
 d1 <- dPlot(
   y = "value",
-  x = c("Metric","Sample","factor"),
+  x = c("Metric","Sample"),
   groups = c("Metric","factor"),
   data = table1,
   type = "line",
-  yAxis = list( outputFormat = "0.2%" )
+  yAxis = list( outputFormat = "0.2%" ),
+  defaultColors = "#!d3.scale.category10()!#"
+)
+d1$setTemplate(
+  script = "./chart_assignColors.html"
 )
 d1$show("static")
 
@@ -190,7 +194,7 @@ d1$show("static")
 ```{r}
 #ok Table 1 matches so now let's move on to other calculations
 #Table 2
-do.call(rbind,lapply(
+table2.1year <-  do.call(rbind,lapply(
   periods,
   function(x){
     df <- data.frame(lapply(
@@ -202,7 +206,31 @@ do.call(rbind,lapply(
   }
 ))
 
-do.call(rbind,lapply(
+table2 <- melt(
+  data.frame(
+    Sample = rownames(table2.1year),
+    table2.1year
+  ),  
+  id.vars = "Sample",
+  variable.name = "factor"
+)
+
+d2 <- dPlot(
+  y = "value",
+  x = c("Sample","factor"),
+  groups = c("Sample","factor"),
+  data = table2,
+  type = "bar",
+  xAxis = list( orderRule = "Sample" ),
+  yAxis = list( outputFormat = ".1%" ),
+  defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#"
+)
+d2$setTemplate(
+  script = "./chart_assignColors.html"
+)
+d2$show('static')
+
+table2.5year <- do.call(rbind,lapply(
   periods,
   function(x){
     df <- data.frame(lapply(
