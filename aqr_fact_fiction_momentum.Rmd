@@ -38,8 +38,8 @@ h1,h2,h3,h4 {
 
 ```{r echo = F, warning=F, error=F, message=F}
 require(knitr)
-opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
-options(rcharts.mode="inline")
+opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F, echo = F)
+options(rcharts.mode="iframesrc")
 ```
 
 It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoy this fine working paper on momentum.
@@ -51,20 +51,21 @@ available at <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323
 May 9, 2014<br>
 </blockquote>
 
-I have had it in an open Chrome tab since the day it was posted to SSRN.  Since the data was available and the math was understandable, I intended to attempt a replication in R and then add some [rCharts](http://rcharts.io).
+I have had it in an open Chrome tab since the day it was posted to SSRN. Even after reading a couple of times, I left it open intending to attempt a replication in R since the data was available, the math was understandable, and the topic was interesing.  Beyond a simple replication, I also wanted to add some [rCharts](http://rcharts.io) and [slidify](http://slidify.io).  Below is a fairly complete replication of myths 1 - 3.  I have chosen `echo = F` to hide most of the code.  If you would like to see the code and replicate for yourself, please see the [Github repository](https://github.com/timelyportfolio/rCharts_factor_analytics/).
 
 
 ---
 ### Data Source
 
-Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) will be our data source. We will use the monthly data files.  The below code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.
+Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) will be our data source. We will use the monthly data files.  My code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.
 
 
-```{r eval = F}
+```{r eval = F, echo = F}
 require(reshape2)
 require(quantmod)
 require(PerformanceAnalytics)
 require(rCharts)
+require(Gmisc)
 
 #use monthly French data to replicate research on momentum in R
 # data source : Kenneth French Data Library
@@ -123,6 +124,14 @@ french_factors_xts <- french_factors_xts/100
 ---
 ### Table 1
 
+For Table 1 the authors try to dispel the notion
+
+<blockquote>
+Myth #1: Momentum returns are too “small and sporadic”.
+</blockquote>
+
+Instead of a table I thought some [rCharts](http://rcharts.io) + [dimplejs](http://dimplejs.org) for an interactive table might help visualize the annualized returns and Sharpe ratios of each of the four factors.
+
 ```{r}
 #test our numbers
 #these are the sample periods
@@ -144,7 +153,7 @@ table1 <- melt(
   variable.name = "factor"
 )
 
-table2.sharpe <- t(do.call(cbind,lapply(
+table1.sharpe <- t(do.call(cbind,lapply(
   periods,
   function(x){
     df <- data.frame(
@@ -163,9 +172,9 @@ table1 <- rbind(
   table1,
   melt(
     data.frame(
-      Sample = rownames(table1.returns),
-      table1.returns,
-      Metric = rep("Sharpe",nrow(table1.returns))
+      Sample = rownames(table1.sharpe),
+      table1.sharpe,
+      Metric = rep("Sharpe",nrow(table1.sharpe))
     ),
     id.vars = c("Sample","Metric"),
     variable.name = "factor"
@@ -178,15 +187,20 @@ d1 <- dPlot(
   groups = c("Metric","factor"),
   data = table1,
   type = "line",
+  xAxis = list( orderRule = "Sample" ),
   yAxis = list( outputFormat = "0.2%" ),
-  defaultColors = "#!d3.scale.category10()!#"
+  defaultColors = "#!d3.scale.category10()!#",
+  height = 350,
+  width = 750
 )
 d1$setTemplate(
   script = "./chart_assignColors.html"
 )
-d1$show("static")
+d1
 
 ```
+
+Combining Sharpe and return on the same chart is not ideal, but I thought it would demonstrate some of the power of dimplejs.  A facetted approach or separate (small-multiples) charts here would work much better since the scales are so different.
 
 ---
 ### Table 2
@@ -214,7 +228,22 @@ table2 <- melt(
   id.vars = "Sample",
   variable.name = "factor"
 )
+```
 
+For Table 2 which also seeks to refute the "small and sporadic" Myth #1, we can employ the [Gmisc](http://gforge.se/gmisc/) package to easily produce a fairly good looking HTML table.
+
+```{r}
+htmlTable(
+  round(table2.1year * 100,2),
+  align = c('c',rep('r',ncol(table2.1year))),
+  title = "Sample",
+  caption = "Table 2: Probability of 1 Year Positive Returns"
+)
+```
+<br>
+I will not produce a chart for every table, but I feel like a couple more will not hurt anything.  As in the previous chart, this will use rCharts and dimplejs.
+
+```{r}
 d2 <- dPlot(
   y = "value",
   x = c("Sample","factor"),
@@ -223,13 +252,18 @@ d2 <- dPlot(
   type = "bar",
   xAxis = list( orderRule = "Sample" ),
   yAxis = list( outputFormat = ".1%" ),
-  defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#"
+  defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#",
+  height= 350
 )
 d2$setTemplate(
   script = "./chart_assignColors.html"
 )
-d2$show('static')
+d2
+```
 
+Now for the right half of Table 2 which shows the probability of 5 year positive returns, let's do the same thing with a table and then a chart.
+
+```{r}
 table2.5year <- do.call(rbind,lapply(
   periods,
   function(x){
@@ -241,14 +275,62 @@ table2.5year <- do.call(rbind,lapply(
     return(df)
   }
 ))
+
+table2 <- melt(
+  data.frame(
+    Sample = rownames(table2.1year),
+    table2.1year
+  ),  
+  id.vars = "Sample",
+  variable.name = "factor"
+)
+
+htmlTable(
+  round(table2.5year * 100,2),
+  align = c('c',rep('r',ncol(table2.5year))),
+  title = "Sample",
+  caption = "Table 2: Probability of 5 Year Positive Returns"
+)
 ```
+
+<br>
+I have been using `iframesrc` mode with rCharts, but for example purposes, I will show this next chart with `inline`. `inline` can be cleaner but with multiple charts and especially multiple libraries can be problematic with conflicts.
+
+```{r}
+d2 <- dPlot(
+  y = "value",
+  x = c("Sample","factor"),
+  groups = c("Sample","factor"),
+  data = table2,
+  type = "bar",
+  xAxis = list( orderRule = "Sample" ),
+  yAxis = list( outputFormat = ".1%" ),
+  defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#",
+  height = 350
+)
+d2$setTemplate(
+  script = "./chart_assignColors.html"
+)
+d2$show("inline")
+```
+
 
 ---
 ### Table 3
 
+Table 3 offers even more proof for the arguments against "small and sporadic".  It blends pieces of Table 2 with the Sharpe Ratio and probability of positive returns on a portfolio of 60% HML (Value) and 40% UMD (Momentum).  This simple portfolio produces very solid results and inspires me to further my exploration of the rebalancing concept introduced in my post [Unsolved Mysteries of Rebalancing](http://timelyportfolio.blogspot.com/2014/02/unsolved-mysteries-of-rebalancing.html).
+
 ```{r}
 #Table 3
-SharpeRatio.annualized(
+
+#start table 3 with data from table2
+table3 <- data.frame(t(data.frame(
+  table1.sharpe[1,],
+  t(table2.1year[1,]),
+  t(table2.5year[1,])
+)))
+
+sr <- as.vector(SharpeRatio.annualized(
   apply(
     french_factors_xts[periods[1],c(3,5)],
     MARGIN = 1,
@@ -256,29 +338,42 @@ SharpeRatio.annualized(
   ),
   Rf = 0,
   geometric=F
+))
+
+table3$HML60_UMB40 <- c(
+  sr,
+  sapply(
+    c(12,60),
+    function(width){
+      y = rollapply(
+        apply(
+          french_factors_xts[,c(3,5)],
+          MARGIN = 1,
+          function(x){ x[1] * 0.6 + x[2] * 0.4}
+        ),
+        width = width,
+        by = 1,
+        FUN = Return.cumulative,
+        geometric=F
+      )
+      return(sum(na.omit(y)>=0)/length(na.omit(y)))
+    }
+  )
 )
 
-lapply(
-  c(12,60),
-  function(width){
-    y = rollapply(
-      apply(
-        french_factors_xts[,c(3,5)],
-        MARGIN = 1,
-        function(x){ x[1] * 0.6 + x[2] * 0.4}
-      ),
-      width = width,
-      by = 1,
-      FUN = Return.cumulative,
-      geometric=F
-    )
-    return(sum(na.omit(y)>=0)/length(na.omit(y)))
-  }
+htmlTable(
+  format(round(table3,2),digits=2),
+  align = c('c',rep('c',ncol(table2.5year))),
+  title = NULL,
+  rowname = c("Sharpe Ratios", "% Positive, 1-year Rolling", "% Positive, 5-year Rolling"),
+  caption = "Table 3: 1927 - 2013"
 )
 ```
 
 ---
 ### More French Data
+
+We will need to pull in some more French data to work through the next set of tables.  This data [6 Portfolios Formed Monthly on Size (3) x Momentum (2)](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_6_port_form_sz_pr_12_2.html) will allow us to decompose the momentum factor into short and long buckets and also small and large size buckets.
 
 ```{r eval = F}
 #Table 4
@@ -337,9 +432,19 @@ french_short_long_xts <- merge(
 
 ---
 ### Table 4
+
+Now that we have the additional French data, we can replicate the authors` attempt to disprove
+
+<blockquote>
+Myth #2: Momentum cannot be captured by long-only investors as “momentum can only be exploited on the short side”.
+</blockquote>
+
+My numbers differ slightly on the market-adjusted returns (left half), but are close enough to think that the approach is the same.
+
+
 ```{r}
 #UMD market-adjusted returns (alpha)
-do.call(rbind,lapply(
+table4.lefthalf <- do.call(rbind,lapply(
   periods,
   function(period){
     df <- data.frame(
@@ -361,7 +466,7 @@ do.call(rbind,lapply(
 ))
 
 #UMD returns minus market
-do.call(rbind,lapply(
+table4.righthalf <- do.call(rbind,lapply(
   periods,
   function(period){
     df <- data.frame(
@@ -383,10 +488,37 @@ do.call(rbind,lapply(
     return(df)
   }
 ))
+
+table4 <- cbind(
+  table4.lefthalf,
+  table4.lefthalf$longside/table4.lefthalf$UMD,
+  table4.righthalf,
+  table4.righthalf$longside/table4.righthalf$UMD
+)
+
+htmlTable(
+  format(round(table4 * 100, 2),digits=3),
+  caption = "Table 4",
+  title = "Sample",
+  align = rep("c", ncol(table4) + 1),
+  headings = rep(c("Short Side","Long Side","UMD", "% Long"),2),
+  cgroup = c("UMD market-adjusted returns","UMD returns minus market"),
+  n.cgroup = c(4,4)
+)
+
 ```
 
 ---
 ### Table 5
+
+The last myth that we will tackle here, but only the 3rd of 10 myths in the paper, is
+
+<blockquote>
+Myth #3: Momentum is much stronger among small cap stocks than large caps.
+</blockquote>
+
+We will use the same French data (HML (3) x SMB (2)) from Table 4 to replicate Table 5.  I will leave the right half (Value) of this table as homework.
+
 
 ```{r}
 #table 5
@@ -405,14 +537,43 @@ table5 <- do.call(rbind,lapply(
 umdsmall <- data.frame(table5$Small.High - table5$Small.Low)
 rownames(umdsmall) <- periods
 colnames(umdsmall) <- "UMD Small"
-umdsmall
 
 #umd big
 umdbig <- data.frame(table5$Big.High - table5$Big.Low)
 rownames(umdbig) <- periods
 colnames(umdbig) <- "UMD Big"
-umdbig
+
+table5 <- cbind(
+  umdsmall,
+  umdbig,
+  data.frame(table1.returns)[,4,drop=F]
+)
+
+table5[,3] <- as.numeric(table5[,3])
+
+htmlTable(
+  format(round(table5 * 100, 2),digits = 3),
+  caption = "Table 5",
+  title = "Sample",
+  align = rep("c", ncol(table4) + 1),
+  cgroup = c("Momentum"),
+  n.cgroup = ncol(table5)
+)
 
 #by this point I hope you can do the Value piece of table 5 on your own
 #if you really can't figure it out, let me know
 ```
+
+---
+### Thanks
+As I hope you can tell, this post was more a function of the efforts of others than of my own.
+
+Thanks specifically:
+- [Kenneth French](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/) for his very generous [data library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html)
+- [the AQR research factory](http://www.aqr.com/) for this and all their other research
+- [Ramnath Vaidyanathan](http://ramnathv.github.io/) for [rCharts](http://rcharts.io/site) and [slidify](http://slidify.org).
+- [John Kiernander](https://twitter.com/jkiernander) for [dimplejs](http://dimplejs.org)
+- Nameless Fixed Income Shop for the original chart.
+- [Mike Bostock](http://bost.ocks.org/mike/) for everything.
+- [Marcello Palmitessa](http://aozora.github.io/bootplus/) for the Bootplus framework.
+- Google fonts [Raleway](http://www.google.com/fonts/specimen/Raleway) and [Oxygen](http://www.google.com/fonts/specimen/Oxygen)

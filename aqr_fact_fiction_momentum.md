@@ -48,383 +48,978 @@ available at <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323
 May 9, 2014<br>
 </blockquote>
 
-I have had it in an open Chrome tab since the day it was posted to SSRN.  Since the data was available and the math was understandable, I intended to attempt a replication in R and then add some [rCharts](http://rcharts.io).
+I have had it in an open Chrome tab since the day it was posted to SSRN. Even after reading a couple of times, I left it open intending to attempt a replication in R since the data was available, the math was understandable, and the topic was interesing.  Beyond a simple replication, I also wanted to add some [rCharts](http://rcharts.io) and [slidify](http://slidify.io).  Below is a fairly complete replication of myths 1 - 3.  I have chosen `echo = F` to hide most of the code.  If you would like to see the code and replicate for yourself, please see the [Github repository](https://github.com/timelyportfolio/rCharts_factor_analytics/).
 
 
 ---
 ### Data Source
 
-Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) will be our data source. We will use the monthly data files.  The below code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.
+Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) will be our data source. We will use the monthly data files.  My code to retrieve these is ugly.  Feel free to functionalize it if you have the desire.
 
 
 
-```r
-require(quantmod)
-require(PerformanceAnalytics)
-
-#use monthly French data to replicate research on momentum in R
-# data source : Kenneth French Data Library
-#               http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html 
-# paper       : Fact, Fiction and Momentum Investing
-#               Asness, Clifford S. and Frazzini, Andrea and Israel, Ronen and Moskowitz, Tobias J.
-#               May 9, 2014
-#               http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2435323
-
-#gather french factor data
-my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors.zip"
-my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
-my.usefile<-paste(tempdir(),"\\F-F_Research_Data_Factors.txt",sep="")
-download.file(my.url, my.tempfile, method="auto", 
-              quiet = FALSE, mode = "wb",cacheOK = TRUE)
-unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
-#read space delimited text file extracted from zip
-french_factors <- read.table(file=my.usefile,
-                             header = TRUE, sep = "",
-                             as.is = TRUE,
-                             skip = 3, nrows=1054)
-#get xts for analysis
-french_factors_xts <- as.xts(
-  french_factors,
-  order.by=as.Date(
-    paste0(rownames(french_factors),"01"),
-    format="%Y%m%d"
-  )
-)
-
-#now get the momentum factor
-my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor.zip"
-my.usefile<-paste(tempdir(),"\\F-F_Momentum_Factor.txt",sep="")
-download.file(my.url, my.tempfile, method="auto", 
-              quiet = FALSE, mode = "wb",cacheOK = TRUE)
-unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
-#read space delimited text file extracted from zip
-french_momentum <- read.table(file=my.usefile,
-                              header = TRUE, sep = "",
-                              as.is = TRUE,
-                              skip = 12, nrows=1048)
-#get xts for analysis
-french_momentum_xts <- as.xts(
-  french_momentum,
-  order.by=as.Date(
-    paste(rownames(french_momentum),"01"),
-    format="%Y%m%d"
-  )
-)
-
-#merge UMD (momentum) with other french factors
-french_factors_xts <- na.omit( merge( french_factors_xts, french_momentum_xts ) )
-french_factors_xts <- french_factors_xts/100
-```
 
 
 ---
 ### Table 1
 
+For Table 1 the authors try to dispel the notion
 
-```r
-#test our numbers
-periods <- c("1927::2013","1963::2013","1991::2013")
-t(sapply(
-  periods,
-  function(x){
-    return(data.frame(Return.annualized(french_factors_xts[x,-4],geometric=F)))
+<blockquote>
+Myth #1: Momentum returns are too “small and sporadic”.
+</blockquote>
+
+Instead of a table I thought some [rCharts](http://rcharts.io) + [dimplejs](http://dimplejs.org) for an interactive table might help visualize the annualized returns and Sharpe ratios of each of the four factors.
+
+<iframe srcdoc='
+&lt;!doctype HTML&gt;
+&lt;meta charset = &#039;utf-8&#039;&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/dimple.v1.1.5.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/d3.v3.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/d3-grid.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    
+    &lt;style&gt;
+    .rChart {
+      display: block;
+      margin-left: auto; 
+      margin-right: auto;
+      width: 750px;
+      height: 350px;
+    }  
+    &lt;/style&gt;
+    
+  &lt;/head&gt;
+  &lt;body &gt;
+    
+    &lt;div id = &#039;chart2c8c5e873a29&#039; class = &#039;rChart dimple&#039;&gt;&lt;/div&gt;    
+    &lt;script type=&quot;text/javascript&quot;&gt;
+  var opts = {
+ &quot;dom&quot;: &quot;chart2c8c5e873a29&quot;,
+&quot;width&quot;:    750,
+&quot;height&quot;:    350,
+&quot;xAxis&quot;: {
+ &quot;type&quot;: &quot;addCategoryAxis&quot;,
+&quot;showPercent&quot;: false,
+&quot;orderRule&quot;: &quot;Sample&quot; 
+},
+&quot;yAxis&quot;: {
+ &quot;type&quot;: &quot;addMeasureAxis&quot;,
+&quot;showPercent&quot;: false,
+&quot;outputFormat&quot;: &quot;0.2%&quot; 
+},
+&quot;zAxis&quot;: [],
+&quot;colorAxis&quot;: [],
+&quot;defaultColors&quot;: d3.scale.category10(),
+&quot;layers&quot;: [],
+&quot;legend&quot;: [],
+&quot;x&quot;: [ &quot;Metric&quot;, &quot;Sample&quot; ],
+&quot;y&quot;: &quot;value&quot;,
+&quot;groups&quot;: [ &quot;Metric&quot;, &quot;factor&quot; ],
+&quot;type&quot;: &quot;line&quot;,
+&quot;id&quot;: &quot;chart2c8c5e873a29&quot; 
+},
+    data = [{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.0773896551724138},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.0612137254901961},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.0819608695652174},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.028916091954023},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.0305588235294118},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.033095652173913},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.0473379310344828},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.0465235294117647},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.0356347826086957},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.0827873563218391},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.0838039215686275},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Returns&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.0629565217391304},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.411692428251598},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.394820934493365},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.542322271423246},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.257702121151328},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.284951058896001},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.286405383289072},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.388425642106854},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.468392978286452},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.321642362603434},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.501748105622016},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.570427696078849},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;Metric&quot;:&quot;Sharpe&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.359655722924321}];
+  var svg = dimple.newSvg(&quot;#&quot; + opts.id, opts.width, opts.height);
+
+  //data = dimple.filterData(data, &quot;Owner&quot;, [&quot;Aperture&quot;, &quot;Black Mesa&quot;])
+  var myChart = new dimple.chart(svg, data);
+  if (opts.bounds) {
+    myChart.setBounds(opts.bounds.x, opts.bounds.y, opts.bounds.width, opts.bounds.height);//myChart.setBounds(80, 30, 480, 330);
   }
-))
-```
-
-           Mkt.RF  SMB     HML     Mom    
-1927::2013 0.07739 0.02892 0.04734 0.08279
-1963::2013 0.06121 0.03056 0.04652 0.0838 
-1991::2013 0.08196 0.0331  0.03563 0.06296
-
-```r
-t(do.call(cbind,lapply(
-  periods,
-  function(x){
-    df <- data.frame(
-      SharpeRatio.annualized(
-        french_factors_xts[x,-4],
-        Rf = 0,
-        geometric=F
-      )[1,]
-    )
-    colnames(df) <- x
-    return(df)
+  //dimple allows use of custom CSS with noFormats
+  if(opts.noFormats) { myChart.noFormats = opts.noFormats; };
+  //for markimekko and addAxis also have third parameter measure
+  //so need to evaluate if measure provided
+  
+  //function to build axes
+  function buildAxis(position,layer){
+    var axis;
+    var axisopts = opts[position+&quot;Axis&quot;];
+    
+    if(axisopts.measure) {
+      axis = myChart[axisopts.type](position,layer[position],axisopts.measure);
+    } else {
+      axis = myChart[axisopts.type](position, layer[position]);
+    };
+    if(!(axisopts.type === &quot;addPctAxis&quot;)) axis.showPercent = axisopts.showPercent;
+    if (axisopts.orderRule) axis.addOrderRule(axisopts.orderRule);
+    if (axisopts.grouporderRule) axis.addGroupOrderRule(axisopts.grouporderRule);  
+    if (axisopts.overrideMin) axis.overrideMin = axisopts.overrideMin;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.inputFormat) axis.dateParseFormat = axisopts.inputFormat;
+    if (axisopts.outputFormat) axis.tickFormat = axisopts.outputFormat;    
+    return axis;
+  };
+  
+  var c = null;
+  if(d3.keys(opts.colorAxis).length &gt; 0) {
+    c = myChart[opts.colorAxis.type](opts.colorAxis.colorSeries,opts.colorAxis.palette) ;
+    if(opts.colorAxis.outputFormat){
+      c.tickFormat = opts.colorAxis.outputFormat;
+    }
   }
-)))
-```
+  
+  //allow manipulation of default colors to use with dimple
+  if(opts.defaultColors.length) {
+    defaultColorsArray = [];
+    if (typeof(opts.defaultColors) == &quot;function&quot;) {
+      //assume this is a d3 scale
+      //if there is a domain for the color scale given
+      //then we will need to assign colors with dimples assignColor
+      if( opts.defaultColors.domain().length &gt; 0 ){
+        defaultColorsArray = opts.defaultColors.range();
+        opts.defaultColors.domain().forEach( function( d, i ) {
+          myChart.assignColor( d, opts.defaultColors.range()[i] )
+        })
+      } else {
+        for (var n=0;n&lt;opts.defaultColors.range().length;n++) {
+          defaultColorsArray.push(opts.defaultColors(n));
+        };
+      }
+    } else {
+      defaultColorsArray = opts.defaultColors;
+    }
 
-           Mkt.RF    SMB    HML    Mom
-1927::2013 0.4117 0.2577 0.3884 0.5017
-1963::2013 0.3948 0.2850 0.4684 0.5704
-1991::2013 0.5423 0.2864 0.3216 0.3597
+    myChart.defaultColors = defaultColorsArray.map(function(d) {
+      return new dimple.color(d);
+    });
+  }  
+  
+  //do series
+  //set up a function since same for each
+  //as of now we have x,y,groups,data,type in opts for primary layer
+  //and other layers reside in opts.layers
+  function buildSeries(layer, hidden){
+    //inherit from primary layer if not intentionally changed or xAxis, yAxis, zAxis null
+    if (!layer.xAxis) layer.xAxis = opts.xAxis;    
+    if (!layer.yAxis) layer.yAxis = opts.yAxis;
+    if (!layer.zAxis) layer.zAxis = opts.zAxis;
+    
+    var x = buildAxis(&quot;x&quot;, layer);
+    x.hidden = hidden;
+    
+    var y = buildAxis(&quot;y&quot;, layer);
+    y.hidden = hidden;
+    
+    //z for bubbles
+    var z = null;
+    if (!(typeof(layer.zAxis) === &#039;undefined&#039;) &amp;&amp; layer.zAxis.type){
+      z = buildAxis(&quot;z&quot;, layer);
+    };
+    
+    //here think I need to evaluate group and if missing do null
+    //as the group argument
+    //if provided need to use groups from layer
+    var s = new dimple.series(myChart, null, x, y, z, c, dimple.plot[layer.type], dimple.aggregateMethod.avg, dimple.plot[layer.type].stacked);
+    
+    //as of v1.1.4 dimple can use different dataset for each series
+    if(layer.data){
+      //convert to an array of objects
+      var tempdata;
+      //avoid lodash for now
+      datakeys = d3.keys(layer.data)
+      tempdata = layer.data[datakeys[1]].map(function(d,i){
+        var tempobj = {}
+        datakeys.forEach(function(key){
+          tempobj[key] = layer.data[key][i]
+        })
+        return tempobj
+      })
+      s.data = tempdata;
+    }
+    
+    if(layer.hasOwnProperty(&quot;groups&quot;)) {
+      s.categoryFields = (typeof layer.groups === &quot;object&quot;) ? layer.groups : [layer.groups];
+      //series offers an aggregate method that we will also need to check if available
+      //options available are avg, count, max, min, sum
+    }
+    if (!(typeof(layer.aggregate) === &#039;undefined&#039;)) {
+      s.aggregate = eval(layer.aggregate);
+    }
+    if (!(typeof(layer.lineWeight) === &#039;undefined&#039;)) {
+      s.lineWeight = eval(layer.lineWeight);
+    }
+    if (!(typeof(layer.barGap) === &#039;undefined&#039;)) {
+      s.barGap = eval(layer.barGap);
+    }    
+  
+   /* if (!(typeof(layer.eventHandler) === &#039;undefined&#039;)) {
+      layer.eventHandler = (layer.eventHandler.length === &quot;undefined&quot;) ? layer.eventHandler : [layer.eventHandler];
+      layer.eventHandler.forEach(function(evt){
+        s.addEventHandler(evt.event, eval(evt.handler))
+      })
+    }*/
+      
+    myChart.series.push(s);
+    
+    /*placeholder fix domain of primary scale for new series data
+    //not working right now but something like this
+    //for now just use overrideMin and overrideMax from rCharts
+    for( var i = 0; i&lt;2; i++) {
+      if (!myChart.axes[i].overrideMin) {
+        myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min = myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min &lt; s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min ? myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min : s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min;
+      }
+      if (!myChart.axes[i].overrideMax) {  
+        myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;)._max = myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max &gt; s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max ? myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max : s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max;
+      }
+      myChart.axes[i]._update();
+    }
+    */
+    
+    return s;
+  };
+  
+  buildSeries(opts, false);
+  if (opts.layers.length &gt; 0) {
+    opts.layers.forEach(function(layer){
+      buildSeries(layer, true);
+    })
+  }
+  //unsure if this is best but if legend is provided (not empty) then evaluate
+  if(d3.keys(opts.legend).length &gt; 0) {
+    var l =myChart.addLegend();
+    d3.keys(opts.legend).forEach(function(d){
+      l[d] = opts.legend[d];
+    });
+  }
+  //quick way to get this going but need to make this cleaner
+  if(opts.storyboard) {
+    myChart.setStoryboard(opts.storyboard);
+  };
+  myChart.draw();
 
+&lt;/script&gt;
+    
+    &lt;script&gt;&lt;/script&gt;    
+  &lt;/body&gt;
+&lt;/html&gt;
+' scrolling='no' seamless class='rChart 
+dimple
+ '
+id='iframe-chart2c8c5e873a29'>
+</iframe>
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+
+Combining Sharpe and return on the same chart is not ideal, but I thought it would demonstrate some of the power of dimplejs.  A facetted approach or separate (small-multiples) charts here would work much better since the scales are so different.
 
 ---
 ### Table 2
 
 
-```r
-#ok Table 1 matches so now let's move on to other calculations
-#Table 2
-do.call(rbind,lapply(
-  periods,
-  function(x){
-    df <- data.frame(lapply(
-      rollapply(french_factors_xts[x,-4], width = 12, by = 1, FUN = Return.cumulative, geometric=F),
-      function(y){sum(na.omit(y)>=0)/nrow(na.omit(y))}
-    ))
-    rownames(df) <- x
-    return(df)
+
+
+For Table 2 which also seeks to refute the "small and sporadic" Myth #1, we can employ the [Gmisc](http://gforge.se/gmisc/) package to easily produce a fairly good looking HTML table.
+
+<table class='gmisc_table' style='border-collapse: collapse;' >
+	<thead>
+	<tr><td colspan='5' style='text-align: left;'>
+	Table 2: Probability of 1 Year Positive Returns</td></tr>
+	<tr>
+		<th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Sample</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mkt.RF</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>SMB</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>HML</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mom</th>
+	</tr>
+	</thead><tbody>
+	<tr>
+		<td style='text-align: center;'>1927::2013</td>
+		<td style='text-align: right;'>70.96</td>
+		<td style='text-align: right;'>58.08</td>
+		<td style='text-align: right;'>63.41</td>
+		<td style='text-align: right;'>80.54</td>
+	</tr>
+	<tr>
+		<td style='text-align: center;'>1963::2013</td>
+		<td style='text-align: right;'>71.88</td>
+		<td style='text-align: right;'>60.07</td>
+		<td style='text-align: right;'>64.23</td>
+		<td style='text-align: right;'>80.03</td>
+	</tr>
+	<tr>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>1991::2013</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>78.11</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>61.89</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>61.13</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>75.85</td>
+	</tr>
+	</tbody>
+</table>
+
+<br>
+I will not produce a chart for every table, but I feel like a couple more will not hurt anything.  As in the previous chart, this will use rCharts and dimplejs.
+
+<iframe srcdoc='
+&lt;!doctype HTML&gt;
+&lt;meta charset = &#039;utf-8&#039;&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/dimple.v1.1.5.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/d3.v3.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    &lt;script src=&#039;C:/Program Files/R/R-3.0.2/library/rCharts/libraries/dimple/js/d3-grid.js&#039; type=&#039;text/javascript&#039;&gt;&lt;/script&gt;
+    
+    &lt;style&gt;
+    .rChart {
+      display: block;
+      margin-left: auto; 
+      margin-right: auto;
+      width: 800px;
+      height: 350px;
+    }  
+    &lt;/style&gt;
+    
+  &lt;/head&gt;
+  &lt;body &gt;
+    
+    &lt;div id = &#039;chart2c8c3eba51e8&#039; class = &#039;rChart dimple&#039;&gt;&lt;/div&gt;    
+    &lt;script type=&quot;text/javascript&quot;&gt;
+  var opts = {
+ &quot;dom&quot;: &quot;chart2c8c3eba51e8&quot;,
+&quot;width&quot;:    800,
+&quot;height&quot;:    350,
+&quot;xAxis&quot;: {
+ &quot;type&quot;: &quot;addCategoryAxis&quot;,
+&quot;showPercent&quot;: false,
+&quot;orderRule&quot;: &quot;Sample&quot; 
+},
+&quot;yAxis&quot;: {
+ &quot;type&quot;: &quot;addMeasureAxis&quot;,
+&quot;showPercent&quot;: false,
+&quot;outputFormat&quot;: &quot;.1%&quot; 
+},
+&quot;zAxis&quot;: [],
+&quot;colorAxis&quot;: [],
+&quot;defaultColors&quot;: d3.scale.ordinal().range([&#039;#196396&#039;,&#039;#d56a0b&#039;,&#039;#9d9e1c&#039;,&#039;#139ead&#039;]).domain([&#039;SMB&#039;,&#039;Mom&#039;,&#039;HML&#039;,&#039;Mkt.RF&#039;]),
+&quot;layers&quot;: [],
+&quot;legend&quot;: [],
+&quot;x&quot;: [ &quot;Sample&quot;, &quot;factor&quot; ],
+&quot;y&quot;: &quot;value&quot;,
+&quot;groups&quot;: [ &quot;Sample&quot;, &quot;factor&quot; ],
+&quot;type&quot;: &quot;bar&quot;,
+&quot;id&quot;: &quot;chart2c8c3eba51e8&quot; 
+},
+    data = [{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.709583736689255},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.718801996672213},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;factor&quot;:&quot;Mkt.RF&quot;,&quot;value&quot;:0.781132075471698},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.580832526621491},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.600665557404326},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;factor&quot;:&quot;SMB&quot;,&quot;value&quot;:0.618867924528302},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.634075508228461},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.642262895174709},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;factor&quot;:&quot;HML&quot;,&quot;value&quot;:0.611320754716981},{&quot;Sample&quot;:&quot;1927::2013&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.805421103581801},{&quot;Sample&quot;:&quot;1963::2013&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.800332778702163},{&quot;Sample&quot;:&quot;1991::2013&quot;,&quot;factor&quot;:&quot;Mom&quot;,&quot;value&quot;:0.758490566037736}];
+  var svg = dimple.newSvg(&quot;#&quot; + opts.id, opts.width, opts.height);
+
+  //data = dimple.filterData(data, &quot;Owner&quot;, [&quot;Aperture&quot;, &quot;Black Mesa&quot;])
+  var myChart = new dimple.chart(svg, data);
+  if (opts.bounds) {
+    myChart.setBounds(opts.bounds.x, opts.bounds.y, opts.bounds.width, opts.bounds.height);//myChart.setBounds(80, 30, 480, 330);
   }
-))
-```
-
-           Mkt.RF    SMB    HML    Mom
-1927::2013 0.7096 0.5808 0.6341 0.8054
-1963::2013 0.7188 0.6007 0.6423 0.8003
-1991::2013 0.7811 0.6189 0.6113 0.7585
-
-```r
-
-do.call(rbind,lapply(
-  periods,
-  function(x){
-    df <- data.frame(lapply(
-      rollapply(french_factors_xts[x,-4], width = 60, by = 1, FUN = Return.cumulative, geometric=F),
-      function(y){sum(na.omit(y)>=0)/nrow(na.omit(y))}
-    ))
-    rownames(df) <- x
-    return(df)
+  //dimple allows use of custom CSS with noFormats
+  if(opts.noFormats) { myChart.noFormats = opts.noFormats; };
+  //for markimekko and addAxis also have third parameter measure
+  //so need to evaluate if measure provided
+  
+  //function to build axes
+  function buildAxis(position,layer){
+    var axis;
+    var axisopts = opts[position+&quot;Axis&quot;];
+    
+    if(axisopts.measure) {
+      axis = myChart[axisopts.type](position,layer[position],axisopts.measure);
+    } else {
+      axis = myChart[axisopts.type](position, layer[position]);
+    };
+    if(!(axisopts.type === &quot;addPctAxis&quot;)) axis.showPercent = axisopts.showPercent;
+    if (axisopts.orderRule) axis.addOrderRule(axisopts.orderRule);
+    if (axisopts.grouporderRule) axis.addGroupOrderRule(axisopts.grouporderRule);  
+    if (axisopts.overrideMin) axis.overrideMin = axisopts.overrideMin;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.inputFormat) axis.dateParseFormat = axisopts.inputFormat;
+    if (axisopts.outputFormat) axis.tickFormat = axisopts.outputFormat;    
+    return axis;
+  };
+  
+  var c = null;
+  if(d3.keys(opts.colorAxis).length &gt; 0) {
+    c = myChart[opts.colorAxis.type](opts.colorAxis.colorSeries,opts.colorAxis.palette) ;
+    if(opts.colorAxis.outputFormat){
+      c.tickFormat = opts.colorAxis.outputFormat;
+    }
   }
-))
-```
+  
+  //allow manipulation of default colors to use with dimple
+  if(opts.defaultColors.length) {
+    defaultColorsArray = [];
+    if (typeof(opts.defaultColors) == &quot;function&quot;) {
+      //assume this is a d3 scale
+      //if there is a domain for the color scale given
+      //then we will need to assign colors with dimples assignColor
+      if( opts.defaultColors.domain().length &gt; 0 ){
+        defaultColorsArray = opts.defaultColors.range();
+        opts.defaultColors.domain().forEach( function( d, i ) {
+          myChart.assignColor( d, opts.defaultColors.range()[i] )
+        })
+      } else {
+        for (var n=0;n&lt;opts.defaultColors.range().length;n++) {
+          defaultColorsArray.push(opts.defaultColors(n));
+        };
+      }
+    } else {
+      defaultColorsArray = opts.defaultColors;
+    }
 
-           Mkt.RF    SMB    HML    Mom
-1927::2013 0.8173 0.6497 0.8853 0.8761
-1963::2013 0.7703 0.6510 0.8752 0.8879
-1991::2013 0.7327 0.7465 0.7419 0.7143
+    myChart.defaultColors = defaultColorsArray.map(function(d) {
+      return new dimple.color(d);
+    });
+  }  
+  
+  //do series
+  //set up a function since same for each
+  //as of now we have x,y,groups,data,type in opts for primary layer
+  //and other layers reside in opts.layers
+  function buildSeries(layer, hidden){
+    //inherit from primary layer if not intentionally changed or xAxis, yAxis, zAxis null
+    if (!layer.xAxis) layer.xAxis = opts.xAxis;    
+    if (!layer.yAxis) layer.yAxis = opts.yAxis;
+    if (!layer.zAxis) layer.zAxis = opts.zAxis;
+    
+    var x = buildAxis(&quot;x&quot;, layer);
+    x.hidden = hidden;
+    
+    var y = buildAxis(&quot;y&quot;, layer);
+    y.hidden = hidden;
+    
+    //z for bubbles
+    var z = null;
+    if (!(typeof(layer.zAxis) === &#039;undefined&#039;) &amp;&amp; layer.zAxis.type){
+      z = buildAxis(&quot;z&quot;, layer);
+    };
+    
+    //here think I need to evaluate group and if missing do null
+    //as the group argument
+    //if provided need to use groups from layer
+    var s = new dimple.series(myChart, null, x, y, z, c, dimple.plot[layer.type], dimple.aggregateMethod.avg, dimple.plot[layer.type].stacked);
+    
+    //as of v1.1.4 dimple can use different dataset for each series
+    if(layer.data){
+      //convert to an array of objects
+      var tempdata;
+      //avoid lodash for now
+      datakeys = d3.keys(layer.data)
+      tempdata = layer.data[datakeys[1]].map(function(d,i){
+        var tempobj = {}
+        datakeys.forEach(function(key){
+          tempobj[key] = layer.data[key][i]
+        })
+        return tempobj
+      })
+      s.data = tempdata;
+    }
+    
+    if(layer.hasOwnProperty(&quot;groups&quot;)) {
+      s.categoryFields = (typeof layer.groups === &quot;object&quot;) ? layer.groups : [layer.groups];
+      //series offers an aggregate method that we will also need to check if available
+      //options available are avg, count, max, min, sum
+    }
+    if (!(typeof(layer.aggregate) === &#039;undefined&#039;)) {
+      s.aggregate = eval(layer.aggregate);
+    }
+    if (!(typeof(layer.lineWeight) === &#039;undefined&#039;)) {
+      s.lineWeight = eval(layer.lineWeight);
+    }
+    if (!(typeof(layer.barGap) === &#039;undefined&#039;)) {
+      s.barGap = eval(layer.barGap);
+    }    
+  
+   /* if (!(typeof(layer.eventHandler) === &#039;undefined&#039;)) {
+      layer.eventHandler = (layer.eventHandler.length === &quot;undefined&quot;) ? layer.eventHandler : [layer.eventHandler];
+      layer.eventHandler.forEach(function(evt){
+        s.addEventHandler(evt.event, eval(evt.handler))
+      })
+    }*/
+      
+    myChart.series.push(s);
+    
+    /*placeholder fix domain of primary scale for new series data
+    //not working right now but something like this
+    //for now just use overrideMin and overrideMax from rCharts
+    for( var i = 0; i&lt;2; i++) {
+      if (!myChart.axes[i].overrideMin) {
+        myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min = myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min &lt; s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min ? myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min : s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).min;
+      }
+      if (!myChart.axes[i].overrideMax) {  
+        myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;)._max = myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max &gt; s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max ? myChart.series[0]._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max : s._axisBounds(i==0?&quot;x&quot;:&quot;y&quot;).max;
+      }
+      myChart.axes[i]._update();
+    }
+    */
+    
+    return s;
+  };
+  
+  buildSeries(opts, false);
+  if (opts.layers.length &gt; 0) {
+    opts.layers.forEach(function(layer){
+      buildSeries(layer, true);
+    })
+  }
+  //unsure if this is best but if legend is provided (not empty) then evaluate
+  if(d3.keys(opts.legend).length &gt; 0) {
+    var l =myChart.addLegend();
+    d3.keys(opts.legend).forEach(function(d){
+      l[d] = opts.legend[d];
+    });
+  }
+  //quick way to get this going but need to make this cleaner
+  if(opts.storyboard) {
+    myChart.setStoryboard(opts.storyboard);
+  };
+  myChart.draw();
+
+&lt;/script&gt;
+    
+    &lt;script&gt;&lt;/script&gt;    
+  &lt;/body&gt;
+&lt;/html&gt;
+' scrolling='no' seamless class='rChart 
+dimple
+ '
+id='iframe-chart2c8c3eba51e8'>
+</iframe>
+<style>iframe.rChart{ width: 100%; height: 400px;}</style>
+
+
+Now for the right half of Table 2 which shows the probability of 5 year positive returns, let's do the same thing with a table and then a chart.
+
+<table class='gmisc_table' style='border-collapse: collapse;' >
+	<thead>
+	<tr><td colspan='5' style='text-align: left;'>
+	Table 2: Probability of 5 Year Positive Returns</td></tr>
+	<tr>
+		<th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Sample</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mkt.RF</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>SMB</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>HML</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mom</th>
+	</tr>
+	</thead><tbody>
+	<tr>
+		<td style='text-align: center;'>1927::2013</td>
+		<td style='text-align: right;'>81.73</td>
+		<td style='text-align: right;'>64.97</td>
+		<td style='text-align: right;'>88.53</td>
+		<td style='text-align: right;'>87.61</td>
+	</tr>
+	<tr>
+		<td style='text-align: center;'>1963::2013</td>
+		<td style='text-align: right;'>77.03</td>
+		<td style='text-align: right;'>65.1</td>
+		<td style='text-align: right;'>87.52</td>
+		<td style='text-align: right;'>88.79</td>
+	</tr>
+	<tr>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>1991::2013</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>73.27</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>74.65</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>74.19</td>
+		<td style='border-bottom: 1px solid grey; text-align: right;'>71.43</td>
+	</tr>
+	</tbody>
+</table>
+
+
+<br>
+I have been using `iframesrc` mode with rCharts, but for example purposes, I will show this next chart with `inline`. `inline` can be cleaner but with multiple charts and especially multiple libraries can be problematic with conflicts.
+
+
+<div id = 'chart2c8c6ad721a9' class = 'rChart dimple'></div>
+<script type="text/javascript">
+  var opts = {
+ "dom": "chart2c8c6ad721a9",
+"width":    800,
+"height":    350,
+"xAxis": {
+ "type": "addCategoryAxis",
+"showPercent": false,
+"orderRule": "Sample" 
+},
+"yAxis": {
+ "type": "addMeasureAxis",
+"showPercent": false,
+"outputFormat": ".1%" 
+},
+"zAxis": [],
+"colorAxis": [],
+"defaultColors": d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF']),
+"layers": [],
+"legend": [],
+"x": [ "Sample", "factor" ],
+"y": "value",
+"groups": [ "Sample", "factor" ],
+"type": "bar",
+"id": "chart2c8c6ad721a9" 
+},
+    data = [{"Sample":"1927::2013","factor":"Mkt.RF","value":0.709583736689255},{"Sample":"1963::2013","factor":"Mkt.RF","value":0.718801996672213},{"Sample":"1991::2013","factor":"Mkt.RF","value":0.781132075471698},{"Sample":"1927::2013","factor":"SMB","value":0.580832526621491},{"Sample":"1963::2013","factor":"SMB","value":0.600665557404326},{"Sample":"1991::2013","factor":"SMB","value":0.618867924528302},{"Sample":"1927::2013","factor":"HML","value":0.634075508228461},{"Sample":"1963::2013","factor":"HML","value":0.642262895174709},{"Sample":"1991::2013","factor":"HML","value":0.611320754716981},{"Sample":"1927::2013","factor":"Mom","value":0.805421103581801},{"Sample":"1963::2013","factor":"Mom","value":0.800332778702163},{"Sample":"1991::2013","factor":"Mom","value":0.758490566037736}];
+  var svg = dimple.newSvg("#" + opts.id, opts.width, opts.height);
+
+  //data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
+  var myChart = new dimple.chart(svg, data);
+  if (opts.bounds) {
+    myChart.setBounds(opts.bounds.x, opts.bounds.y, opts.bounds.width, opts.bounds.height);//myChart.setBounds(80, 30, 480, 330);
+  }
+  //dimple allows use of custom CSS with noFormats
+  if(opts.noFormats) { myChart.noFormats = opts.noFormats; };
+  //for markimekko and addAxis also have third parameter measure
+  //so need to evaluate if measure provided
+  
+  //function to build axes
+  function buildAxis(position,layer){
+    var axis;
+    var axisopts = opts[position+"Axis"];
+    
+    if(axisopts.measure) {
+      axis = myChart[axisopts.type](position,layer[position],axisopts.measure);
+    } else {
+      axis = myChart[axisopts.type](position, layer[position]);
+    };
+    if(!(axisopts.type === "addPctAxis")) axis.showPercent = axisopts.showPercent;
+    if (axisopts.orderRule) axis.addOrderRule(axisopts.orderRule);
+    if (axisopts.grouporderRule) axis.addGroupOrderRule(axisopts.grouporderRule);  
+    if (axisopts.overrideMin) axis.overrideMin = axisopts.overrideMin;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.inputFormat) axis.dateParseFormat = axisopts.inputFormat;
+    if (axisopts.outputFormat) axis.tickFormat = axisopts.outputFormat;    
+    return axis;
+  };
+  
+  var c = null;
+  if(d3.keys(opts.colorAxis).length > 0) {
+    c = myChart[opts.colorAxis.type](opts.colorAxis.colorSeries,opts.colorAxis.palette) ;
+    if(opts.colorAxis.outputFormat){
+      c.tickFormat = opts.colorAxis.outputFormat;
+    }
+  }
+  
+  //allow manipulation of default colors to use with dimple
+  if(opts.defaultColors.length) {
+    defaultColorsArray = [];
+    if (typeof(opts.defaultColors) == "function") {
+      //assume this is a d3 scale
+      //if there is a domain for the color scale given
+      //then we will need to assign colors with dimples assignColor
+      if( opts.defaultColors.domain().length > 0 ){
+        defaultColorsArray = opts.defaultColors.range();
+        opts.defaultColors.domain().forEach( function( d, i ) {
+          myChart.assignColor( d, opts.defaultColors.range()[i] )
+        })
+      } else {
+        for (var n=0;n<opts.defaultColors.range().length;n++) {
+          defaultColorsArray.push(opts.defaultColors(n));
+        };
+      }
+    } else {
+      defaultColorsArray = opts.defaultColors;
+    }
+
+    myChart.defaultColors = defaultColorsArray.map(function(d) {
+      return new dimple.color(d);
+    });
+  }  
+  
+  //do series
+  //set up a function since same for each
+  //as of now we have x,y,groups,data,type in opts for primary layer
+  //and other layers reside in opts.layers
+  function buildSeries(layer, hidden){
+    //inherit from primary layer if not intentionally changed or xAxis, yAxis, zAxis null
+    if (!layer.xAxis) layer.xAxis = opts.xAxis;    
+    if (!layer.yAxis) layer.yAxis = opts.yAxis;
+    if (!layer.zAxis) layer.zAxis = opts.zAxis;
+    
+    var x = buildAxis("x", layer);
+    x.hidden = hidden;
+    
+    var y = buildAxis("y", layer);
+    y.hidden = hidden;
+    
+    //z for bubbles
+    var z = null;
+    if (!(typeof(layer.zAxis) === 'undefined') && layer.zAxis.type){
+      z = buildAxis("z", layer);
+    };
+    
+    //here think I need to evaluate group and if missing do null
+    //as the group argument
+    //if provided need to use groups from layer
+    var s = new dimple.series(myChart, null, x, y, z, c, dimple.plot[layer.type], dimple.aggregateMethod.avg, dimple.plot[layer.type].stacked);
+    
+    //as of v1.1.4 dimple can use different dataset for each series
+    if(layer.data){
+      //convert to an array of objects
+      var tempdata;
+      //avoid lodash for now
+      datakeys = d3.keys(layer.data)
+      tempdata = layer.data[datakeys[1]].map(function(d,i){
+        var tempobj = {}
+        datakeys.forEach(function(key){
+          tempobj[key] = layer.data[key][i]
+        })
+        return tempobj
+      })
+      s.data = tempdata;
+    }
+    
+    if(layer.hasOwnProperty("groups")) {
+      s.categoryFields = (typeof layer.groups === "object") ? layer.groups : [layer.groups];
+      //series offers an aggregate method that we will also need to check if available
+      //options available are avg, count, max, min, sum
+    }
+    if (!(typeof(layer.aggregate) === 'undefined')) {
+      s.aggregate = eval(layer.aggregate);
+    }
+    if (!(typeof(layer.lineWeight) === 'undefined')) {
+      s.lineWeight = eval(layer.lineWeight);
+    }
+    if (!(typeof(layer.barGap) === 'undefined')) {
+      s.barGap = eval(layer.barGap);
+    }    
+  
+   /* if (!(typeof(layer.eventHandler) === 'undefined')) {
+      layer.eventHandler = (layer.eventHandler.length === "undefined") ? layer.eventHandler : [layer.eventHandler];
+      layer.eventHandler.forEach(function(evt){
+        s.addEventHandler(evt.event, eval(evt.handler))
+      })
+    }*/
+      
+    myChart.series.push(s);
+    
+    /*placeholder fix domain of primary scale for new series data
+    //not working right now but something like this
+    //for now just use overrideMin and overrideMax from rCharts
+    for( var i = 0; i<2; i++) {
+      if (!myChart.axes[i].overrideMin) {
+        myChart.series[0]._axisBounds(i==0?"x":"y").min = myChart.series[0]._axisBounds(i==0?"x":"y").min < s._axisBounds(i==0?"x":"y").min ? myChart.series[0]._axisBounds(i==0?"x":"y").min : s._axisBounds(i==0?"x":"y").min;
+      }
+      if (!myChart.axes[i].overrideMax) {  
+        myChart.series[0]._axisBounds(i==0?"x":"y")._max = myChart.series[0]._axisBounds(i==0?"x":"y").max > s._axisBounds(i==0?"x":"y").max ? myChart.series[0]._axisBounds(i==0?"x":"y").max : s._axisBounds(i==0?"x":"y").max;
+      }
+      myChart.axes[i]._update();
+    }
+    */
+    
+    return s;
+  };
+  
+  buildSeries(opts, false);
+  if (opts.layers.length > 0) {
+    opts.layers.forEach(function(layer){
+      buildSeries(layer, true);
+    })
+  }
+  //unsure if this is best but if legend is provided (not empty) then evaluate
+  if(d3.keys(opts.legend).length > 0) {
+    var l =myChart.addLegend();
+    d3.keys(opts.legend).forEach(function(d){
+      l[d] = opts.legend[d];
+    });
+  }
+  //quick way to get this going but need to make this cleaner
+  if(opts.storyboard) {
+    myChart.setStoryboard(opts.storyboard);
+  };
+  myChart.draw();
+
+</script>
+
 
 
 ---
 ### Table 3
 
+Table 3 offers even more proof for the arguments against "small and sporadic".  It blends pieces of Table 2 with the Sharpe Ratio and probability of positive returns on a portfolio of 60% HML (Value) and 40% UMD (Momentum).  This simple portfolio produces very solid results and inspires me to further my exploration of the rebalancing concept introduced in my post [Unsolved Mysteries of Rebalancing](http://timelyportfolio.blogspot.com/2014/02/unsolved-mysteries-of-rebalancing.html).
 
-```r
-#Table 3
-SharpeRatio.annualized(
-  apply(
-    french_factors_xts[periods[1],c(3,5)],
-    MARGIN = 1,
-    function(x){ x[1] * 0.6 + x[2] * 0.4}
-  ),
-  Rf = 0,
-  geometric=F
-)
-```
-
-                                  [,1]
-Annualized Sharpe Ratio (Rf=0%) 0.8002
-
-```r
-
-lapply(
-  c(12,60),
-  function(width){
-    y = rollapply(
-      apply(
-        french_factors_xts[,c(3,5)],
-        MARGIN = 1,
-        function(x){ x[1] * 0.6 + x[2] * 0.4}
-      ),
-      width = width,
-      by = 1,
-      FUN = Return.cumulative,
-      geometric=F
-    )
-    return(sum(na.omit(y)>=0)/length(na.omit(y)))
-  }
-)
-```
-
-[[1]]
-[1] 0.8081
-
-[[2]]
-[1] 0.9161
+<table class='gmisc_table' style='border-collapse: collapse;' >
+	<thead>
+	<tr><td colspan='6' style='text-align: left;'>
+	Table 3: 1927 - 2013</td></tr>
+	<tr>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey;'>&nbsp;</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mkt.RF</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>SMB</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>HML</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>Mom</th>
+		<th style='border-bottom: 1px solid grey; border-top: 4px double grey; text-align: center;'>HML60_UMB40</th>
+	</tr>
+	</thead><tbody>
+	<tr>
+		<td style='text-align: left;'>Sharpe Ratios</td>
+		<td style='text-align: center;'>0.41</td>
+		<td style='text-align: center;'>0.26</td>
+		<td style='text-align: center;'>0.39</td>
+		<td style='text-align: center;'>0.50</td>
+		<td style='text-align: center;'>0.80</td>
+	</tr>
+	<tr>
+		<td style='text-align: left;'>% Positive, 1-year Rolling</td>
+		<td style='text-align: center;'>0.71</td>
+		<td style='text-align: center;'>0.58</td>
+		<td style='text-align: center;'>0.63</td>
+		<td style='text-align: center;'>0.81</td>
+		<td style='text-align: center;'>0.81</td>
+	</tr>
+	<tr>
+		<td style='border-bottom: 1px solid grey; text-align: left;'>% Positive, 5-year Rolling</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>0.82</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>0.65</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>0.89</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>0.88</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>0.92</td>
+	</tr>
+	</tbody>
+</table>
 
 
 ---
 ### More French Data
 
+We will need to pull in some more French data to work through the next set of tables.  This data [6 Portfolios Formed Monthly on Size (3) x Momentum (2)](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_6_port_form_sz_pr_12_2.html) will allow us to decompose the momentum factor into short and long buckets and also small and large size buckets.
 
-```r
-#Table 4
-#need some additional data here
-#http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip
-my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/6_Portfolios_ME_Prior_12_2.zip"
-my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
-my.usefile<-paste(tempdir(),"\\6_Portfolios_ME_Prior_12_2.txt",sep="")
-download.file(my.url, my.tempfile, method="auto", 
-              quiet = FALSE, mode = "wb",cacheOK = TRUE)
-unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
-#read space delimited text file extracted from zip
-french_hml_smb <- read.table(file=my.usefile,
-                             header = TRUE, sep = "",
-                             as.is = TRUE,
-                             skip = 12, nrows=1048)
-colnames(french_hml_smb) <- c(
-  paste0(
-    "Small.",
-    colnames(french_hml_smb)[1:3]
-  ),
-  paste0(
-    "Big.",
-    colnames(french_hml_smb)[1:3]
-  )
-)
-#get xts for analysis
-french_hml_smb_xts <- as.xts(
-  french_hml_smb/100,
-  order.by=as.Date(
-    paste0(rownames(french_hml_smb),"01"),
-    format="%Y%m%d"
-  )
-)
 
-#so short side will be average of Small.Low and Big.Low
-#and long side will be the average of Small.High and Big.High
-french_short_long_xts <- as.xts(do.call(rbind,apply(
-  french_hml_smb_xts,
-  MARGIN=1,
-  function(period){
-    data.frame(
-      shortside = mean(period[c(1,4)]),
-      longside = mean(period[c(3,6)])
-    )
-  }
-)),order.by = index(french_hml_smb_xts))
-
-#add umd from the factors
-#as check this should be same as sum of -short and long
-french_short_long_xts <- merge(
-  french_short_long_xts,
-  french_factors_xts[,c(5,1,4)] #Market and Mom (UMD)
-)
-```
 
 
 ---
 ### Table 4
 
-```r
-#UMD market-adjusted returns (alpha)
-do.call(rbind,lapply(
-  periods,
-  function(period){
-    df <- data.frame(
-      shortside = -((CAPM.alpha(
-        Ra = french_short_long_xts[period,]$shortside,
-        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
-        Rf = french_short_long_xts[period,]$RF
-      )+1)^12-1),
-      longside = (CAPM.alpha(
-        Ra = french_short_long_xts[period,]$longside,
-        Rb = french_short_long_xts[period,]$Mkt.RF + french_short_long_xts[period,]$RF,
-        Rf = french_short_long_xts[period,]$RF
-      )+1)^12-1
-    )
-    df$UMD <- df$shortside + df$longside
-    rownames(df) <- period
-    return(df)
-  }
-))
-```
+Now that we have the additional French data, we can replicate the authors` attempt to disprove
 
-           shortside longside     UMD
-1927::2013   0.04977  0.05618 0.10594
-1963::2013   0.03753  0.05432 0.09184
-1991::2013   0.03740  0.04956 0.08696
+<blockquote>
+Myth #2: Momentum cannot be captured by long-only investors as “momentum can only be exploited on the short side”.
+</blockquote>
 
-```r
+My numbers differ slightly on the market-adjusted returns (left half), but are close enough to think that the approach is the same.
 
-#UMD returns minus market
-do.call(rbind,lapply(
-  periods,
-  function(period){
-    df <- data.frame(
-      shortside = -Return.annualized(
-        french_short_long_xts[period,]$shortside - 
-          french_short_long_xts[period,]$Mkt.RF - 
-          french_short_long_xts[period,]$RF,
-        geometric=F
-      ),
-      longside = Return.annualized(
-        french_short_long_xts[period,]$longside - 
-          french_short_long_xts[period,]$Mkt.RF - 
-          french_short_long_xts[period,]$RF,
-        geometric=F
-      )
-    )
-    df$UMD <- df$shortside + df$longside
-    rownames(df) <- period
-    return(df)
-  }
-))
-```
 
-           shortside longside     UMD
-1927::2013   0.02189  0.06090 0.08279
-1963::2013   0.02454  0.05925 0.08379
-1991::2013   0.01054  0.05239 0.06293
+<table class='gmisc_table' style='border-collapse: collapse;' >
+	<thead>
+	<tr><td colspan='10' style='text-align: left;'>
+	Table 4</td></tr>
+	<tr>
+		<th style='border-top: 4px double grey;'></th>
+		<th colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>UMD market-adjusted returns</th><th style='border-top: 4px double grey;; border-bottom: hidden;'>&nbsp;</th>
+		<th colspan='4' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>UMD returns minus market</th>
+	</tr>
+	<tr>
+		<th style='font-weight: 900; border-bottom: 1px solid grey; '>Sample</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>Short Side</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>Long Side</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>UMD</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>% Long</th>
+		<th style='border-bottom: 1px solid grey;' colspan='1'>&nbsp;</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>Short Side</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>Long Side</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>UMD</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>% Long</th>
+	</tr>
+	</thead><tbody>
+	<tr>
+		<td style='text-align: center;'>1927::2013</td>
+		<td style='text-align: center;'>4.98</td>
+		<td style='text-align: center;'>5.62</td>
+		<td style='text-align: center;'>10.59</td>
+		<td style='text-align: center;'>53.0</td>
+		<td style='' colspan='1'>&nbsp;</td>
+		<td style='text-align: center;'>2.19</td>
+		<td style='text-align: center;'>6.09</td>
+		<td style='text-align: center;'>8.28</td>
+		<td style='text-align: center;'>73.6</td>
+	</tr>
+	<tr>
+		<td style='text-align: center;'>1963::2013</td>
+		<td style='text-align: center;'>3.75</td>
+		<td style='text-align: center;'>5.43</td>
+		<td style='text-align: center;'> 9.18</td>
+		<td style='text-align: center;'>59.1</td>
+		<td style='' colspan='1'>&nbsp;</td>
+		<td style='text-align: center;'>2.45</td>
+		<td style='text-align: center;'>5.92</td>
+		<td style='text-align: center;'>8.38</td>
+		<td style='text-align: center;'>70.7</td>
+	</tr>
+	<tr>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>1991::2013</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>3.74</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>4.96</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'> 8.70</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>57.0</td>
+		<td style='border-bottom: 1px solid grey;' colspan='1'>&nbsp;</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>1.05</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>5.24</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>6.29</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>83.2</td>
+	</tr>
+	</tbody>
+</table>
 
 
 ---
 ### Table 5
 
+The last myth that we will tackle here, but only the 3rd of 10 myths in the paper, is
 
-```r
-#table 5
-table5 <- do.call(rbind,lapply(
-  periods,
-  function(period){
-    df <- data.frame(Return.annualized(
-      french_hml_smb_xts[period,],
-      geometric = F
-    ))
-    rownames(df) <- period
-    return(df)
-  }
-))
-#umd small
-umdsmall <- data.frame(table5$Small.High - table5$Small.Low)
-rownames(umdsmall) <- periods
-colnames(umdsmall) <- "UMD Small"
-umdsmall
-```
+<blockquote>
+Myth #3: Momentum is much stronger among small cap stocks than large caps.
+</blockquote>
 
-           UMD Small
-1927::2013   0.09751
-1963::2013   0.11256
-1991::2013   0.08096
+We will use the same French data (HML (3) x SMB (2)) from Table 4 to replicate Table 5.  I will leave the right half (Value) of this table as homework.
 
-```r
 
-#umd big
-umdbig <- data.frame(table5$Big.High - table5$Big.Low)
-rownames(umdbig) <- periods
-colnames(umdbig) <- "UMD Big"
-umdbig
-```
+<table class='gmisc_table' style='border-collapse: collapse;' >
+	<thead>
+	<tr><td colspan='4' style='text-align: left;'>
+	Table 5</td></tr>
+	<tr>
+		<th style='border-top: 4px double grey;'></th>
+		<th colspan='3' style='font-weight: 900; border-bottom: 1px solid grey; border-top: 4px double grey;'>Momentum</th>
+	</tr>
+	<tr>
+		<th style='font-weight: 900; border-bottom: 1px solid grey; '>Sample</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>UMD Small</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>UMD Big</th>
+		<th style='border-bottom: 1px solid grey; text-align: center;'>Mom</th>
+	</tr>
+	</thead><tbody>
+	<tr>
+		<td style='text-align: left;'>1927::2013</td>
+		<td style='text-align: center;'> 9.75</td>
+		<td style='text-align: center;'>6.81</td>
+		<td style='text-align: center;'>8.28</td>
+	</tr>
+	<tr>
+		<td style='text-align: left;'>1963::2013</td>
+		<td style='text-align: center;'>11.26</td>
+		<td style='text-align: center;'>5.50</td>
+		<td style='text-align: center;'>8.38</td>
+	</tr>
+	<tr>
+		<td style='border-bottom: 1px solid grey; text-align: left;'>1991::2013</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'> 8.10</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>4.49</td>
+		<td style='border-bottom: 1px solid grey; text-align: center;'>6.30</td>
+	</tr>
+	</tbody>
+</table>
 
-           UMD Big
-1927::2013 0.06807
-1963::2013 0.05502
-1991::2013 0.04491
 
-```r
+---
+### Thanks
+As I hope you can tell, this post was more a function of the efforts of others than of my own.
 
-#by this point I hope you can do the Value piece of table 5 on your own
-#if you really can't figure it out, let me know
-```
-
+Thanks specifically:
+- [Kenneth French](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/) for his very generous [data library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html)
+- [the AQR research factory](http://www.aqr.com/) for this and all their other research
+- [Ramnath Vaidyanathan](http://ramnathv.github.io/) for [rCharts](http://rcharts.io/site) and [slidify](http://slidify.org).
+- [John Kiernander](https://twitter.com/jkiernander) for [dimplejs](http://dimplejs.org)
+- Nameless Fixed Income Shop for the original chart.
+- [Mike Bostock](http://bost.ocks.org/mike/) for everything.
+- [Marcello Palmitessa](http://aozora.github.io/bootplus/) for the Bootplus framework.
+- Google fonts [Raleway](http://www.google.com/fonts/specimen/Raleway) and [Oxygen](http://www.google.com/fonts/specimen/Oxygen)
