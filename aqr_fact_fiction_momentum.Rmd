@@ -39,7 +39,7 @@ h1,h2,h3,h4 {
 ```{r echo = F, warning=F, error=F, message=F}
 require(knitr)
 opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F, echo = F)
-options(rcharts.mode="iframesrc")
+options(rcharts.mode="iframe")
 ```
 
 It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoy this fine working paper on momentum.
@@ -294,7 +294,7 @@ htmlTable(
 ```
 
 <br>
-I have been using `iframesrc` mode with rCharts, but for example purposes, I will show this next chart with `inline`. `inline` can be cleaner but with multiple charts and especially multiple libraries can be problematic with conflicts.
+I have been using `iframe` mode with rCharts, but for example purposes, I will show this next chart with `inline`. `inline` can be cleaner but with multiple charts and especially multiple libraries can be problematic with conflicts.
 
 ```{r}
 d2 <- dPlot(

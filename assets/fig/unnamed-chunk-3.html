@@ -1,0 +1,224 @@
+<!doctype HTML>
+<meta charset = 'utf-8'>
+<html>
+  <head>
+    
+    <script src='http://d3js.org/d3.v3.min.js' type='text/javascript'></script>
+    <script src='http://dimplejs.org/dist/dimple.v1.1.5.min.js' type='text/javascript'></script>
+    
+    <style>
+    .rChart {
+      display: block;
+      margin-left: auto; 
+      margin-right: auto;
+      width: 750px;
+      height: 350px;
+    }  
+    </style>
+    
+  </head>
+  <body >
+    
+    <div id = 'chart36f467458db' class = 'rChart dimple'></div>    
+    <script type="text/javascript">
+  var opts = {
+ "dom": "chart36f467458db",
+"width":    750,
+"height":    350,
+"xAxis": {
+ "type": "addCategoryAxis",
+"showPercent": false,
+"orderRule": "Sample" 
+},
+"yAxis": {
+ "type": "addMeasureAxis",
+"showPercent": false,
+"outputFormat": "0.2%" 
+},
+"zAxis": [],
+"colorAxis": [],
+"defaultColors": d3.scale.category10(),
+"layers": [],
+"legend": [],
+"x": [ "Metric", "Sample" ],
+"y": "value",
+"groups": [ "Metric", "factor" ],
+"type": "line",
+"id": "chart36f467458db" 
+},
+    data = [{"Sample":"1927::2013","Metric":"Returns","factor":"Mkt.RF","value":0.0773896551724138},{"Sample":"1963::2013","Metric":"Returns","factor":"Mkt.RF","value":0.0612137254901961},{"Sample":"1991::2013","Metric":"Returns","factor":"Mkt.RF","value":0.0819608695652174},{"Sample":"1927::2013","Metric":"Returns","factor":"SMB","value":0.028916091954023},{"Sample":"1963::2013","Metric":"Returns","factor":"SMB","value":0.0305588235294118},{"Sample":"1991::2013","Metric":"Returns","factor":"SMB","value":0.033095652173913},{"Sample":"1927::2013","Metric":"Returns","factor":"HML","value":0.0473379310344828},{"Sample":"1963::2013","Metric":"Returns","factor":"HML","value":0.0465235294117647},{"Sample":"1991::2013","Metric":"Returns","factor":"HML","value":0.0356347826086957},{"Sample":"1927::2013","Metric":"Returns","factor":"Mom","value":0.0827873563218391},{"Sample":"1963::2013","Metric":"Returns","factor":"Mom","value":0.0838039215686275},{"Sample":"1991::2013","Metric":"Returns","factor":"Mom","value":0.0629565217391304},{"Sample":"1927::2013","Metric":"Sharpe","factor":"Mkt.RF","value":0.411692428251598},{"Sample":"1963::2013","Metric":"Sharpe","factor":"Mkt.RF","value":0.394820934493365},{"Sample":"1991::2013","Metric":"Sharpe","factor":"Mkt.RF","value":0.542322271423246},{"Sample":"1927::2013","Metric":"Sharpe","factor":"SMB","value":0.257702121151328},{"Sample":"1963::2013","Metric":"Sharpe","factor":"SMB","value":0.284951058896001},{"Sample":"1991::2013","Metric":"Sharpe","factor":"SMB","value":0.286405383289072},{"Sample":"1927::2013","Metric":"Sharpe","factor":"HML","value":0.388425642106854},{"Sample":"1963::2013","Metric":"Sharpe","factor":"HML","value":0.468392978286452},{"Sample":"1991::2013","Metric":"Sharpe","factor":"HML","value":0.321642362603434},{"Sample":"1927::2013","Metric":"Sharpe","factor":"Mom","value":0.501748105622016},{"Sample":"1963::2013","Metric":"Sharpe","factor":"Mom","value":0.570427696078849},{"Sample":"1991::2013","Metric":"Sharpe","factor":"Mom","value":0.359655722924321}];
+  var svg = dimple.newSvg("#" + opts.id, opts.width, opts.height);
+
+  //data = dimple.filterData(data, "Owner", ["Aperture", "Black Mesa"])
+  var myChart = new dimple.chart(svg, data);
+  if (opts.bounds) {
+    myChart.setBounds(opts.bounds.x, opts.bounds.y, opts.bounds.width, opts.bounds.height);//myChart.setBounds(80, 30, 480, 330);
+  }
+  //dimple allows use of custom CSS with noFormats
+  if(opts.noFormats) { myChart.noFormats = opts.noFormats; };
+  //for markimekko and addAxis also have third parameter measure
+  //so need to evaluate if measure provided
+  
+  //function to build axes
+  function buildAxis(position,layer){
+    var axis;
+    var axisopts = opts[position+"Axis"];
+    
+    if(axisopts.measure) {
+      axis = myChart[axisopts.type](position,layer[position],axisopts.measure);
+    } else {
+      axis = myChart[axisopts.type](position, layer[position]);
+    };
+    if(!(axisopts.type === "addPctAxis")) axis.showPercent = axisopts.showPercent;
+    if (axisopts.orderRule) axis.addOrderRule(axisopts.orderRule);
+    if (axisopts.grouporderRule) axis.addGroupOrderRule(axisopts.grouporderRule);  
+    if (axisopts.overrideMin) axis.overrideMin = axisopts.overrideMin;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.overrideMax) axis.overrideMax = axisopts.overrideMax;
+    if (axisopts.inputFormat) axis.dateParseFormat = axisopts.inputFormat;
+    if (axisopts.outputFormat) axis.tickFormat = axisopts.outputFormat;    
+    return axis;
+  };
+  
+  var c = null;
+  if(d3.keys(opts.colorAxis).length > 0) {
+    c = myChart[opts.colorAxis.type](opts.colorAxis.colorSeries,opts.colorAxis.palette) ;
+    if(opts.colorAxis.outputFormat){
+      c.tickFormat = opts.colorAxis.outputFormat;
+    }
+  }
+  
+  //allow manipulation of default colors to use with dimple
+  if(opts.defaultColors.length) {
+    defaultColorsArray = [];
+    if (typeof(opts.defaultColors) == "function") {
+      //assume this is a d3 scale
+      //if there is a domain for the color scale given
+      //then we will need to assign colors with dimples assignColor
+      if( opts.defaultColors.domain().length > 0 ){
+        defaultColorsArray = opts.defaultColors.range();
+        opts.defaultColors.domain().forEach( function( d, i ) {
+          myChart.assignColor( d, opts.defaultColors.range()[i] )
+        })
+      } else {
+        for (var n=0;n<opts.defaultColors.range().length;n++) {
+          defaultColorsArray.push(opts.defaultColors(n));
+        };
+      }
+    } else {
+      defaultColorsArray = opts.defaultColors;
+    }
+
+    myChart.defaultColors = defaultColorsArray.map(function(d) {
+      return new dimple.color(d);
+    });
+  }  
+  
+  //do series
+  //set up a function since same for each
+  //as of now we have x,y,groups,data,type in opts for primary layer
+  //and other layers reside in opts.layers
+  function buildSeries(layer, hidden){
+    //inherit from primary layer if not intentionally changed or xAxis, yAxis, zAxis null
+    if (!layer.xAxis) layer.xAxis = opts.xAxis;    
+    if (!layer.yAxis) layer.yAxis = opts.yAxis;
+    if (!layer.zAxis) layer.zAxis = opts.zAxis;
+    
+    var x = buildAxis("x", layer);
+    x.hidden = hidden;
+    
+    var y = buildAxis("y", layer);
+    y.hidden = hidden;
+    
+    //z for bubbles
+    var z = null;
+    if (!(typeof(layer.zAxis) === 'undefined') && layer.zAxis.type){
+      z = buildAxis("z", layer);
+    };
+    
+    //here think I need to evaluate group and if missing do null
+    //as the group argument
+    //if provided need to use groups from layer
+    var s = new dimple.series(myChart, null, x, y, z, c, dimple.plot[layer.type], dimple.aggregateMethod.avg, dimple.plot[layer.type].stacked);
+    
+    //as of v1.1.4 dimple can use different dataset for each series
+    if(layer.data){
+      //convert to an array of objects
+      var tempdata;
+      //avoid lodash for now
+      datakeys = d3.keys(layer.data)
+      tempdata = layer.data[datakeys[1]].map(function(d,i){
+        var tempobj = {}
+        datakeys.forEach(function(key){
+          tempobj[key] = layer.data[key][i]
+        })
+        return tempobj
+      })
+      s.data = tempdata;
+    }
+    
+    if(layer.hasOwnProperty("groups")) {
+      s.categoryFields = (typeof layer.groups === "object") ? layer.groups : [layer.groups];
+      //series offers an aggregate method that we will also need to check if available
+      //options available are avg, count, max, min, sum
+    }
+    if (!(typeof(layer.aggregate) === 'undefined')) {
+      s.aggregate = eval(layer.aggregate);
+    }
+    if (!(typeof(layer.lineWeight) === 'undefined')) {
+      s.lineWeight = eval(layer.lineWeight);
+    }
+    if (!(typeof(layer.barGap) === 'undefined')) {
+      s.barGap = eval(layer.barGap);
+    }    
+  
+   /* if (!(typeof(layer.eventHandler) === 'undefined')) {
+      layer.eventHandler = (layer.eventHandler.length === "undefined") ? layer.eventHandler : [layer.eventHandler];
+      layer.eventHandler.forEach(function(evt){
+        s.addEventHandler(evt.event, eval(evt.handler))
+      })
+    }*/
+      
+    myChart.series.push(s);
+    
+    /*placeholder fix domain of primary scale for new series data
+    //not working right now but something like this
+    //for now just use overrideMin and overrideMax from rCharts
+    for( var i = 0; i<2; i++) {
+      if (!myChart.axes[i].overrideMin) {
+        myChart.series[0]._axisBounds(i==0?"x":"y").min = myChart.series[0]._axisBounds(i==0?"x":"y").min < s._axisBounds(i==0?"x":"y").min ? myChart.series[0]._axisBounds(i==0?"x":"y").min : s._axisBounds(i==0?"x":"y").min;
+      }
+      if (!myChart.axes[i].overrideMax) {  
+        myChart.series[0]._axisBounds(i==0?"x":"y")._max = myChart.series[0]._axisBounds(i==0?"x":"y").max > s._axisBounds(i==0?"x":"y").max ? myChart.series[0]._axisBounds(i==0?"x":"y").max : s._axisBounds(i==0?"x":"y").max;
+      }
+      myChart.axes[i]._update();
+    }
+    */
+    
+    return s;
+  };
+  
+  buildSeries(opts, false);
+  if (opts.layers.length > 0) {
+    opts.layers.forEach(function(layer){
+      buildSeries(layer, true);
+    })
+  }
+  //unsure if this is best but if legend is provided (not empty) then evaluate
+  if(d3.keys(opts.legend).length > 0) {
+    var l =myChart.addLegend();
+    d3.keys(opts.legend).forEach(function(d){
+      l[d] = opts.legend[d];
+    });
+  }
+  //quick way to get this going but need to make this cleaner
+  if(opts.storyboard) {
+    myChart.setStoryboard(opts.storyboard);
+  };
+  myChart.draw();
+
+</script>
+    
+    <script></script>    
+  </body>
+</html>
