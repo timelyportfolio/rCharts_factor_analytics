@@ -42,7 +42,7 @@ opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, re
 options(rcharts.mode="iframe")
 ```
 
-It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoy this fine working paper on momentum.
+It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoying this fine working paper on momentum.
 
 <blockquote>
 <strong>Fact, Fiction and Momentum Investing</strong><br>
