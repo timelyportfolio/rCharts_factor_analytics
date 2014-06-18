@@ -12,7 +12,7 @@ lead : >
 assets:
   jshead:
     - http://d3js.org/d3.v3.min.js
-    - http://dimplejs.org/dist/dimple.v1.1.5.min.js
+    - http://dimplejs.org/dist/dimple.v2.0.0.min.js
   css:
     - "http://fonts.googleapis.com/css?family=Raleway:300"
     - "http://fonts.googleapis.com/css?family=Oxygen"    
@@ -38,8 +38,7 @@ h1,h2,h3,h4 {
 
 
 
-
-It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoy this fine working paper on momentum.
+It seems that [Gary Antonacci from Optimal Momentum](http://optimalmomentum.blogspot.com/2014/06/fact-fiction-and-momentum-investing.html) and I were simultaneously enjoying this fine working paper on momentum.
 
 <blockquote>
 <strong>Fact, Fiction and Momentum Investing</strong><br>
@@ -59,7 +58,6 @@ Once again this amazing resource [Kenneth French Data Library](http://mba.tuck.d
 
 
 
-
 ---
 ### Table 1
 
@@ -71,21 +69,12 @@ Myth #1: Momentum returns are too “small and sporadic”.
 
 Instead of a table I thought some [rCharts](http://rcharts.io) + [dimplejs](http://dimplejs.org) for an interactive table might help visualize the annualized returns and Sharpe ratios of each of the four factors.
 
-<iframe src='
-assets/fig/unnamed-chunk-3.html
-' scrolling='no' seamless
-class='rChart dimple '
-id=iframe-
-chart36f467458db
-></iframe>
-<style>iframe.rChart{ width: 100%; height: 400px;}</style>
-
+<iframe src=' assets/fig/unnamed-chunk-3.html ' scrolling='no' frameBorder='0' seamless class='rChart dimple ' id=iframe- chart1ddc8a11780 ></iframe> <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
 Combining Sharpe and return on the same chart is not ideal, but I thought it would demonstrate some of the power of dimplejs.  A facetted approach or separate (small-multiples) charts here would work much better since the scales are so different.
 
 ---
 ### Table 2
-
 
 
 
@@ -126,19 +115,10 @@ For Table 2 which also seeks to refute the "small and sporadic" Myth #1, we can 
 	</tr>
 	</tbody>
 </table>
-
 <br>
 I will not produce a chart for every table, but I feel like a couple more will not hurt anything.  As in the previous chart, this will use rCharts and dimplejs.
 
-<iframe src='
-assets/fig/unnamed-chunk-6.html
-' scrolling='no' seamless
-class='rChart dimple '
-id=iframe-
-chart36f47ad61c4f
-></iframe>
-<style>iframe.rChart{ width: 100%; height: 400px;}</style>
-
+<iframe src=' assets/fig/unnamed-chunk-6.html ' scrolling='no' frameBorder='0' seamless class='rChart dimple ' id=iframe- chart1ddc1ad34985 ></iframe> <style>iframe.rChart{ width: 100%; height: 400px;}</style>
 
 Now for the right half of Table 2 which shows the probability of 5 year positive returns, let's do the same thing with a table and then a chart.
 
@@ -178,15 +158,14 @@ Now for the right half of Table 2 which shows the probability of 5 year positive
 	</tbody>
 </table>
 
-
 <br>
 I have been using `iframe` mode with rCharts, but for example purposes, I will show this next chart with `inline`. `inline` can be cleaner but with multiple charts and especially multiple libraries can be problematic with conflicts.
 
 
-<div id = 'chart36f45815480b' class = 'rChart dimple'></div>
+<div id = 'chart1ddc695a2b3' class = 'rChart dimple'></div>
 <script type="text/javascript">
   var opts = {
- "dom": "chart36f45815480b",
+ "dom": "chart1ddc695a2b3",
 "width":    800,
 "height":    350,
 "xAxis": {
@@ -208,7 +187,7 @@ I have been using `iframe` mode with rCharts, but for example purposes, I will s
 "y": "value",
 "groups": [ "Sample", "factor" ],
 "type": "bar",
-"id": "chart36f45815480b" 
+"id": "chart1ddc695a2b3" 
 },
     data = [{"Sample":"1927::2013","factor":"Mkt.RF","value":0.709583736689255},{"Sample":"1963::2013","factor":"Mkt.RF","value":0.718801996672213},{"Sample":"1991::2013","factor":"Mkt.RF","value":0.781132075471698},{"Sample":"1927::2013","factor":"SMB","value":0.580832526621491},{"Sample":"1963::2013","factor":"SMB","value":0.600665557404326},{"Sample":"1991::2013","factor":"SMB","value":0.618867924528302},{"Sample":"1927::2013","factor":"HML","value":0.634075508228461},{"Sample":"1963::2013","factor":"HML","value":0.642262895174709},{"Sample":"1991::2013","factor":"HML","value":0.611320754716981},{"Sample":"1927::2013","factor":"Mom","value":0.805421103581801},{"Sample":"1963::2013","factor":"Mom","value":0.800332778702163},{"Sample":"1991::2013","factor":"Mom","value":0.758490566037736}];
   var svg = dimple.newSvg("#" + opts.id, opts.width, opts.height);
@@ -384,7 +363,6 @@ I have been using `iframe` mode with rCharts, but for example purposes, I will s
 </script>
 
 
-
 ---
 ### Table 3
 
@@ -430,12 +408,10 @@ Table 3 offers even more proof for the arguments against "small and sporadic".  
 	</tbody>
 </table>
 
-
 ---
 ### More French Data
 
 We will need to pull in some more French data to work through the next set of tables.  This data [6 Portfolios Formed Monthly on Size (3) x Momentum (2)](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_6_port_form_sz_pr_12_2.html) will allow us to decompose the momentum factor into short and long buckets and also small and large size buckets.
-
 
 
 
@@ -512,7 +488,6 @@ My numbers differ slightly on the market-adjusted returns (left half), but are c
 	</tbody>
 </table>
 
-
 ---
 ### Table 5
 
@@ -560,7 +535,6 @@ We will use the same French data (HML (3) x SMB (2)) from Table 4 to replicate T
 	</tr>
 	</tbody>
 </table>
-
 
 ---
 ### Thanks

@@ -237,12 +237,12 @@ table2 <- melt(
 For Table 2 which also seeks to refute the "small and sporadic" Myth #1, we can employ the [Gmisc](http://gforge.se/gmisc/) package to easily produce a fairly good looking HTML table.
 
 ```{r}
-htmlTable(
+cat(noquote(htmlTable(
   round(table2.1year * 100,2),
   align = c('c',rep('r',ncol(table2.1year))),
   title = "Sample",
   caption = "Table 2: Probability of 1 Year Positive Returns"
-)
+)[1]))
 ```
 <br>
 I will not produce a chart for every table, but I feel like a couple more will not hurt anything.  As in the previous chart, this will use rCharts and dimplejs.
@@ -289,12 +289,12 @@ table2 <- melt(
   variable.name = "factor"
 )
 
-htmlTable(
+cat(noquote(htmlTable(
   round(table2.5year * 100,2),
   align = c('c',rep('r',ncol(table2.5year))),
   title = "Sample",
   caption = "Table 2: Probability of 5 Year Positive Returns"
-)
+)[1]))
 ```
 
 <br>
@@ -365,13 +365,13 @@ table3$HML60_UMB40 <- c(
   )
 )
 
-htmlTable(
+cat(noquote(htmlTable(
   format(round(table3,2),digits=2),
   align = c('c',rep('c',ncol(table2.5year))),
   title = NULL,
   rowname = c("Sharpe Ratios", "% Positive, 1-year Rolling", "% Positive, 5-year Rolling"),
   caption = "Table 3: 1927 - 2013"
-)
+)[1]))
 ```
 
 ---
@@ -500,7 +500,7 @@ table4 <- cbind(
   table4.righthalf$longside/table4.righthalf$UMD
 )
 
-htmlTable(
+cat(noquote(htmlTable(
   format(round(table4 * 100, 2),digits=3),
   caption = "Table 4",
   title = "Sample",
@@ -508,7 +508,7 @@ htmlTable(
   headings = rep(c("Short Side","Long Side","UMD", "% Long"),2),
   cgroup = c("UMD market-adjusted returns","UMD returns minus market"),
   n.cgroup = c(4,4)
-)
+)[1]))
 
 ```
 
@@ -555,14 +555,14 @@ table5 <- cbind(
 
 table5[,3] <- as.numeric(table5[,3])
 
-htmlTable(
+cat(noquote(htmlTable(
   format(round(table5 * 100, 2),digits = 3),
   caption = "Table 5",
   title = "Sample",
   align = rep("c", ncol(table4) + 1),
   cgroup = c("Momentum"),
   n.cgroup = ncol(table5)
-)
+)[1]))
 
 #by this point I hope you can do the Value piece of table 5 on your own
 #if you really can't figure it out, let me know
