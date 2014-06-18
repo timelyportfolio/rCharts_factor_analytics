@@ -12,7 +12,7 @@ lead : >
 assets:
   jshead:
     - http://d3js.org/d3.v3.min.js
-    - http://dimplejs.org/dist/dimple.v1.1.5.min.js
+    - http://dimplejs.org/dist/dimple.v2.0.0.min.js
   css:
     - "http://fonts.googleapis.com/css?family=Raleway:300"
     - "http://fonts.googleapis.com/css?family=Oxygen"    
@@ -136,12 +136,16 @@ Instead of a table I thought some [rCharts](http://rcharts.io) + [dimplejs](http
 #test our numbers
 #these are the sample periods
 periods <- c("1927::2013","1963::2013","1991::2013")
-table1.returns <- t(sapply(
+table1.returns <- t(do.call(cbind,lapply(
   periods,
   function(x){
-    return(data.frame(Return.annualized(french_factors_xts[x,-4],geometric=F)))
+    df <- data.frame(t(
+      Return.annualized(french_factors_xts[x,-4],geometric=F)
+    ))
+    colnames(df) <- x
+    return(df)
   }
-))
+)))
 
 table1 <- melt(
   data.frame(
@@ -189,7 +193,7 @@ d1 <- dPlot(
   type = "line",
   xAxis = list( orderRule = "Sample" ),
   yAxis = list( outputFormat = "0.2%" ),
-  defaultColors = "#!d3.scale.category10()!#",
+  defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#",
   height = 350,
   width = 750
 )
