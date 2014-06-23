@@ -1,0 +1,278 @@
+---
+title: Rethinking R with Chains %>% tidyr + dplyr + magrittr + rCharts
+author: Timely Portfolio
+github: {user: timelyportfolio, repo: rCharts_factor_analytics, branch: "gh-pages"}
+framework: bootplus
+layout: post
+mode: selfcontained
+highlighter: prettify
+hitheme: twitter-bootstrap
+lead : >
+  Finance Case with French Factors
+assets:
+  css:
+    - "http://fonts.googleapis.com/css?family=Raleway:300"
+    - "http://fonts.googleapis.com/css?family=Oxygen"    
+---
+
+# Trying R with d3 Style Chains
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+</style>
+
+
+```{r echo = F, warning=F, error=F, message=F, cache=F}
+#require(knitr)
+knitr::opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
+options(rcharts.mode="iframesrc")
+```
+
+```{r "requirepkg"}
+require(quantmod)
+require(PerformanceAnalytics)
+require(dplyr)
+require(tidyr)
+
+#not necessary but include for examples
+require(lattice)
+require(ggplot2)
+```
+
+```{r "getdata", eval=FALSE}
+#daily factors from Kenneth French Data Library
+#get Mkt.RF, SMB, HML, and RF
+#UMD is in a different file
+my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily.zip"
+my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
+my.usefile<-paste(tempdir(),"\\F-F_Research_Data_Factors_daily.txt",sep="")
+download.file(my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_factors <- read.table(file=my.usefile,
+                             header = TRUE, sep = "",
+                             as.is = TRUE,
+                             skip = 4, nrows=23215)
+#get xts for analysis
+french_factors_xts <- as.xts(
+  french_factors,
+  order.by=as.Date(
+    rownames(french_factors),
+    format="%Y%m%d"
+  )
+)
+
+#now get the momentum factor
+my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily.zip"
+my.usefile<-paste(tempdir(),"\\F-F_Momentum_Factor_daily.txt",sep="")
+download.file(my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_momentum <- read.table(file=my.usefile,
+                              header = TRUE, sep = "",
+                              as.is = TRUE,
+                              skip = 13, nrows=23114)
+#get xts for analysis
+french_momentum_xts <- as.xts(
+  french_momentum,
+  order.by=as.Date(
+    rownames(french_momentum),
+    format="%Y%m%d"
+  )
+)
+
+#merge UMD (momentum) with other french factors
+french_factors_xts <- na.omit( merge( french_factors_xts, french_momentum_xts ) )
+french_factors_xts <- french_factors_xts/100
+
+#get price series from monthly returns
+french_price<-as.xts(
+  apply(1+coredata(french_factors_xts),MARGIN=2,cumprod),
+  index(french_factors_xts))
+```
+
+```{r "rolling_analysis"}
+#now we should have all the french factor data that we need
+#we can start to do our exploration
+#but this time use dplyr
+system.time(
+df_dplyr <- 
+  #get xts as data.frame to take advantage of new features
+  data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  # long form similar to melt(
+  #  data.frame(
+  #    date=as.Date(index(french_factors_xts)),
+  #    french_factors_xts
+  #  ),
+  #  id.vars = "date",
+  #  variable.name = "mkt_factor",
+  #  value.name = "roc"
+  #)
+  gather(ff_factor,roc,-date) %.%
+  # group it and apply a function similar to ddply(
+  #   df, 
+  #   .(ff_factor,roc),
+  #   summarise(
+  #     date = french_factors_xts$date[seq(1,nrow(french_factors_xts)-199,by=1)],
+  #     omega = function(x) {
+  #       rollapply( as.numeric(x$roc), Omega, width = 200, by = 1)
+  #     }
+  #   )
+  # )
+  group_by( ff_factor )  %.%
+  do(
+    data.frame(
+      date = .$date[seq(1,nrow(.)-199,by=1)],
+      omega = rollapply( as.numeric(.$roc) , Omega, width=200, by=1)
+    )
+  )
+)
+```
+
+```{r "oldway_plot"}
+xyplot(omega~date, groups = ff_factor, data = df_dplyr,type="l",ylim=c(-1,4))
+```
+
+```{r "newway_plot"}
+#play with tidyr
+require(Gmisc)
+data.frame(
+  "date"=format(index(french_factors_xts)),
+  french_factors_xts
+) %>%
+  gather(ff_factor,roc,-date) %>%
+  mutate(
+    date = as.character(date),
+    ff_factor = as.character(ff_factor)
+  ) %>%
+  group_by( ff_factor ) %>%
+  top_n(n=5,date) %>%
+  htmlTable %>%
+  cat
+
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %>%
+  ggplot(data = .,aes(x=date,y=roc,colour=ff_factor)) + geom_line()
+
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  ggplot(data = .,aes(x=date,y=cumul,colour=ff_factor)) + geom_line()
+```
+
+```{r "with_rCharts"}
+require(rCharts)
+
+data.frame(
+  "date"= french_factors_xts %>% index %>% format,
+  french_factors_xts,
+  row.names= NULL
+) %>%
+  tbl_df %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  #demo filter to get end of month instead of daily
+  filter(
+    date %in% format(
+      index(
+        french_factors_xts[french_factors_xts %>% endpoints(on="months")]
+      )
+    )
+  ) %>%
+  dPlot(
+    cumul~date
+    ,groups="ff_factor"    
+    ,data = .
+    ,type="line"
+    ,xAxis = list(
+      type = "addTimeAxis"
+      , inputFormat = '%Y-%m-%d'
+      , outputFormat = "%b %Y"
+    )
+    ,yAxis = list( outputFormat = ".2f")
+  )
+```
+  
+```{r "advanced_rCharts"}
+#very hacky way of accomplishing
+#need to iterate to something better
+modifyChartList <- function( x, element, val ) {
+  rTemp <- x$copy()
+  rTemp[[element]] <- modifyList(rTemp[[element]], val)
+  return(rTemp)
+}
+
+data.frame(
+  #maybe chaining here makes more confusing
+  "date"= french_factors_xts %>% index %>% format,
+  french_factors_xts,
+  row.names= NULL
+) %>%
+  tbl_df %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  #demo filter to get end of quarter instead of daily 
+  filter(
+    date %in% format(index(french_factors_xts[french_factors_xts %>% endpoints(on="quarters")]))
+  ) %>%
+  dPlot(
+    cumul~date
+    ,groups="ff_factor"    
+    ,data = .
+    ,type="line"
+    ,xAxis = list(
+      type = "addTimeAxis"
+      , inputFormat = '%Y-%m-%d'
+      , outputFormat = "%b %Y"
+    )
+    ,yAxis = list( outputFormat = ".2f")
+  ) %>%
+  modifyChartList(
+    element = "templates",
+    val = list(afterScript = '
+      <script>
+        {{chartId}}.axes[0].shapes.selectAll(".tick")[0].forEach(function(d,i){
+          if (!(+d3.time.format("%Y")(new Date(+d3.select(d).datum())) % 10 == 0)) {
+            d.remove()
+          } else {
+            d3.select(d).select("text")
+              .attr("transform",null)
+              .attr("y","0")
+              .attr("dy","2em")
+              .style("text-anchor","middle")
+              .text(d3.time.format("%Y")(new Date(+d3.select(d).datum())))
+          }
+        });
+      </script>
+     '
+    )
+  )
+```
+
+---
+### Thanks
+As I hope you can tell, this post was more a function of the efforts of others than of my own.
+
+Thanks specifically:
+- [Kenneth French](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/) for his very generous [data library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html)
+- [the AQR research factory](http://www.aqr.com/) for this and all their other research
+- [Ramnath Vaidyanathan](http://ramnathv.github.io/) for [rCharts](http://rcharts.io/site) and [slidify](http://slidify.org).
+- [John Kiernander](https://twitter.com/jkiernander) for [dimplejs](http://dimplejs.org)
+- Nameless Fixed Income Shop for the original chart.
+- [Mike Bostock](http://bost.ocks.org/mike/) for everything.
+- [Marcello Palmitessa](http://aozora.github.io/bootplus/) for the Bootplus framework.
+- Google fonts [Raleway](http://www.google.com/fonts/specimen/Raleway) and [Oxygen](http://www.google.com/fonts/specimen/Oxygen)
