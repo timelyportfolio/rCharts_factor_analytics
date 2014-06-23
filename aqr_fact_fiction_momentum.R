@@ -332,3 +332,125 @@ french_price<-as.xts(
 require(PerformanceAnalytics)
 
 Return.annualized(french_factors_xts["1991::2013"],geometric=F)
+
+
+
+
+require(reshape2)
+require(ggplot2)
+require(dplyr)
+require(lattice)
+
+Omega(french_factors_xts)
+
+#the traditional way to get rolling
+#but this takes a really long time except if we do as.matrix
+system.time(
+  df_matrix <- rollapply(as.matrix(french_factors_xts), width=200, by = 1, FUN=Omega)
+)
+
+system.time(
+  df_lapply <- do.call(rbind,lapply(
+    french_factors_xts,function(f){
+      answer <- data.frame(rollapply(as.numeric(f),Omega,width=200,by=1))
+      colnames(answer) <- "omega"
+      answer$date = index(french_factors_xts)[seq(1,nrow(french_factors_xts)-199,by=1)]
+      answer$mkt_factor = colnames(f)
+      return(answer)
+    }
+  ))
+)
+
+xyplot(omega~date, groups = mkt_factor, data = df_lapply,type="l",ylim=c(-1,4))
+
+require(tidyr)
+system.time(
+df_dplyr <- #melt(
+#  data.frame(
+#    date=as.Date(index(french_factors_xts)),
+#    french_factors_xts
+#  ),
+#  id.vars = "date",
+#  variable.name = "mkt_factor",
+#  value.name = "roc"
+#)
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %.%
+  group_by( ff_factor )  %.%
+  do(
+    data.frame(
+      date = .$date[seq(1,nrow(.)-199,by=1)],
+      omega = rollapply( as.numeric(.$roc) , Omega, width=200, by=1)
+    )
+  )
+)
+
+xyplot(omega~date, groups = ff_factor, data = df_dplyr,type="l",ylim=c(-1,4))
+
+
+#play with tidyr
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+    gather(ff_factor,roc,-date)
+
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %>%
+  ggplot(data = .,aes(x=date,y=roc,colour=ff_factor)) + geom_line()
+
+data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  ggplot(data = .,aes(x=date,y=cumul,colour=ff_factor)) + geom_line()
+
+require(rCharts)
+data.frame("date"=format(index(french_factors_xts)),french_factors_xts) %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  dPlot(
+    cumul~date
+    ,groups="ff_factor"    
+    ,data = .
+    ,type="line"
+    ,xAxis = list( type = "addTimeAxis", inputFormat = '%Y-%m-%m', outputFormat = "%b %Y"  )
+  )
+  
+#very hacky way of accomplishing
+#need to iterate to something better
+modifyChartList <- function( x, element, val ) {
+  rTemp <- x$copy()
+  rTemp[[element]] <- modifyList(rTemp[[element]], val)
+  return(rTemp)
+}
+
+data.frame("date"=format(index(french_factors_xts)),french_factors_xts) %>%
+  gather( ff_factor, roc, -date ) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  dPlot(
+    cumul~date
+    ,groups="ff_factor"    
+    ,data = .
+    ,type="line"
+    ,xAxis = list( type = "addTimeAxis", inputFormat = '%Y-%m-%m', outputFormat = "%b %Y"  )
+  ) %>%
+  modifyChartList(
+    element = "templates",
+    val = list(afterScript = '
+      <script>
+        myChart.axes[0].shapes.selectAll(".tick")[0].forEach(function(d,i){
+          if (!(+d3.time.format("%Y")(new Date(+d3.select(d).datum())) % 10 == 0)) {
+            d.remove()
+          } else {
+            d3.select(d).select("text")
+              .attr("transform",null)
+              .attr("y","0")
+              .attr("dy","2em")
+              .style("text-anchor","middle")
+              .text(d3.time.format("%Y")(new Date(+d3.select(d).datum())))
+          }
+        });
+      </script>
+     '
+    )
+  )
