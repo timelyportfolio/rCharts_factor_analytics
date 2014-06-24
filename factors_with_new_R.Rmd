@@ -37,6 +37,14 @@ knitr::opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height 
 options(rcharts.mode="iframesrc")
 ```
 
+R seems to be experiencing a quiet revolution led by pipes | chains borrowed from Javascript, F#, and Unix.  `dplyr` and `magrittr` are independent projects, but they have benefitted greatly from each other.  Chaining results in much more readable code, and as a nice side benefit, Romain Francois' C magic makes `dplyr` extremely fast.  I thought I would collect a couple of example workflows with the French-Fama factors and `xts` data.  `dplyr` and `magrittr ` are not designed to work with `xts` time series out of the box, so these time series require a couple of extra steps.
+
+I will also use `tidyr`, which is Hadley Wickham's rethought `reshape2`.  `tidyr` is designed to fit nicely into the `dplyr`/`magrittr` workflow.  Its simplicity makes it power deceptive.
+
+Best practices with chains in R are still not yet decided, and `magrittr` is evolving rapidly, so much might change, but I think we have already moved far enough in this direction that return to our old ways is unlikely.
+
+Let's `require` all the libraries.  If you do not have them, `install_github` from `devtools` will get you up to date.
+
 ```{r "requirepkg"}
 require(quantmod)
 require(PerformanceAnalytics)
@@ -47,6 +55,11 @@ require(tidyr)
 require(lattice)
 require(ggplot2)
 ```
+
+---
+# Data Once Again from Kenneth French
+
+Similar to lots of [posts](http://timelyportfolio.blogspot.com/search/label/french), I will use this ugly R code to load in the data from the Kenneth French [data library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html).
 
 ```{r "getdata", eval=FALSE}
 #daily factors from Kenneth French Data Library
@@ -95,12 +108,12 @@ french_momentum_xts <- as.xts(
 #merge UMD (momentum) with other french factors
 french_factors_xts <- na.omit( merge( french_factors_xts, french_momentum_xts ) )
 french_factors_xts <- french_factors_xts/100
-
-#get price series from monthly returns
-french_price<-as.xts(
-  apply(1+coredata(french_factors_xts),MARGIN=2,cumprod),
-  index(french_factors_xts))
 ```
+
+---
+# Rolling Analysis in Chains
+
+I have noticed that rolling analysis with `xts` can sometimes be slow.  `as.matrix` is my favorite way to speed things up, since I usually do not need `xts` powerful indexing and subsetting features.  I thought the additional complexity of rolling analysis would offer a nice challenge to improve my understanding of `xts` + `dplyr`.  Here is a quick test.  I would love thoughts on a better approach with comments that offer the comprable `melt` and `ddply` method.
 
 ```{r "rolling_analysis"}
 #now we should have all the french factor data that we need
@@ -140,12 +153,18 @@ df_dplyr <-
 )
 ```
 
+This might be the longest I have gone without a plot, so let's use `lattice` to create a very quick and admittedly ugly line plot.
+
 ```{r "oldway_plot"}
 xyplot(omega~date, groups = ff_factor, data = df_dplyr,type="l",ylim=c(-1,4))
 ```
 
+---
+# Plotting as Part of Our Chain
+
+I am ashamed to admit how long it took me to realize that plotting could integrate nicely into chains.  Below I show how we can use `Gmisc` `htmlTable` to nicely output a table with the last 5 daily returns from each of the factors.
+
 ```{r "newway_plot"}
-#play with tidyr
 require(Gmisc)
 data.frame(
   "date"=format(index(french_factors_xts)),
@@ -154,23 +173,37 @@ data.frame(
   gather(ff_factor,roc,-date) %>%
   mutate(
     date = as.character(date),
-    ff_factor = as.character(ff_factor)
+    ff_factor = as.character(ff_factor),
+    roc = paste0(format(roc*100,digits=4),"%")
   ) %>%
   group_by( ff_factor ) %>%
   top_n(n=5,date) %>%
   htmlTable %>%
   cat
+```
 
+I do not think it was intentional, but `ggplot2` also fits nicely and cleanly into our chains.  Often, I think data cleaning and aggregation should be separated from the output, but it is nice to be able to walk from raw data to final output in one uninterrupted block of code.
+
+```{r "ggplot_returns"}
 data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
   gather(ff_factor,roc,-date) %>%
   ggplot(data = .,aes(x=date,y=roc,colour=ff_factor)) + geom_line()
+```
 
+The previous plot did not do any calculations, so let's add a simple `cumsum` to get a cumulative line chart of the returns for each factor.  These calculations could be much more complex using this same technique.
+
+```{r "ggplot_cumul"}
 data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
   gather(ff_factor,roc,-date) %>%
   group_by( ff_factor ) %>%
   mutate(cumul = cumsum(roc)) %>%
   ggplot(data = .,aes(x=date,y=cumul,colour=ff_factor)) + geom_line()
 ```
+
+---
+# Complete the Chain with rCharts
+
+As the R world moves to chains and pipes, the entire vis world is simultaneously moving to interactive charts.  Within R visualization, we can see this parallel shift to interactivity with `rCharts`, `ggvis`, `googleVis`, and `animint`.  Since `ggvis` and `dplyr` share the same source, I am sure we will see `ggvis` chains soon, so here I will show `rCharts` in our chain.
 
 ```{r "with_rCharts"}
 require(rCharts)
@@ -205,7 +238,10 @@ data.frame(
     ,yAxis = list( outputFormat = ".2f")
   )
 ```
-  
+
+Refined output currently requires some additional manipulation.  In the chart above, I do not like the x axis, and want to include some code to just make tick marks for each decade.  For this to occur, `rCharts` functions might need to be redesigned to return the chart instead of manipulate the object.  I will appeal to expert R gurus for the best approach to this.  Here is my ugly first hack.
+
+
 ```{r "advanced_rCharts"}
 #very hacky way of accomplishing
 #need to iterate to something better
@@ -264,15 +300,19 @@ data.frame(
 ```
 
 ---
+# Discussion %>% Conclusion
+After a little bit of experimentation, chains and pipes quickly become quite natural.  I will eagerly read any new code and closely follow `magrittr` to become even more skilled at this, so June 23, 2014 might be the last bit of code that I share with no chains.
+
+---
 ### Thanks
 As I hope you can tell, this post was more a function of the efforts of others than of my own.
 
 Thanks specifically:
 - [Kenneth French](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/) for his very generous [data library](http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html)
-- [the AQR research factory](http://www.aqr.com/) for this and all their other research
 - [Ramnath Vaidyanathan](http://ramnathv.github.io/) for [rCharts](http://rcharts.io/site) and [slidify](http://slidify.org).
-- [John Kiernander](https://twitter.com/jkiernander) for [dimplejs](http://dimplejs.org)
-- Nameless Fixed Income Shop for the original chart.
+- [John Kiernander](https://twitter.com/jkiernander) for [dimplejs](http://dimplejs.org).
+- [Hadley Wickham](https://github.com/hadley) for lots and lots of R packages.
+- [Stefan Milton Bache](https://github.com/smbache) for [magrittr](https://github.com/smbache/magrittr).
 - [Mike Bostock](http://bost.ocks.org/mike/) for everything.
 - [Marcello Palmitessa](http://aozora.github.io/bootplus/) for the Bootplus framework.
 - Google fonts [Raleway](http://www.google.com/fonts/specimen/Raleway) and [Oxygen](http://www.google.com/fonts/specimen/Oxygen)
