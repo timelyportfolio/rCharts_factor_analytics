@@ -197,9 +197,9 @@ d1 <- dPlot(
   height = 350,
   width = 750
 )
-d1$setTemplate(
-  script = "./chart_assignColors.html"
-)
+#d1$setTemplate(
+#  script = "./chart_assignColors.html"
+#)
 d1
 
 ```
@@ -259,9 +259,9 @@ d2 <- dPlot(
   defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#",
   height= 350
 )
-d2$setTemplate(
-  script = "./chart_assignColors.html"
-)
+#d2$setTemplate(
+#  script = "./chart_assignColors.html"
+#)
 d2
 ```
 
@@ -312,9 +312,9 @@ d2 <- dPlot(
   defaultColors = "#!d3.scale.ordinal().range(['#196396','#d56a0b','#9d9e1c','#139ead']).domain(['SMB','Mom','HML','Mkt.RF'])!#",
   height = 350
 )
-d2$setTemplate(
-  script = "./chart_assignColors.html"
-)
+#d2$setTemplate(
+#  script = "./chart_assignColors.html"
+#)
 d2$show("inline")
 ```
 
