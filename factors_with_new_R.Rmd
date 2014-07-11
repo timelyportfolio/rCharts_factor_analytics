@@ -10,6 +10,10 @@ hitheme: twitter-bootstrap
 lead : >
   Finance Case with French Factors
 assets:
+  js:
+    - "http://d3js.org/d3.v3.min.js"
+    - "http://dimplejs.org/dist/dimple.v2.0.0.min.js"
+    - "http://timelyportfolio.github.io/rCharts_dimple/js/d3-grid.js"
   css:
     - "http://fonts.googleapis.com/css?family=Raleway:300"
     - "http://fonts.googleapis.com/css?family=Oxygen"    
@@ -34,7 +38,7 @@ h1,h2,h3,h4 {
 ```{r echo = F, warning=F, error=F, message=F, cache=F}
 #require(knitr)
 knitr::opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
-options(rcharts.mode="iframesrc")
+options(rcharts.mode="inline")
 ```
 
 R seems to be experiencing a quiet revolution led by pipes | chains borrowed from Javascript, F#, and Unix.  `dplyr` and `magrittr` are independent projects, but they have benefitted greatly from each other.  Chaining results in much more readable code, and as a nice side benefit, Romain Francois' C magic makes `dplyr` extremely fast.  I thought I would collect a couple of example workflows with the French-Fama factors and `xts` data.  `dplyr` and `magrittr ` are not designed to work with `xts` time series out of the box, so these time series require a couple of extra steps.
@@ -50,6 +54,7 @@ require(quantmod)
 require(PerformanceAnalytics)
 require(dplyr)
 require(tidyr)
+require(magrittr)
 
 #not necessary but include for examples
 require(lattice)
@@ -200,7 +205,7 @@ data.frame("date"=index(french_factors_xts),french_factors_xts) %>%
   ggplot(data = .,aes(x=date,y=cumul,colour=ff_factor)) + geom_line()
 ```
 
----
+--- .RAW
 # Complete the Chain with rCharts
 
 As the R world moves to chains and pipes, the entire vis world is simultaneously moving to interactive charts.  Within R visualization, we can see this parallel shift to interactivity with `rCharts`, `ggvis`, `googleVis`, and `animint`.  Since `ggvis` and `dplyr` share the same source, I am sure we will see `ggvis` chains soon, so here I will show `rCharts` in our chain.
@@ -242,7 +247,7 @@ data.frame(
 Refined output currently requires some additional manipulation.  In the chart above, I do not like the x axis, and want to include some code to just make tick marks for each decade.  For this to occur, `rCharts` functions might need to be redesigned to return the chart instead of manipulate the object.  I will appeal to expert R gurus for the best approach to this.  Here is my ugly first hack.
 
 
-```{r "advanced_rCharts"}
+```{r "advanced_rCharts_T"}
 #very hacky way of accomplishing
 #need to iterate to something better
 modifyChartList <- function( x, element, val ) {
@@ -280,22 +285,56 @@ data.frame(
   modifyChartList(
     element = "templates",
     val = list(afterScript = '
-      <script>
-        {{chartId}}.axes[0].shapes.selectAll(".tick")[0].forEach(function(d,i){
-          if (!(+d3.time.format("%Y")(new Date(+d3.select(d).datum())) % 10 == 0)) {
-            d.remove()
-          } else {
-            d3.select(d).select("text")
-              .attr("transform",null)
-              .attr("y","0")
-              .attr("dy","2em")
-              .style("text-anchor","middle")
-              .text(d3.time.format("%Y")(new Date(+d3.select(d).datum())))
-          }
-        });
-      </script>
+<script>
+  {{chartId}}[0].axes[0]
+    .timePeriod = d3.time.years
+    .timeInterval = 10
+  {{chartId}}[0].draw();  
+</script>
      '
     )
+  )
+```
+
+--- .RAW
+# New Code with Mr. %T>%
+Fortunately a thoughtful reader commented with the better way to add `afterScript` using the `%T>%` operator from `magrittr`.  I have modified the code from above with what I think is a better workflow which removes the need for our helper `modifyChartList`.
+
+```{r "advanced_rCharts"}
+data.frame(
+  #maybe chaining here makes more confusing
+  "date"= french_factors_xts %>% index %>% format,
+  french_factors_xts,
+  row.names= NULL
+) %>%
+  tbl_df %>%
+  gather(ff_factor,roc,-date) %>%
+  group_by( ff_factor ) %>%
+  mutate(cumul = cumsum(roc)) %>%
+  #demo filter to get end of quarter instead of daily 
+  filter(
+    date %in% format(index(french_factors_xts[french_factors_xts %>% endpoints(on="quarters")]))
+  ) %>%
+  dPlot(
+    cumul~date
+    ,groups="ff_factor"    
+    ,data = .
+    ,type="line"
+    ,xAxis = list(
+      type = "addTimeAxis"
+      , inputFormat = '%Y-%m-%d'
+      , outputFormat = "%b %Y"
+    )
+    ,yAxis = list( outputFormat = ".2f")
+  ) %T>%
+  .$setTemplate(afterScript = '
+<script>
+  {{chartId}}[0].axes[0]
+    .timePeriod = d3.time.years
+    .timeInterval = 10
+  {{chartId}}[0].draw();
+</script>
+     '
   )
 ```
 
