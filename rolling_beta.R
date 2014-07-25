@@ -56,22 +56,28 @@ fund.roc <- ROC(fund[,4],type="discrete",n=1)
 perfComp <- na.omit(merge(fund.roc,french_momentum_xts))
 
 
-fit.time <- fitTimeSeriesFactorModel(
-  assets.names=colnames(perfComp[,1]),
-  factors.names=colnames(perfComp[,-1]),
+fit.time <- fitTsfm(
+  asset.names=colnames(perfComp[,1]),
+  factor.names=colnames(perfComp[,-1]),
   data=perfComp,
   fit.method="DLS"
 )
 
-betasRolling <- rollapply(perfComp, width = 36, by.column=FALSE, by=1, FUN = function(x){
-  fit.time <- fitTimeSeriesFactorModel(
-    assets.names=colnames(x[,1]),
-    factors.names=colnames(x[,-1]),
-    data=x,
-    fit.method="OLS"
-  )
-  return(fit.time$beta)
-})
+betasRolling <- rollapply(
+  perfComp
+  , width = 36
+  , by.column=FALSE
+  , by=1
+  , FUN = function(x){
+    fit.time <- fitTsfm(
+      asset.names=colnames(x[,1]),
+      factor.names=colnames(x[,-1]),
+      data=x,
+      fit.method="OLS"
+    )
+    return(xts(fit.time$beta,order.by=index(tail(x,1))))
+  }
+)
 colnames(betasRolling) <- colnames(perfComp)[-1]
 
 require(reshape2)
@@ -151,7 +157,7 @@ fund.roc <- ROC(fund[,4],type="discrete",n=1)
 perfComp <- na.omit(merge(fund.roc,french_momentum_xts))
 
 
-fit.time <- fitTimeSeriesFactorModel(
+fit.time <- fitTsfm(
 assets.names=colnames(perfComp[,1]),
 factors.names=colnames(perfComp[,-1]),
 data=perfComp,
@@ -159,7 +165,7 @@ fit.method="DLS"
 )
 
 betasRolling <- rollapply(perfComp, width = 36, by.column=FALSE, by=1, FUN = function(x){
-fit.time <- fitTimeSeriesFactorModel(
+fit.time <- fitTsfm(
 assets.names=colnames(x[,1]),
 factors.names=colnames(x[,-1]),
 data=x,
