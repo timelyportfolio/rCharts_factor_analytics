@@ -146,7 +146,17 @@ jensen_ekholm( perfComp ) -> jE
 
 jE %:>% summary(.$linmod)$"r.squared" + jE$ekholm[1,3] + jE$ekholm[1,4]
 
-perfComp %>>%
+#make silly little function to combine mutual fund returns with french factors
+getPerformance <- function ( ticker, from = "1896-01-01" ) {
+  ticker %>>% 
+    getSymbols( from = from, adjust=TRUE, auto.assign=F ) %:>%
+    .[,4] %>>%
+    ROC( type = "discrete", n = 1 ) %>>%
+    merge ( french_factors_xts ) %>>%
+    na.omit -> perfComp
+}
+
+getPerformance( "LVMCX" ) %>>%
   rollapply (
     FUN= function(x){
       x %:>%
@@ -155,9 +165,9 @@ perfComp %>>%
         return
     }
     , width = 250
-    , by = 250
+    #, by = 100
     , by.column=F
     , fill = NULL
-  ) %>T% plot.zoo(type ="b", main = "Ekholm (2014) Return Decomposition")
+  ) %T>% plot.zoo(type ="b", main = "Ekholm (2014) Return Decomposition")
 
  
