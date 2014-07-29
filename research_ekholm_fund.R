@@ -156,12 +156,13 @@ getPerformance <- function ( ticker, from = "1896-01-01" ) {
     na.omit -> perfComp
 }
 
-getPerformance( "LVMCX" ) %>>%
+getPerformance( "SEQUX" ) %>>%
   rollapply (
     FUN= function(x){
       x %:>%
-      jensen_ekholm(.)$ekholm %>>%
-      xts(order.by=tail(index(x),1)) %>>%
+        jensen_ekholm(.) %:>% 
+        cbind( t(coef(.$linmod)) , .$ekholm ) %>>%
+        xts(order.by=tail(index(x),1)) %>>%
         return
     }
     , width = 250
