@@ -42,7 +42,7 @@ jensen_lm %>%
     , fitted_sq = .
     , Rm.Rf_sq = return_data[,1] ^ 2
   ) %T>% assign(x = "return_data", value = ., pos = .GlobalEnv) %>%
-  lm( fitted_sq ~ Rm.Rf_sq , data = .) %>%
+  lm( fitted_sq ~ Rm.Rf_sq , data = . ) %>%
   coefficients %>% . ^ (1/2) %>%
   t %>%
   data.frame %>% 
@@ -53,3 +53,6 @@ jensen_lm %>%
     , "TimingShare" = .$ActiveBeta ^ 2* mean( return_data$Rm.Rf_sq ) / (var(return_data$Rp.Rf) * (nrow(return_data) - 1) / nrow(return_data))
     
   ) -> ekholm
+
+# then to make sure R2 + SelectionShare + TimingShare = 100%
+summary(jensen_lm)$r.squared + ekholm[1,3] + ekholm[1,4]
