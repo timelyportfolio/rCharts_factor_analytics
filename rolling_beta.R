@@ -22,7 +22,7 @@ unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
 french_momentum <- read.table(file=my.usefile,
 	header = TRUE, sep = "",
 	as.is = TRUE,
-	skip = 12, nrows=1046)
+	skip = 12, nrows=1050)
 colnames(french_momentum) <- c(paste("Small",
 	colnames(french_momentum)[1:3],sep="."),
 	paste("Large",colnames(french_momentum)[1:3],sep="."))

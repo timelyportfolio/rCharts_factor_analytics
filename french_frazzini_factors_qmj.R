@@ -44,7 +44,7 @@ qmjFactors.xts <- as.xts(
             }
           )
   )  #date is first column; will use in order.by
-  ,order.by = as.Date(paste0(qmjFactors[,1],"-01"),format="%Y%m%d")
+  ,order.by = as.Date(qmjFactors[,1])
 )
 
 colnames(qmjFactors.xts) <- gsub(
