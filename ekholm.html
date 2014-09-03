@@ -9,7 +9,21 @@
   </head>
   
   <body>
-  
+    <div style = "width:100%">
+      <div style = "display:inline-block;height:100%;width:25%;">
+        <h3>Sparsest test of Ekholm research</h3>
+        Note: Date range currently limited to one year, but there is a fairly easy workaround
+        for the next version.<br/>
+        Mutual Fund Symbol:<input id = "mfsymbol"></input><br/>
+        Start Date: <input type = "date" id = "stdate"></input><br/>
+        End Date: <input type = "date" id = "enddate"></input><br/>
+        <input type="submit" id = "calc" value = "Calculate"></input><br/>
+      </div>
+      
+      <div style = "display:inline-block;height:100%;width:50%;">
+        <textarea id = "results" style="width:100%; height:200px"></textarea>
+      </div>
+    </div>
   </body>
   
   <script>
@@ -54,8 +68,12 @@
       var selectionShare = Math.pow(activeAlpha, 2 ) / ( ss.variance(data.map(function(d){return d[1]})) * (data.length - 1) / data.length )
       var timingShare = Math.pow(activeBeta, 2 ) * ss.mean( data.map(function(d){return Math.pow(d[0],2)}) ) / ( ss.variance(data.map(function(d){return d[1]})) * (data.length - 1) / data.length )
       
+      //pass correlation result also
+      var correlation = ss.sample_correlation(data.map(function(d){return d[0]}),data.map(function(d){return d[1]}));
+      
       return { 
         regression: myReg,
+        correlation: correlation,
         activeAlpha: activeAlpha,
         activeBeta: activeBeta,
         selectionShare: selectionShare,
@@ -99,38 +117,68 @@
         return url;
     }
     
-    var fund_factor = [];
-    
-    d3.json(getStock({stock:"VFINX",startDate:"2013-06-30",endDate:"2014-06-30"},"historicaldata"), function(err,fund){
-      d3.json("french_factors.json",function(err,french){
-        //manipulate data to join fund with factors
-        //would be nice to have a xts merge in javascript
-        
-        //get the data from the Quandl french data
-        french = french.data;
-              
-        // query.results.quote will have the data stripped of meta
-        fund = fund.query.results.quote;
-        
-        // now lets go period by period with fund.map
-        fund.map( function(per, i){
-          if( i > 0 ) {
-            var frenchThisPer = french.filter(function(d){return d[0] == per.Date});
-            fund_factor.push([
-              //Date: per.Date,
-              //FundPrice: 
-              per.Adj_Close / fund[ i - 1 ].Adj_Close - 1 - frenchThisPer[0][4]/100,
-              //Rm_Rf:
-              +frenchThisPer[0][1]/100//,
-              //Rf: +frenchThisPer[0][4]/100
-            ])
-          }
-        })
-        
-        console.log( calculateEkholm( fund_factor ) )
-      })
+  
+    d3.select("#calc").on("click",function(){
+      calculateFund(
+        d3.select("#mfsymbol")[0][0].value,
+        d3.select("#stdate")[0][0].value,
+        d3.select("#enddate")[0][0].value
+      )
     })
-    //getStock({stock:"GE",startDate:"2014-01-01",endDate:"2014-09-01"},"historicaldata")
+    
+    function calculateFund( symbol, startdate, enddate ) {
+      
+      d3.json(getStock({stock:symbol.toUpperCase(),startDate:startdate,endDate:enddate},"historicaldata"), function(e1,fund){
+      
+        d3.json("french_factors.json",function(e2,french){
+          if( e1 || e2 || !fund.query.results ) {
+            updateResults ( {e1:"error", e2:"error"} );
+          } else {
+            var fund_factor = [];
+          
+            //manipulate data to join fund with factors
+            //would be nice to have a xts merge in javascript
+            
+            //get the data from the Quandl french data
+            french = french.data;
+                  
+            // query.results.quote will have the data stripped of meta
+            // also we will sort date ascending
+            fund = fund.query.results.quote
+                .sort(function(a,b){ return d3.ascending( new Date(a.Date), new Date(b.Date) ) } );
+            
+            
+            
+            
+            // now lets go period by period with fund.map
+            fund.map( function(per, i){
+              if( i > 0 ) {
+                var frenchThisPer = french.filter(function(d){return d[0] == per.Date});
+                fund_factor.push([
+                  //Date: per.Date,
+                  //FundPrice: 
+                  per.Adj_Close / fund[ i - 1 ].Adj_Close - 1 - frenchThisPer[0][4]/100,
+                  //Rm_Rf:
+                  +frenchThisPer[0][1]/100//,
+                  //Rf: +frenchThisPer[0][4]/100
+                ])
+              }
+            })
+            
+            updateResults( calculateEkholm( fund_factor ) );
+          }
+          
+        })
+      })
+    }
+    
+    function updateResults( ekholmCalc ){
+      var ekhArr = [];
+      Object.keys(ekholmCalc).map(function(k){
+        ekhArr.push( [ k,": ", ekholmCalc[k] ].join("") )
+      })
+      d3.select("#results").text(ekhArr.join("\n"))
+    }
   
   </script>
   
