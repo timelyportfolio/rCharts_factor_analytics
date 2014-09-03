@@ -132,7 +132,7 @@
       
         d3.json("french_factors.json",function(e2,french){
           if( e1 || e2 || !fund.query.results ) {
-            updateResults ( {e1:"error", e2:"error"} );
+            updateResults ( {e1:e1, e2:e2, queryresults: "query problems"} );
           } else {
             var fund_factor = [];
           
