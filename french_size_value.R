@@ -45,3 +45,73 @@ french_price<-as.xts(
 #check data for reasonability
 plot.zoo(log(french_price),screens=1)
 Return.annualized(french_size_value_xts)
+
+
+
+
+
+
+# to get data from Axys export
+fund <- read.csv("f:/axys3/keekent/4609tecs.csv",stringsAsFactors = F)
+fund.roc <- as.xts(
+  fund [,-c(1,ncol(fund))]
+  ,order.by = as.Date(
+    paste(
+      substr(fund[,1],1,2)
+      ,"01"      
+      ,substr(fund[,1],7,8)
+      ,sep = "-"
+    )
+    ,format = "%m-%d-%y"
+  )
+)
+
+
+perfComp <- na.omit(merge(fund.roc[,3],french_size_value_xts)) #, french_momentum_xts))
+
+
+fit.time <- fitTsfm(
+  asset.names=colnames(perfComp[,1]),
+  factor.names=colnames(perfComp[,-1]),
+  data=perfComp,
+  fit.method="OLS"
+)
+
+betasRolling <- rollapply(
+  perfComp
+  , width = 12
+  , by.column=FALSE
+  , by=1
+  , FUN = function(x){
+    fit.time <- fitTsfm(
+      asset.names=colnames(x[,1]),
+      factor.names=colnames(x[,-1]),
+      data=x,
+      fit.method="DLS" # "OLS" , "Robust"
+    )
+    return(xts(fit.time$beta,order.by=index(tail(x,1))))
+  }
+)
+colnames(betasRolling) <- colnames(perfComp)[-1]
+
+require(reshape2)
+betasRolling.melt <- melt(data.frame(index(betasRolling),betasRolling),id.vars=1)
+colnames(betasRolling.melt) <- c("date", "factor", "beta")
+
+nBeta <- nPlot(
+  beta ~ date,
+  group = "factor",
+  data = na.omit(betasRolling.melt),
+  type = "multiBarChart", #lineChart #stackedAreaChart", #bar, area don't work with negative
+  height = 400,
+  width = 700
+)
+#nBeta$chart(stacked = TRUE, useInteractiveGuideline=TRUE)
+nBeta$xAxis(tickFormat = 
+              "#!function(d) {return d3.time.format('%Y-%m-%d')(new Date(d * 24 * 60 * 60 * 1000));}!#"
+)
+nBeta$yAxis(tickFormat =
+              "#!function(d) {return d3.format('0.2f')(d);}!#"
+)
+
+nBeta

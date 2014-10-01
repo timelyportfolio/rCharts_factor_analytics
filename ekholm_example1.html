@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Explore Anders Ekholm's ActiveAlpha &amp; ActiveBeta</title>
+  <!-- Always force latest IE rendering engine -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Timely Portfolio">
+  
+  <link rel="icon" type="image/png" href="img/slidify_logo_notext.png">
+  
+  <link href="libraries/frameworks/bootplus/assets/css/bootplus.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/bootplus-responsive.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/font-awesome.min.css" rel="stylesheet">
+  <link href="libraries/frameworks/bootplus/assets/css/docs.css" rel="stylesheet">
+  <link href="libraries/highlighters/prettify/css/twitter-bootstrap.css" rel="stylesheet">
+  
+  <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+  
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+  <script src="../assets/js/html5shiv.js"></script>
+  <![endif]-->
+  
+  
+  <style>
+    p {
+      text-align: justify;
+    }
+    .nav [class^="icon-"] {
+      line-height: normal;
+    }
+    
+    ol.linenums {
+      
+    }
+  </style>
+  
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="libraries/frameworks/bootplus/assets/ico/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="libraries/frameworks/bootplus/assets/ico/favicon.png">  <link rel=stylesheet href="http://fonts.googleapis.com/css?family=Raleway:300"></link>
+<link rel=stylesheet href="http://fonts.googleapis.com/css?family=Oxygen"></link>
+
+  <script src="libraries/frameworks/bootplus/assets/js/jquery.js"></script>
+  
+</head>
+<body data-spy="scroll" data-target=".bs-docs-sidebar">
+  
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">
+              <!-- <img src='assets/img/slidify_logo.png' width='100px' /> -->
+              
+            </a>
+            <iframe class="pull-right" style="margin-top:10px;" src="http://ghbtns.com/github-btn.html?user=timelyportfolio&repo=rCharts_factor_analytics&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+            <iframe class="pull-right" style="margin-top:10px;" src="http://ghbtns.com/github-btn.html?user=timelyportfolio&repo=rCharts_factor_analytics&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+  <header class="jumbotron subhead" id="overview">
+    <div class="container">
+      <h1>Explore Anders Ekholm's ActiveAlpha & ActiveBeta</h1>
+      <p class="lead">
+        Simple Example in R
+
+      </p>
+    </div>
+  </header>
+  
+  <div class="container">
+  <div class="row">
+    <div class="span3 bs-docs-sidebar">
+      <ul class="nav nav-list bs-docs-sidenav">
+        <li><a href="#slide-1"> Simple Example in R of <a href="http://ssrn.com/abstract=2463649">Anders Ekholm&#39;s ActiveAlpha and ActiveBeta</a></a></li>
+        <li><a href="#slide-2"> Depend on Other R Packages</a></li>
+        <li><a href="#slide-3"> Ugly Way to Get Kenneth French Factor Data</a></li>
+        <li><a href="#slide-4"> Get  Price / Return Data from Yahoo! Finance</a></li>
+        <li><a href="#slide-5"> Calculate Ekholm&#39;s ActiveAlpha and ActiveBeta</a></li>
+        <li><a href="#slide-6"> One-line It with Function</a></li>
+      </ul>
+    </div>
+    
+    <div class="span8">
+      <section id="slide-1">
+  <div class="page-header">
+    <h1>Simple Example in R of <a href="http://ssrn.com/abstract=2463649">Anders Ekholm&#39;s ActiveAlpha and ActiveBeta</a></h1>
+  </div>
+  <style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+</style>
+
+</section>
+<section id="slide-2">
+  <div class="page-header">
+    <h1>Depend on Other R Packages</h1>
+  </div>
+  <pre><code class="r"># perform Ekholm (2012,2014) analysis on mutual fund return data
+
+# Ekholm, A.G., 2012
+# Portfolio returns and manager activity:
+#    How to decompose tracking error into security selection and market timing
+# Journal of Empirical Finance, Volume 19, pp 349-358
+
+# Ekholm, Anders G., July 21, 2014
+# Components of Portfolio Variance:
+#    R2, SelectionShare and TimingShare
+# Available at SSRN: http://ssrn.com/abstract=2463649
+
+require(quantmod)
+require(PerformanceAnalytics)
+# love me some pipes; will happily translate if pipes aren&#39;t you&#39;re thing
+# devtools::install_github(&quot;renkun_ken/pipeR&quot;)
+require(pipeR) 
+</code></pre>
+
+</section>
+<section id="slide-3">
+  <div class="page-header">
+    <h1>Ugly Way to Get Kenneth French Factor Data</h1>
+  </div>
+  <pre><code class="r">#daily factors from Kenneth French Data Library
+#get Mkt.RF, SMB, HML, and RF
+#UMD is in a different file
+my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily.zip&quot;
+my.tempfile&lt;-paste(tempdir(),&quot;\\frenchfactors.zip&quot;,sep=&quot;&quot;)
+my.usefile&lt;-paste(tempdir(),&quot;\\F-F_Research_Data_Factors_daily.txt&quot;,sep=&quot;&quot;)
+download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_factors &lt;- read.table(file=my.usefile,
+                             header = TRUE, sep = &quot;&quot;,
+                             as.is = TRUE,
+                             skip = 4, nrows=23257)
+#get xts for analysis
+french_factors_xts &lt;- as.xts(
+  french_factors,
+  order.by=as.Date(
+    rownames(french_factors),
+    format=&quot;%Y%m%d&quot;
+  )
+)
+
+#now get the momentum factor
+my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily.zip&quot;
+my.usefile&lt;-paste(tempdir(),&quot;\\F-F_Momentum_Factor_daily.txt&quot;,sep=&quot;&quot;)
+download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
+unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
+#read space delimited text file extracted from zip
+french_momentum &lt;- read.table(file=my.usefile,
+                              header = TRUE, sep = &quot;&quot;,
+                              as.is = TRUE,
+                              skip = 13, nrows=23156)
+#get xts for analysis
+french_momentum_xts &lt;- as.xts(
+  french_momentum,
+  order.by=as.Date(
+    rownames(french_momentum),
+    format=&quot;%Y%m%d&quot;
+  )
+)
+
+#merge UMD (momentum) with other french factors
+french_factors_xts %&gt;&gt;%
+  merge( french_momentum_xts )  %&gt;&gt;%
+  na.omit %&gt;&gt;%
+  ( .[] / 100 ) -&gt; french_factors_xts
+</code></pre>
+
+</section>
+<section id="slide-4">
+  <div class="page-header">
+    <h1>Get  Price / Return Data from Yahoo! Finance</h1>
+  </div>
+  <pre><code class="r">#get a fund to analyze
+# will use Vulcan Value the biggest mutual fund in Birmingham, Alabama
+ticker &lt;- &#39;VVPLX&#39;
+ticker %&gt;&gt;% 
+  getSymbols( from=&quot;1896-01-01&quot;, adjust=TRUE, auto.assign=F ) %&gt;&gt;%
+  ( .[,4] ) %&gt;&gt;%
+  ROC( type = &quot;discrete&quot;, n = 1 ) %&gt;&gt;%
+  merge ( french_factors_xts ) %&gt;&gt;%
+  na.omit -&gt; perfComp
+
+colnames(perfComp)[1] &lt;- gsub( &quot;.Close&quot;, &quot;&quot;, colnames(perfComp)[1] )
+</code></pre>
+
+</section>
+<section id="slide-5">
+  <div class="page-header">
+    <h1>Calculate Ekholm&#39;s ActiveAlpha and ActiveBeta</h1>
+  </div>
+  
+</section>
+<section id="slide-6">
+  <div class="page-header">
+    <h1>One-line It with Function</h1>
+  </div>
+  <pre><code class="r">jensen_ekholm &lt;- function( data, ticker = NULL ){
+
+  if(is.null(ticker)) ticker &lt;- colnames(data)[1]
+
+  as.formula ( paste0(ticker, &quot; ~  Mkt.RF&quot; ) ) %&gt;&gt;%
+    ( lm( data = data, . ) -&gt; jensenLM )
+
+  jensenLM %&gt;&gt;%
+    residuals %&gt;&gt;%
+    (. ^ 2 ) %&gt;&gt;%
+    (
+      data.frame(
+        data
+        , &quot;fitted_sq&quot; = .
+        , lapply(data[,2],function(x){
+          structure(
+            data.frame( as.numeric(x) ^ 2 )
+            , names = paste0(names(x),&quot;_sq&quot;)
+          ) %&gt;&gt;%
+            return
+        }) %&gt;&gt;% ( do.call( cbind, . ) )
+      ) -&gt; return_data_jensen
+    )
+
+  return_data_jensen %&gt;&gt;%
+    ( lm( fitted_sq ~ Mkt.RF_sq, data = . ) )%&gt;&gt;%
+    coefficients %&gt;&gt;%
+    ( . ^ (1/2) ) %&gt;&gt;%
+    t %&gt;&gt;%
+    (
+      structure(
+        data.frame(.),
+        names = c(&quot;ActiveAlpha&quot;, paste0(&quot;ActiveBeta_&quot;,colnames(.)[-1]))
+      )
+    ) %&gt;&gt;% 
+    (
+      data.frame(
+        .
+        , &quot;SelectionShare&quot; = .$ActiveAlpha ^ 2 / (var(return_data_jensen[,ticker]) * (nrow(return_data_jensen) - 1) / nrow(return_data_jensen))
+        , &quot;TimingShare&quot; = .$ActiveBeta_Mkt.RF_sq ^ 2* mean( return_data_jensen$Mkt.RF_sq ) / (var(return_data_jensen[,ticker]) * (nrow(return_data_jensen) - 1) / nrow(return_data_jensen))
+
+      )
+    ) %&gt;&gt;%
+    (
+      list( &quot;ekholm&quot; = ., &quot;linmod&quot; = jensenLM )
+    ) %&gt;&gt;%
+    return
+}
+
+jensen_ekholm( perfComp ) -&gt; jE
+
+jE %&gt;&gt;% ( summary(.$linmod)$&quot;r.squared&quot; + jE$ekholm[1,3] + jE$ekholm[1,4] )
+</code></pre>
+
+<p>[1] 1</p>
+
+</section>
+    </div>
+  </div>
+  </div> <!-- container -->
+  
+  
+</body>
+  <script src="libraries/frameworks/bootplus/assets/js/bootstrap.min.js"></script>
+  <script src="libraries/frameworks/bootplus/assets/js/application.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+<script src="http://timelyportfolio.github.io/rCharts_dimple/js/d3-grid.js"></script>
+
+  <!-- Google Prettify -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/188.0.0/prettify.js"></script>
+  <script src='libraries/highlighters/prettify/js/lang-r.js'></script>
+  <script>
+    var pres = document.getElementsByTagName("pre");
+    for (var i=0; i < pres.length; ++i) {
+      pres[i].className = "prettyprint linenums";
+    }
+    prettyPrint();
+  </script>
+  <!-- End Google Prettify --> 
+  </html>

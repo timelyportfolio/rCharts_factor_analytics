@@ -1,9 +1,56 @@
+---
+title: Explore Anders Ekholm's ActiveAlpha & ActiveBeta
+author: Timely Portfolio
+github: {user: timelyportfolio, repo: rCharts_factor_analytics, branch: "gh-pages"}
+framework: bootplus
+layout: post
+mode: selfcontained
+highlighter: prettify
+hitheme: twitter-bootstrap
+lead : >
+  Simple Example in R
+assets:
+  js:
+    - "http://d3js.org/d3.v3.min.js"
+    - "http://dimplejs.org/dist/dimple.v2.0.0.min.js"
+    - "http://timelyportfolio.github.io/rCharts_dimple/js/d3-grid.js"
+  css:
+    - "http://fonts.googleapis.com/css?family=Raleway:300"
+    - "http://fonts.googleapis.com/css?family=Oxygen"    
+---
+
+# [ActiveAlpha and ActiveBeta](http://ssrn.com/abstract=2463649)
+
+<style>
+body{
+  font-family: 'Oxygen', sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+}
+
+h1,h2,h3,h4 {
+  font-family: 'Raleway', sans-serif;
+}
+
+</style>
+
+
+```{r echo = F, warning=F, error=F, message=F, cache=F}
+#require(knitr)
+knitr::opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
+options(rcharts.mode="inline")
+```
+
+---
+# Depend on Other R Packages
+
+```{r "libraries"}
 # perform Ekholm (2012,2014) analysis on mutual fund return data
 
 # Ekholm, A.G., 2012
 # Portfolio returns and manager activity:
 #    How to decompose tracking error into security selection and market timing
-# Journal of Empirical Finance, Volume 19, pp 349-€“358
+# Journal of Empirical Finance, Volume 19, pp 349-Â€Â“358
 
 # Ekholm, Anders G., July 21, 2014
 # Components of Portfolio Variance:
@@ -12,10 +59,15 @@
 
 require(quantmod)
 require(PerformanceAnalytics)
-require(pipeR)
+# love me some pipes; will happily translate if pipes aren't you're thing
+# devtools::install_github("renkun_ken/pipeR")
+require(pipeR) 
+```
 
+---
+# Ugly Way to Get Kenneth French Factor Data
 
-
+```{r "french factors"}
 #daily factors from Kenneth French Data Library
 #get Mkt.RF, SMB, HML, and RF
 #UMD is in a different file
@@ -64,11 +116,15 @@ french_factors_xts %>>%
   merge( french_momentum_xts )  %>>%
   na.omit %>>%
   ( .[] / 100 ) -> french_factors_xts
+```
 
+---
+# Get  Price / Return Data from Yahoo! Finance
 
-
+```{r "mutualfund_data"}
 #get a fund to analyze
-ticker <- 'NBGIX'
+# will use Vulcan Value the biggest mutual fund in Birmingham, Alabama
+ticker <- 'VVPLX'
 ticker %>>% 
   getSymbols( from="1896-01-01", adjust=TRUE, auto.assign=F ) %>>%
   ( .[,4] ) %>>%
@@ -77,42 +133,26 @@ ticker %>>%
   na.omit -> perfComp
 
 colnames(perfComp)[1] <- gsub( ".Close", "", colnames(perfComp)[1] )
+```
 
-carhartLM <- lm( data = perfComp, NBGIX ~ Mkt.RF + SMB + HML + UMD )
 
-carhartLM %>>%
-  ( .$residuals ) %>>%
-  ( . ^ 2 ) %>>%
-  (
-    data.frame(
-      perfComp
-      , "fitted_sq" = .
-      , lapply(perfComp[,-c(1,5)],function(x){
-          structure(
-            data.frame( as.numeric(x) ^ 2 )
-            , names = paste0(names(x),"_sq")
-          ) %>>%
-            return
-        }) %>>% ( do.call( cbind, . ) )
-    )
-  ) %>>% (~ return_data_carhart = . ) %>>%
-  ( lm( fitted_sq ~ Mkt.RF_sq + SMB_sq + HML_sq + UMD_sq, data = . ) ) %>>%
-  coefficients %>>%
-  ( . ^ (1/2) ) %>>%
-  t %>>%
-  (
-    structure(
-      data.frame(.)
-      ,names = c("ActiveAlpha", paste0("ActiveBeta_",colnames(.)[-1]))
-    )
-  )
+---
+# Calculate Ekholm's ActiveAlpha and ActiveBeta
 
+```{r "ekholm"}
+
+```
+
+---
+# One-line It with Function
+
+```{r "ekholm_function"}
 jensen_ekholm <- function( data, ticker = NULL ){
   
   if(is.null(ticker)) ticker <- colnames(data)[1]
   
   as.formula ( paste0(ticker, " ~  Mkt.RF" ) ) %>>%
-  ( lm( data = data, . ) -> jensenLM )
+    ( lm( data = data, . ) -> jensenLM )
   
   jensenLM %>>%
     residuals %>>%
@@ -159,30 +199,4 @@ jensen_ekholm <- function( data, ticker = NULL ){
 jensen_ekholm( perfComp ) -> jE
 
 jE %>>% ( summary(.$linmod)$"r.squared" + jE$ekholm[1,3] + jE$ekholm[1,4] )
-
-#make silly little function to combine mutual fund returns with french factors
-getPerformance <- function ( ticker, from = "1896-01-01" ) {
-  ticker %>>% 
-    getSymbols( from = from, adjust=TRUE, auto.assign=F ) %>>%
-    ( .[,4] ) %>>%
-    ROC( type = "discrete", n = 1 ) %>>%
-    merge ( french_factors_xts ) %>>%
-    na.omit -> perfComp
-}
-
-getPerformance( "FCNTX" ) %>>%  #AGTHX SEQUX
-  rollapply (
-    FUN= function(x){
-      x %>>%
-        jensen_ekholm %>>% 
-        ( cbind( t(coef(.$linmod)) , .$ekholm ) ) %>>%
-        xts(order.by=tail(index(x),1)) %>>%
-        return
-    }
-    , width = 500
-    #, by = 100
-    , by.column=F
-    , fill = NULL
-  ) %>>% (~ plot.zoo(., type ="l", main = "Ekholm (2014) Return Decomposition") )
-
- 
+```
