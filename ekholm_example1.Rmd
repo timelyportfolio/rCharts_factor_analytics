@@ -1,5 +1,5 @@
 ---
-title: Explore Anders Ekholm's ActiveAlpha & ActiveBeta
+title: Explore Anders Ekholm's SelectionShare & TimingShare
 author: Timely Portfolio
 github: {user: timelyportfolio, repo: rCharts_factor_analytics, branch: "gh-pages"}
 framework: bootplus
@@ -19,7 +19,7 @@ assets:
     - "http://fonts.googleapis.com/css?family=Oxygen"    
 ---
 
-# [ActiveAlpha and ActiveBeta](http://ssrn.com/abstract=2463649)
+# [SelectionShare and TimingShare](http://ssrn.com/abstract=2463649)
 
 <style>
 body{
@@ -137,10 +137,52 @@ colnames(perfComp)[1] <- gsub( ".Close", "", colnames(perfComp)[1] )
 
 
 ---
-# Calculate Ekholm's ActiveAlpha and ActiveBeta
+# Calculate Ekholm's SelectionShare and TimingShare
 
 ```{r "ekholm"}
+# do it with lots of comments and no pipes
+# to clarify the steps
 
+# 1.  Linear Regression of Fund Return vs (Market - RiskFree)
+#      which gives us the well-known Jensen alpha and beta
+jensenLM <- lm( data = perfComp, VVPLX ~ Mkt.RF )
+
+# 2.  Run another linear regression on the residuals ^2
+#       vs the (Mkt - Rf)^2
+residuals.df <- data.frame(
+  residuals = as.numeric( residuals( jensenLM ) ) ^ 2
+  , Mkt.RF_sq = as.numeric( perfComp$Mkt.RF ^ 2 )
+)
+residualsLM <- lm(
+  data = residuals.df
+  , residuals.df$residuals ~ residuals.df$Mkt.RF_sq
+)
+
+# 3. Get ActiveAlpha and ActiveBeta from coefficients
+#     see
+# Ekholm, A.G., 2012
+# Portfolio returns and manager activity:
+#    How to decompose tracking error into security selection and market timing
+# Journal of Empirical Finance, Volume 19, pp 349-358
+activeAlpha = coefficients( residualsLM )[1] ^ (1/2)
+activeBeta = coefficients( residualsLM )[2] ^ (1/2)
+
+# 4. Last step to calculate SelectionShare and TimingShare
+selectionShare = activeAlpha ^ 2 /
+                    (
+                      var( perfComp$VVPLX ) *
+                      (nrow( perfComp ) - 1) / nrow( perfComp )
+                    )
+
+timingShare = activeBeta ^ 2 *
+                mean( residuals.df$Mkt.RF_sq ) /
+                (
+                  var( perfComp$VVPLX ) *
+                    ( nrow( perfComp ) - 1) / nrow( perfComp )
+                )
+
+# check our work r^2  + selectionShare + timingShare should equal 1
+summary(jensenLM)$"r.squared" + selectionShare + timingShare
 ```
 
 ---
