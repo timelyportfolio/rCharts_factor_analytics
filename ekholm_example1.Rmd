@@ -18,8 +18,8 @@ assets:
     - "http://fonts.googleapis.com/css?family=Raleway:300"
     - "http://fonts.googleapis.com/css?family=Oxygen"    
 ---
+# SelectionShare & TimingShare
 
-# [SelectionShare and TimingShare](http://ssrn.com/abstract=2463649)
 
 <style>
 body{
@@ -35,6 +35,19 @@ h1,h2,h3,h4 {
 </style>
 
 
+[Petajisto and Cremers' (2009)](ssrn.com/abstract=891719) ActiveShare and Tracking Error decomposition of money manager returns made what I consider to be revolutionary discoveries, but unfortunately are incredibly costly/difficult to calculate on mutual funds since they require holdings-level data.  In his latest two papers, [Anders Ekholm](www.andersekholm.fi) demonstrates how to similarly decompose performance armed only with the return stream of the manager.  His SelectionShare and TimingShare metrics are both an ingenious standalone contribution and a valuable indirect replication/validation of Petajisto/Cremers.  In case my ability to reword/summarize is not sufficient, I'll include the following quote from Ekholm summarizing the research.
+
+<blockquote>
+"Cremers andPetajisto (2009) and Petajisto (2013) find that past ActiveShare is positively related to future
+performance. Ekholm (2012) takes a different approach and shows that the excess risk caused by selectivity and timing can be estimated from portfolio returns...
+<br/><br/>
+We develop the methodology presented by Ekholm (2012) one step further, and present two
+new measures that quantify how much selectivity and timing have contributed to total variance.
+Our SelectionShare and TimingShare measures can be estimated using portfolio returns only, which has both theoretical and practical advantages. Our empirical tests show that all active risk is not equal, as selectivity and timing have opposite effects on performance."
+</blockquote>
+
+Below with a little replicable R code, I will extend Ekholm's [example spreadsheet](http://www.andersekholm.fi/selection_timing/) to a real fund and calculate ActiveAlpha and ActiveBeta (2009 published 2012).  Then as Ekholm does, use these ActiveAlpha and ActiveBeta metrics to get SelectionShare and TimingShare (2014).  Since these calculations are just basic linear regression, I think it is well within the scope of nearly all readers' abilities.
+
 ```{r echo = F, warning=F, error=F, message=F, cache=F}
 #require(knitr)
 knitr::opts_chunk$set(warning=F, error=F, message=F, fig.width = 10, fig.height = 6, results='asis', cache = F, tidy = F)
@@ -42,9 +55,11 @@ options(rcharts.mode="inline")
 ```
 
 ---
-# Depend on Other R Packages
+# References in Code Comments
 
-```{r "libraries"}
+I am not sure that this will be helpful, and I have not done this in the past, but I will include references to the research within code comments.  For someone reading the code and not the content, this will insure that these links do not get lost.
+
+```{r eval = F}
 # perform Ekholm (2012,2014) analysis on mutual fund return data
 
 # Ekholm, A.G., 2012
@@ -56,40 +71,44 @@ options(rcharts.mode="inline")
 # Components of Portfolio Variance:
 #    R2, SelectionShare and TimingShare
 # Available at SSRN: http://ssrn.com/abstract=2463649
+```
 
+---
+# Depend on Other R Packages
+
+We will, as always, depend on the wonderful and generous contributions of others in the form of R packages.  Most of the calculations though are just the base `lm(...)`.  I do not think there is any turning back from the pipes in [`magrittr`](cran.r-project.org/package=magrittr) or [`pipeR`](renkun.me/pipeR-tutorial/), and since I am addicted I will afford myself the luxury of pipes.
+
+```{r "libraries"}
 require(quantmod)
 require(PerformanceAnalytics)
-# love me some pipes; will happily translate if pipes aren't you're thing
-# devtools::install_github("renkun_ken/pipeR")
+# love me some pipes; will happily translate if pipes aren't your thing
 require(pipeR) 
 ```
 
 ---
 # Ugly Way to Get Kenneth French Factor Data
 
-```{r "french factors"}
+Get the full set of Fama/French factors from the very generous [Kenneth French data library](mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html).  This example only perform a Jensen regression, so we will only need the `Mkt.RF`.  However, in future installments, we will do the Carhart regression which requires the full factor set.
+
+```{r "french factors", eval=F}
 #daily factors from Kenneth French Data Library
 #get Mkt.RF, SMB, HML, and RF
 #UMD is in a different file
 my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily.zip"
 my.tempfile<-paste(tempdir(),"\\frenchfactors.zip",sep="")
-my.usefile<-paste(tempdir(),"\\F-F_Research_Data_Factors_daily.txt",sep="")
-download.file(my.url, my.tempfile, method="auto", 
-              quiet = FALSE, mode = "wb",cacheOK = TRUE)
-unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
-#read space delimited text file extracted from zip
-french_factors <- read.table(file=my.usefile,
-                             header = TRUE, sep = "",
-                             as.is = TRUE,
-                             skip = 4, nrows=23257)
-#get xts for analysis
-french_factors_xts <- as.xts(
-  french_factors,
-  order.by=as.Date(
-    rownames(french_factors),
-    format="%Y%m%d"
-  )
-)
+paste(tempdir(),"\\F-F_Research_Data_Factors_daily.txt",sep="") %>>%
+  (~ download.file( my.url, my.tempfile, method="auto", 
+              quiet = FALSE, mode = "wb",cacheOK = TRUE )
+  ) %>>%
+  (~ unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE ) ) %>>%
+  (
+    #read space delimited text file extracted from zip
+    read.table(file= . ,header = TRUE, sep = "", as.is = TRUE,
+                 skip = 4, nrows=23257)
+  ) %>>%
+  (
+    as.xts( ., order.by=as.Date(rownames(.),format="%Y%m%d" ) )
+  ) -> french_factors_xts
 
 #now get the momentum factor
 my.url="http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily.zip"
@@ -98,28 +117,21 @@ download.file(my.url, my.tempfile, method="auto",
               quiet = FALSE, mode = "wb",cacheOK = TRUE)
 unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
 #read space delimited text file extracted from zip
-french_momentum <- read.table(file=my.usefile,
-                              header = TRUE, sep = "",
-                              as.is = TRUE,
-                              skip = 13, nrows=23156)
-#get xts for analysis
-french_momentum_xts <- as.xts(
-  french_momentum,
-  order.by=as.Date(
-    rownames(french_momentum),
-    format="%Y%m%d"
-  )
-)
-
-#merge UMD (momentum) with other french factors
-french_factors_xts %>>%
-  merge( french_momentum_xts )  %>>%
+read.table(file=my.usefile, header = TRUE, sep = "",
+              as.is = TRUE, skip = 13, nrows=23156) %>>%
+  ( #get xts for analysis    
+    as.xts( . , order.by=as.Date( rownames(.), format="%Y%m%d"  ) )
+  ) %>>%
+  #merge UMD (momentum) with other french factors
+  ( merge( french_factors_xts, . ) )  %>>%
   na.omit %>>%
-  ( .[] / 100 ) -> french_factors_xts
+  ( .[] / 100 ) %>>%
+  (~ plot.zoo(.) ) -> french_factors_xts
+
 ```
 
 ---
-# Get  Price / Return Data from Yahoo! Finance
+# Get Fund Data from Yahoo! Finance
 
 ```{r "mutualfund_data"}
 #get a fund to analyze
@@ -133,6 +145,7 @@ ticker %>>%
   na.omit -> perfComp
 
 colnames(perfComp)[1] <- gsub( ".Close", "", colnames(perfComp)[1] )
+perfComp %>>% plot.zoo ( main = paste0(ticker, " with Factors" ) )
 ```
 
 
@@ -186,7 +199,7 @@ summary(jensenLM)$"r.squared" + selectionShare + timingShare
 ```
 
 ---
-# One-line It with Function
+# One-liner with Function
 
 ```{r "ekholm_function"}
 jensen_ekholm <- function( data, ticker = NULL ){

@@ -86,19 +86,20 @@
   <div class="row">
     <div class="span3 bs-docs-sidebar">
       <ul class="nav nav-list bs-docs-sidenav">
-        <li><a href="#slide-1"> <a href="http://ssrn.com/abstract=2463649">SelectionShare and TimingShare</a></a></li>
-        <li><a href="#slide-2"> Depend on Other R Packages</a></li>
-        <li><a href="#slide-3"> Ugly Way to Get Kenneth French Factor Data</a></li>
-        <li><a href="#slide-4"> Get  Price / Return Data from Yahoo! Finance</a></li>
-        <li><a href="#slide-5"> Calculate Ekholm&#39;s SelectionShare and TimingShare</a></li>
-        <li><a href="#slide-6"> One-line It with Function</a></li>
+        <li><a href="#slide-1"> SelectionShare &amp; TimingShare</a></li>
+        <li><a href="#slide-2"> References in Code Comments</a></li>
+        <li><a href="#slide-3"> Depend on Other R Packages</a></li>
+        <li><a href="#slide-4"> Ugly Way to Get Kenneth French Factor Data</a></li>
+        <li><a href="#slide-5"> Get Fund Data from Yahoo! Finance</a></li>
+        <li><a href="#slide-6"> Calculate Ekholm&#39;s SelectionShare and TimingShare</a></li>
+        <li><a href="#slide-7"> One-liner with Function</a></li>
       </ul>
     </div>
     
     <div class="span8">
       <section id="slide-1">
   <div class="page-header">
-    <h1><a href="http://ssrn.com/abstract=2463649">SelectionShare and TimingShare</a></h1>
+    <h1>SelectionShare &amp; TimingShare</h1>
   </div>
   <style>
 body{
@@ -113,12 +114,27 @@ h1,h2,h3,h4 {
 
 </style>
 
+<p><a href="ssrn.com/abstract=891719">Petajisto and Cremers&#39; (2009)</a> ActiveShare and Tracking Error decomposition of money manager returns made what I consider to be revolutionary discoveries, but unfortunately are incredibly costly/difficult to calculate on mutual funds since they require holdings-level data.  In his latest two papers, <a href="www.andersekholm.fi">Anders Ekholm</a> demonstrates how to similarly decompose performance armed only with the return stream of the manager.  His SelectionShare and TimingShare metrics are both an ingenious standalone contribution and a valuable indirect replication/validation of Petajisto/Cremers.  In case my ability to reword/summarize is not sufficient, I&#39;ll include the following quote from Ekholm summarizing the research.</p>
+
+<blockquote>
+"Cremers andPetajisto (2009) and Petajisto (2013) find that past ActiveShare is positively related to future
+performance. Ekholm (2012) takes a different approach and shows that the excess risk caused by selectivity and timing can be estimated from portfolio returns...
+<br/><br/>
+We develop the methodology presented by Ekholm (2012) one step further, and present two
+new measures that quantify how much selectivity and timing have contributed to total variance.
+Our SelectionShare and TimingShare measures can be estimated using portfolio returns only, which has both theoretical and practical advantages. Our empirical tests show that all active risk is not equal, as selectivity and timing have opposite effects on performance."
+</blockquote>
+
+<p>Below with a little replicable R code, I will extend Ekholm&#39;s <a href="http://www.andersekholm.fi/selection_timing/">example spreadsheet</a> to a real fund and calculate ActiveAlpha and ActiveBeta (2009 published 2012).  Then as Ekholm does, use these ActiveAlpha and ActiveBeta metrics to get SelectionShare and TimingShare (2014).  Since these calculations are just basic linear regression, I think it is well within the scope of nearly all readers&#39; abilities.</p>
+
 </section>
 <section id="slide-2">
   <div class="page-header">
-    <h1>Depend on Other R Packages</h1>
+    <h1>References in Code Comments</h1>
   </div>
-  <pre><code class="r"># perform Ekholm (2012,2014) analysis on mutual fund return data
+  <p>I am not sure that this will be helpful, and I have not done this in the past, but I will include references to the research within code comments.  For someone reading the code and not the content, this will insure that these links do not get lost.</p>
+
+<pre><code class="r"># perform Ekholm (2012,2014) analysis on mutual fund return data
 
 # Ekholm, A.G., 2012
 # Portfolio returns and manager activity:
@@ -129,41 +145,46 @@ h1,h2,h3,h4 {
 # Components of Portfolio Variance:
 #    R2, SelectionShare and TimingShare
 # Available at SSRN: http://ssrn.com/abstract=2463649
-
-require(quantmod)
-require(PerformanceAnalytics)
-# love me some pipes; will happily translate if pipes aren&#39;t you&#39;re thing
-# devtools::install_github(&quot;renkun_ken/pipeR&quot;)
-require(pipeR) 
 </code></pre>
 
 </section>
 <section id="slide-3">
   <div class="page-header">
+    <h1>Depend on Other R Packages</h1>
+  </div>
+  <p>We will, as always, depend on the wonderful and generous contributions of others in the form of R packages.  Most of the calculations though are just the base <code>lm(...)</code>.  I do not think there is any turning back from the pipes in <a href="cran.r-project.org/package=magrittr"><code>magrittr</code></a> or <a href="renkun.me/pipeR-tutorial/"><code>pipeR</code></a>, and since I am addicted I will afford myself the luxury of pipes.</p>
+
+<pre><code class="r">require(quantmod)
+require(PerformanceAnalytics)
+# love me some pipes; will happily translate if pipes aren&#39;t your thing
+require(pipeR) 
+</code></pre>
+
+</section>
+<section id="slide-4">
+  <div class="page-header">
     <h1>Ugly Way to Get Kenneth French Factor Data</h1>
   </div>
-  <pre><code class="r">#daily factors from Kenneth French Data Library
+  <p>Get the full set of Fama/French factors from the very generous <a href="mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Kenneth French data library</a>.  This example only perform a Jensen regression, so we will only need the <code>Mkt.RF</code>.  However, in future installments, we will do the Carhart regression which requires the full factor set.</p>
+
+<pre><code class="r">#daily factors from Kenneth French Data Library
 #get Mkt.RF, SMB, HML, and RF
 #UMD is in a different file
 my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily.zip&quot;
 my.tempfile&lt;-paste(tempdir(),&quot;\\frenchfactors.zip&quot;,sep=&quot;&quot;)
-my.usefile&lt;-paste(tempdir(),&quot;\\F-F_Research_Data_Factors_daily.txt&quot;,sep=&quot;&quot;)
-download.file(my.url, my.tempfile, method=&quot;auto&quot;, 
-              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
-unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
-#read space delimited text file extracted from zip
-french_factors &lt;- read.table(file=my.usefile,
-                             header = TRUE, sep = &quot;&quot;,
-                             as.is = TRUE,
-                             skip = 4, nrows=23257)
-#get xts for analysis
-french_factors_xts &lt;- as.xts(
-  french_factors,
-  order.by=as.Date(
-    rownames(french_factors),
-    format=&quot;%Y%m%d&quot;
-  )
-)
+paste(tempdir(),&quot;\\F-F_Research_Data_Factors_daily.txt&quot;,sep=&quot;&quot;) %&gt;&gt;%
+  (~ download.file( my.url, my.tempfile, method=&quot;auto&quot;, 
+              quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE )
+  ) %&gt;&gt;%
+  (~ unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE ) ) %&gt;&gt;%
+  (
+    #read space delimited text file extracted from zip
+    read.table(file= . ,header = TRUE, sep = &quot;&quot;, as.is = TRUE,
+                 skip = 4, nrows=23257)
+  ) %&gt;&gt;%
+  (
+    as.xts( ., order.by=as.Date(rownames(.),format=&quot;%Y%m%d&quot; ) )
+  ) -&gt; french_factors_xts
 
 #now get the momentum factor
 my.url=&quot;http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily.zip&quot;
@@ -172,30 +193,22 @@ download.file(my.url, my.tempfile, method=&quot;auto&quot;,
               quiet = FALSE, mode = &quot;wb&quot;,cacheOK = TRUE)
 unzip(my.tempfile,exdir=tempdir(),junkpath=TRUE)
 #read space delimited text file extracted from zip
-french_momentum &lt;- read.table(file=my.usefile,
-                              header = TRUE, sep = &quot;&quot;,
-                              as.is = TRUE,
-                              skip = 13, nrows=23156)
-#get xts for analysis
-french_momentum_xts &lt;- as.xts(
-  french_momentum,
-  order.by=as.Date(
-    rownames(french_momentum),
-    format=&quot;%Y%m%d&quot;
-  )
-)
-
-#merge UMD (momentum) with other french factors
-french_factors_xts %&gt;&gt;%
-  merge( french_momentum_xts )  %&gt;&gt;%
+read.table(file=my.usefile, header = TRUE, sep = &quot;&quot;,
+              as.is = TRUE, skip = 13, nrows=23156) %&gt;&gt;%
+  ( #get xts for analysis    
+    as.xts( . , order.by=as.Date( rownames(.), format=&quot;%Y%m%d&quot;  ) )
+  ) %&gt;&gt;%
+  #merge UMD (momentum) with other french factors
+  ( merge( french_factors_xts, . ) )  %&gt;&gt;%
   na.omit %&gt;&gt;%
-  ( .[] / 100 ) -&gt; french_factors_xts
+  ( .[] / 100 ) %&gt;&gt;%
+  (~ plot.zoo(.) ) -&gt; french_factors_xts
 </code></pre>
 
 </section>
-<section id="slide-4">
+<section id="slide-5">
   <div class="page-header">
-    <h1>Get  Price / Return Data from Yahoo! Finance</h1>
+    <h1>Get Fund Data from Yahoo! Finance</h1>
   </div>
   <pre><code class="r">#get a fund to analyze
 # will use Vulcan Value the biggest mutual fund in Birmingham, Alabama
@@ -208,10 +221,13 @@ ticker %&gt;&gt;%
   na.omit -&gt; perfComp
 
 colnames(perfComp)[1] &lt;- gsub( &quot;.Close&quot;, &quot;&quot;, colnames(perfComp)[1] )
+perfComp %&gt;&gt;% plot.zoo ( main = paste0(ticker, &quot; with Factors&quot; ) )
 </code></pre>
 
+<p><img src="assets/fig/mutualfund_data.png" alt="plot of chunk mutualfund_data"> </p>
+
 </section>
-<section id="slide-5">
+<section id="slide-6">
   <div class="page-header">
     <h1>Calculate Ekholm&#39;s SelectionShare and TimingShare</h1>
   </div>
@@ -266,9 +282,9 @@ summary(jensenLM)$&quot;r.squared&quot; + selectionShare + timingShare
 <p>VVPLX     1</p>
 
 </section>
-<section id="slide-6">
+<section id="slide-7">
   <div class="page-header">
-    <h1>One-line It with Function</h1>
+    <h1>One-liner with Function</h1>
   </div>
   <pre><code class="r">jensen_ekholm &lt;- function( data, ticker = NULL ){
 
