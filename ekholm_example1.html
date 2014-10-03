@@ -304,7 +304,7 @@ timingShare = as.numeric( activeBeta ^ 2 *
               )
 </code></pre>
 
-<p>We have now accomplished our mission.  To check that we have not messed up, we can verify the identity (equation 12) and make sure that <code>r^2 + SelectionShare + TimingShare = 1</code>.  In effect, this says we have now fully explained the fund returns.</p>
+<p>We have accomplished our mission.  To check that we have not messed up, we can verify the identity (equation 12) and make sure that <code>r^2 + SelectionShare + TimingShare = 1</code>.  In effect, this says we have now fully explained the fund returns.</p>
 
 <pre><code class="r"># check our work r^2  + selectionShare + timingShare should equal 1
 summary(jensenLM)$&quot;r.squared&quot; + selectionShare + timingShare
@@ -375,7 +375,7 @@ jensen_ekholm &lt;- function( data, ticker = NULL ){
 
 <pre><code class="r">jensen_ekholm( perfComp ) -&gt; jE
 
-jE$ekholm$TimingShare ==  timingShare %&gt;&gt;%
+jE$ekholm$SelectionShare ==  selectionShare %&gt;&gt;%
   (~cat(c(
     &quot;&lt;p style=&#39;color:&quot;, ifelse(.,&quot;green&quot;,&quot;red&quot;), &quot;;font-size:70%&#39;&gt;Does &quot;
     ,jE$ekholm$SelectionShare
