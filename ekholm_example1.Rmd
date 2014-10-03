@@ -219,7 +219,7 @@ timingShare = as.numeric( activeBeta ^ 2 *
               )
 ```
 
-We have now accomplished our mission.  To check that we have not messed up, we can verify the identity (equation 12) and make sure that `r^2 + SelectionShare + TimingShare = 1`.  In effect, this says we have now fully explained the fund returns.
+We have accomplished our mission.  To check that we have not messed up, we can verify the identity (equation 12) and make sure that `r^2 + SelectionShare + TimingShare = 1`.  In effect, this says we have now fully explained the fund returns.
 
 ```{r "ekholm_check"}
 # check our work r^2  + selectionShare + timingShare should equal 1
@@ -289,7 +289,7 @@ We should probably check that our new function generates the same result as our 
 ```{r "verify_function"}
 jensen_ekholm( perfComp ) -> jE
 
-jE$ekholm$TimingShare ==  timingShare %>>%
+jE$ekholm$SelectionShare ==  selectionShare %>>%
   (~cat(c(
     "<p style='color:", ifelse(.,"green","red"), ";font-size:70%'>Does "
     ,jE$ekholm$SelectionShare
