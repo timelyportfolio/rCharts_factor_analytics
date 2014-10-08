@@ -26,7 +26,7 @@ f <- Quandl("KFRENCH/FACTORS_D",type = "xts") / 100
 
 # grab our function from post
 # http://timelyportfolio.blogspot.com/2014/10/selectionshare-timingshare-masterfully.html
-source(paste0(
+source( paste0(
   "https://gist.githubusercontent.com/timelyportfolio/e5728c8c7fb45dbdb6e0",
   "/raw/e124379f19225fcdee18f30cb848da6fc6cae764/ekholm.R"
 ))
@@ -130,7 +130,7 @@ f %>>%
       colnames(return_df)[1] <- "R_sq"
       return(return_df)
     }
-    , width = 500
+    , width = 2500
     , by = 250
     #, by = 100
     , by.column=F
@@ -154,8 +154,8 @@ f %>>%
       , type = "l"
       # title our plot
       , main = paste(
-        "Comparison of Ekholm Decomposition for Fama/French Factors"
-        ,paste0("2 Year Rolling since ",format(.$date[1],format="%b %d, %Y"))
+        "Comparison of Ekholm Decomposition for Simple Moving Average (250) Strategy"
+        ,paste0("10 Year Rolling since ",format(.$date[1],format="%b %d, %Y"))
         ,sep="\n"
       )
       # layout one on top of the other
