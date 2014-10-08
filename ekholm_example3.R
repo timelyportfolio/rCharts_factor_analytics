@@ -11,6 +11,12 @@
 # Available at SSRN: http://ssrn.com/abstract=2463649
 
 
+# gone too long without an interactive
+# let's use the newest from RStudio - dygraphs htmlwidget
+#devtools::install_github(c("ramnathv/htmlwidgets", "rstudio/dygraphs"))
+library(dygraphs)
+
+
 library(Quandl)  # use to get Fama/French factors
 library(pipeR)   # pipes are the future or R
 library(rlist)   # rlist - like underscore/lodash for R lists
@@ -58,18 +64,30 @@ c( "SMB", "HML" ) %>>%
   ( names(ekFunds) = . )
 
 ekFunds %>>%
-  list.map(
-    f(fund,i) -> {
-      structure(
-        data.frame(
-          date = index(fund)
-          , fund = names(ekFunds)[i]
-          , fund
-        )
-      ) %>>%
+  (~ list.map(
+    .
+    ,f(fund,i) -> {
+      ( 
+        dygraph(
+          fund[,c(1,4,5)]
+          , main = paste0("Ekholm Decomposition of ", names(ekFunds)[i], " Factor")
+        ) %>>% print
+      )
+    }
+  ) ) %>>%
+  ( list.map(
+    .
+    , f(fund,i) -> {
+        structure(
+          data.frame(
+            date = index(fund)
+            , fund = names(ekFunds)[i]
+            , fund
+          )
+        ) %>>%
         gather(measure,value,-date,-fund)
     }
-  ) %>>%
+  ) ) %>>%
   (
     do.call( rbind , . )
   ) -> ekT
