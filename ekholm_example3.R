@@ -71,7 +71,9 @@ ekFunds %>>%
         dygraph(
           fund[,c(1,4,5)]
           , main = paste0("Ekholm Decomposition of ", names(ekFunds)[i], " Factor")
-        ) %>>% print
+        ) %>>%
+        dyOptions( stackedGraph = TRUE ) %>>%
+        print
       )
     }
   ) ) %>>%
@@ -155,6 +157,14 @@ f %>>%
     , fill = NULL
   ) %>>%
   na.fill(0) %>>%
+  ( ~
+      dygraph(
+        .[,c(1,4,5)]
+        , main = paste0("Ekholm Decomposition of Moving Average Strategy")
+      ) %>>%
+      dyOptions( stackedGraph = TRUE ) %>>%
+      print
+  ) %>>%
   (
     data.frame(
       date = index(.)
