@@ -3,7 +3,7 @@
 # Ekholm, A.G., 2012
 # Portfolio returns and manager activity:
 #    How to decompose tracking error into security selection and market timing
-# Journal of Empirical Finance, Volume 19, pp 349-358
+# Journal of Empirical Finance, Volume 19, pp 349-�358
 
 # Ekholm, Anders G., July 21, 2014
 # Components of Portfolio Variance:
