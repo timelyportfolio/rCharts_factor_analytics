@@ -9,27 +9,38 @@ library(xts)
 #f <- Quandl("KFRENCH/FACTORS_D",type = "xts", start_date="2010-12-31") / 100
       
 tagList(
-  tags$h1( "Sparsest Test in Javascript of Ekholm")
+  #pull in the bridge to span all the week's topics
+  #Portland Vector Bridges http://timelyportfolio.github.io/portland_vector_bridges
+  tags$div( style = "height:15%;width:100%"
+    ,readLines(
+      "http://timelyportfolio.github.io/portland_vector_bridges/Burnside Bridge.svg"
+    ) %>>% HTML
+  )
+  ,tags$h1( "Sparsest Test in Javascript of Ekholm")
   , tags$div( style = "width:100%"
-    ,tags$div(
-      style = "display:inline-block; width: 25%;"
-      ,"Note: Date range currently limited to one year, but there is a fairly easy workaround
+    ,tags$div( style = "background-color:red;"
+     ,"Note: Date range currently limited to one year, but there is a fairly easy workaround
       for the next version."
-      ,tags$br()
-      ,tags$br()
+    )
+    ,tags$div(
+      style = "display:inline-block; width: 25%;float:left;"
       ,"Mutual Fund Symbol", tags$input( id = "mfsymbol" )
       ,tags$br()
-      ,"Start Date", tags$input( type = "date", id = "stdate" )
+      ,"Start Date "
+      , tags$span( style="font-size:75%;fill:lightgray", "(2013-08-29)" )
+      , tags$input( type = "date", id = "stdate" )
       ,tags$br()
-      ,"End Date", tags$input( type = "date", id= "enddate" )
+      ,"End Date"
+      ,tags$span( style="font-size:75%;fill:lightgray", "(2014-08-29)" )
+      , tags$input( type = "date", id= "enddate" )
       ,tags$br()
       ,tags$input(
         type="submit", id = "calc", value = "Calculate"
       )
       ,tags$br()
     )
-    , tags$div(style = "display:inline-block;height:100%;width:50%;"
-      , tags$textarea(id = "results", style="width:100%; height:200px")
+    , tags$div(style = "display:inline-block;height:100%;width:60%;margin-left:30px"
+      , tags$textarea(id = "results", style="width:100%; height:150px")
     )
   )
   ,tags$script(sprintf(
@@ -142,7 +153,12 @@ tagList(
             // query.results.quote will have the data stripped of meta
             // also we will sort date ascending
             fund = fund.query.results.quote
-                .sort(function(a,b){ return d3.ascending( new Date(a.Date), new Date(b.Date) ) } );
+                .sort(function(a,b){
+                  return d3.ascending(
+                    d3.time.format("%Y-%m-%d").parse(a.Date),
+                    d3.time.format("%Y-%m-%d").parse(b.Date)
+                  )
+                } );
             
             
             
@@ -154,9 +170,9 @@ tagList(
                 fund_factor.push([
                   //Date: per.Date,
                   //FundPrice: 
-                  per.Adj_Close / fund[ i - 1 ].Adj_Close - 1 - frenchThisPer["RF"]/100,
+                  per.Adj_Close / fund[ i - 1 ].Adj_Close - 1 - frenchThisPer["RF"],
                   //Rm_Rf:
-                  +frenchThisPer["Mkt.RF"]/100//,
+                  +frenchThisPer["Mkt.RF"],
                   //Rf: +frenchThisPer["RF"]/100
                 ])
               }
