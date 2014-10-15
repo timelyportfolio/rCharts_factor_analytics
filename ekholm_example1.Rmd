@@ -149,6 +149,10 @@ ticker %>>%
   na.omit -> perfComp
 
 colnames(perfComp)[1] <- gsub( ".Close", "", colnames(perfComp)[1] )
+
+# also subtract risk-free from mutual fund return
+perfComp[,1] <- perfComp[,1] - perfComp[,"RF"]
+
 # reasonableness check - plot the fund and factor returns
 cumprod(1+perfComp) %>>% plot.zoo ( main = paste0(ticker, " & Factors | Cumulative Returns" ) )
 ```
@@ -239,6 +243,10 @@ jensen_ekholm <- function( data, ticker = NULL ){
   
   if(is.null(ticker)) ticker <- colnames(data)[1]
   
+  # subtract risk free from manager return
+  # not sure if better to assume already done or not
+  data[,ticker] <- data[,ticker] - data[,"RF"]
+  
   as.formula ( paste0(ticker, " ~  Mkt.RF" ) ) %>>%
     ( lm( data = data, . ) -> jensenLM )
   
@@ -287,6 +295,9 @@ jensen_ekholm <- function( data, ticker = NULL ){
 We should probably check that our new function generates the same result as our previous calculations.
 
 ```{r "verify_function"}
+#add back risk free since function will subtract risk-free
+perfComp[,1] <- perfComp[,1] + perfComp[,"RF"]
+
 jensen_ekholm( perfComp ) -> jE
 
 jE$ekholm$SelectionShare ==  selectionShare %>>%

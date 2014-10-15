@@ -148,6 +148,10 @@ ticker %>>%
   na.omit -> perfComp
 
 colnames(perfComp)[1] <- gsub( ".Close", "", colnames(perfComp)[1] )
+
+# also subtract risk-free from mutual fund return
+perfComp[,1] <- perfComp[,1] - perfComp[,"RF"]
+
 # reasonableness check - plot the fund and factor returns
 cumprod(1+perfComp) %>>% plot.zoo ( main = paste0(ticker, " & Factors | Cumulative Returns" ) )
 ```
@@ -248,6 +252,10 @@ jensen_ekholm <- function( data, ticker = NULL ){
   
   if(is.null(ticker)) ticker <- colnames(data)[1]
   
+  # subtract risk free from manager return
+  # not sure if better to assume already done or not
+  data[,ticker] <- data[,ticker] - data[,"RF"]
+  
   as.formula ( paste0(ticker, " ~  Mkt.RF" ) ) %>>%
     ( lm( data = data, . ) -> jensenLM )
   
@@ -297,6 +305,9 @@ We should probably check that our new function generates the same result as our 
 
 
 ```r
+#add back risk free since function will subtract risk-free
+perfComp[,1] <- perfComp[,1] + perfComp[,"RF"]
+
 jensen_ekholm( perfComp ) -> jE
 
 jE$ekholm$SelectionShare ==  selectionShare %>>%
@@ -309,7 +320,7 @@ jE$ekholm$SelectionShare ==  selectionShare %>>%
   ))) %>>% as.character
 ```
 
-<p style='color: green ;font-size:70%'>Does  0.0642685566207194  ==  0.0642685566207194 ?</p>[1] TRUE
+<p style='color: green ;font-size:70%'>Does  0.0642760267657398  ==  0.0642760267657398 ?</p>[1] TRUE
 
 ```r
 jE$ekholm$TimingShare ==  timingShare %>>%
@@ -322,7 +333,7 @@ jE$ekholm$TimingShare ==  timingShare %>>%
   ))) %>>% as.character
 ```
 
-<p style='color: green ;font-size:70%'>Does  0.00151247202235295  ==  0.00151247202235295 ?</p>[1] TRUE
+<p style='color: green ;font-size:70%'>Does  0.0015160232454823  ==  0.0015160232454823 ?</p>[1] TRUE
 
 ```r
 #as another check, this should equal 1
@@ -394,7137 +405,7137 @@ perfComp %>>%
  {
  "date":          15330,
 "source": "R_sq",
-"value": 0.9483683167328 
+"value": 0.9483575224883 
 },
 {
  "date":          15331,
 "source": "R_sq",
-"value": 0.9481007762073 
+"value": 0.9480896424544 
 },
 {
  "date":          15335,
 "source": "R_sq",
-"value": 0.9482243726238 
+"value": 0.9482126632638 
 },
 {
  "date":          15336,
 "source": "R_sq",
-"value": 0.9483198088091 
+"value": 0.9483077142992 
 },
 {
  "date":          15337,
 "source": "R_sq",
-"value": 0.9487115993938 
+"value": 0.9486989457795 
 },
 {
  "date":          15338,
 "source": "R_sq",
-"value": 0.9487169186326 
+"value": 0.9487042546526 
 },
 {
  "date":          15342,
 "source": "R_sq",
-"value": 0.9486722482059 
+"value": 0.9486592391667 
 },
 {
  "date":          15343,
 "source": "R_sq",
-"value": 0.9486566456534 
+"value": 0.9486436523557 
 },
 {
  "date":          15344,
 "source": "R_sq",
-"value": 0.9488300386896 
+"value": 0.9488175968751 
 },
 {
  "date":          15345,
 "source": "R_sq",
-"value": 0.9487658814438 
+"value": 0.9487540929633 
 },
 {
  "date":          15348,
 "source": "R_sq",
-"value": 0.9487308427888 
+"value":  0.94871920663 
 },
 {
  "date":          15349,
 "source": "R_sq",
-"value": 0.9488455912796 
+"value": 0.9488341098089 
 },
 {
  "date":          15350,
 "source": "R_sq",
-"value": 0.9484936588097 
+"value": 0.9484824348327 
 },
 {
  "date":          15351,
 "source": "R_sq",
-"value": 0.9483381151248 
+"value": 0.9483266974574 
 },
 {
  "date":          15352,
 "source": "R_sq",
-"value": 0.9481906467725 
+"value": 0.9481794694961 
 },
 {
  "date":          15356,
 "source": "R_sq",
-"value": 0.947893458832 
+"value": 0.9478819311368 
 },
 {
  "date":          15357,
 "source": "R_sq",
-"value": 0.9479520123762 
+"value": 0.9479405751795 
 },
 {
  "date":          15358,
 "source": "R_sq",
-"value": 0.9479405931693 
+"value": 0.9479289419056 
 },
 {
  "date":          15359,
 "source": "R_sq",
-"value": 0.9475762457897 
+"value": 0.947565170307 
 },
 {
  "date":          15362,
 "source": "R_sq",
-"value": 0.9477679077079 
+"value": 0.9477571769543 
 },
 {
  "date":          15363,
 "source": "R_sq",
-"value": 0.9476895556737 
+"value": 0.9476788649101 
 },
 {
  "date":          15364,
 "source": "R_sq",
-"value": 0.9478678633709 
+"value": 0.9478568539838 
 },
 {
  "date":          15365,
 "source": "R_sq",
-"value": 0.9474805716024 
+"value": 0.9474687595193 
 },
 {
  "date":          15366,
 "source": "R_sq",
-"value": 0.9475090394578 
+"value": 0.9474976779525 
 },
 {
  "date":          15369,
 "source": "R_sq",
-"value": 0.9469092487297 
+"value": 0.9468979953881 
 },
 {
  "date":          15370,
 "source": "R_sq",
-"value": 0.9473351668337 
+"value": 0.9473232388528 
 },
 {
  "date":          15371,
 "source": "R_sq",
-"value": 0.9472885006162 
+"value": 0.9472765542228 
 },
 {
  "date":          15372,
 "source": "R_sq",
-"value": 0.9471845138043 
+"value": 0.9471724710533 
 },
 {
  "date":          15373,
 "source": "R_sq",
-"value": 0.947085106576 
+"value": 0.9470726139716 
 },
 {
  "date":          15376,
 "source": "R_sq",
-"value": 0.9473279813026 
+"value": 0.9473146943509 
 },
 {
  "date":          15377,
 "source": "R_sq",
-"value": 0.9473143399294 
+"value": 0.9473007197904 
 },
 {
  "date":          15378,
 "source": "R_sq",
-"value": 0.9472078725769 
+"value": 0.9471934636307 
 },
 {
  "date":          15379,
 "source": "R_sq",
-"value": 0.9474553850511 
+"value": 0.9474411974299 
 },
 {
  "date":          15380,
 "source": "R_sq",
-"value": 0.9475864661492 
+"value": 0.947571370148 
 },
 {
  "date":          15383,
 "source": "R_sq",
-"value": 0.9476456596796 
+"value": 0.9476306395523 
 },
 {
  "date":          15384,
 "source": "R_sq",
-"value": 0.9476410075463 
+"value": 0.9476261166558 
 },
 {
  "date":          15385,
 "source": "R_sq",
-"value": 0.9477851597967 
+"value": 0.9477709207712 
 },
 {
  "date":          15386,
 "source": "R_sq",
-"value": 0.9478567878622 
+"value": 0.947842452555 
 },
 {
  "date":          15387,
 "source": "R_sq",
-"value": 0.947855677016 
+"value": 0.9478413543998 
 },
 {
  "date":          15391,
 "source": "R_sq",
-"value": 0.9478042356117 
+"value": 0.947789675212 
 },
 {
  "date":          15392,
 "source": "R_sq",
-"value": 0.9477118927514 
+"value": 0.9476973969025 
 },
 {
  "date":          15393,
 "source": "R_sq",
-"value": 0.9476804581104 
+"value": 0.9476660765895 
 },
 {
  "date":          15394,
 "source": "R_sq",
-"value": 0.9476517548191 
+"value": 0.9476370994135 
 },
 {
  "date":          15397,
 "source": "R_sq",
-"value": 0.9480147104773 
+"value": 0.9480005094499 
 },
 {
  "date":          15398,
 "source": "R_sq",
-"value": 0.9478066388813 
+"value": 0.9477920486478 
 },
 {
  "date":          15399,
 "source": "R_sq",
-"value": 0.9477678941086 
+"value": 0.9477531966635 
 },
 {
  "date":          15400,
 "source": "R_sq",
-"value": 0.9477940787508 
+"value": 0.947779538433 
 },
 {
  "date":          15401,
 "source": "R_sq",
-"value": 0.9477944315818 
+"value": 0.9477799200755 
 },
 {
  "date":          15404,
 "source": "R_sq",
-"value": 0.9477816387032 
+"value": 0.9477670631249 
 },
 {
  "date":          15405,
 "source": "R_sq",
-"value": 0.9478071902268 
+"value": 0.9477928834136 
 },
 {
  "date":          15406,
 "source": "R_sq",
-"value": 0.947877703834 
+"value": 0.9478632514638 
 },
 {
  "date":          15407,
 "source": "R_sq",
-"value": 0.9479084023932 
+"value": 0.9478932412297 
 },
 {
  "date":          15408,
 "source": "R_sq",
-"value": 0.9477959845578 
+"value": 0.9477809646091 
 },
 {
  "date":          15411,
 "source": "R_sq",
-"value": 0.9479153800824 
+"value": 0.9479005246785 
 },
 {
  "date":          15412,
 "source": "R_sq",
-"value": 0.9479580033752 
+"value": 0.9479430404791 
 },
 {
  "date":          15413,
 "source": "R_sq",
-"value": 0.9479631124868 
+"value": 0.9479483003935 
 },
 {
  "date":          15414,
 "source": "R_sq",
-"value": 0.9480922261437 
+"value": 0.9480772002788 
 },
 {
  "date":          15415,
 "source": "R_sq",
-"value": 0.9481408671221 
+"value": 0.9481262684215 
 },
 {
  "date":          15418,
 "source": "R_sq",
-"value": 0.9484647887092 
+"value":   0.9484505846 
 },
 {
  "date":          15419,
 "source": "R_sq",
-"value": 0.9484446225321 
+"value": 0.9484305397039 
 },
 {
  "date":          15420,
 "source": "R_sq",
-"value": 0.9485221829555 
+"value": 0.9485077970707 
 },
 {
  "date":          15421,
 "source": "R_sq",
-"value": 0.9486337110436 
+"value": 0.9486194390121 
 },
 {
  "date":          15422,
 "source": "R_sq",
-"value": 0.9486470734144 
+"value": 0.9486328590482 
 },
 {
  "date":          15425,
 "source": "R_sq",
-"value": 0.9487447023046 
+"value": 0.9487306237448 
 },
 {
  "date":          15426,
 "source": "R_sq",
-"value": 0.9489680383144 
+"value": 0.9489549694596 
 },
 {
  "date":          15427,
 "source": "R_sq",
-"value": 0.9489827062274 
+"value": 0.948969668789 
 },
 {
  "date":          15428,
 "source": "R_sq",
-"value": 0.9489613985249 
+"value": 0.9489484680714 
 },
 {
  "date":          15429,
 "source": "R_sq",
-"value": 0.9489588111594 
+"value": 0.9489458596876 
 },
 {
  "date":          15432,
 "source": "R_sq",
-"value": 0.948943894675 
+"value": 0.9489301456164 
 },
 {
  "date":          15433,
 "source": "R_sq",
-"value": 0.9489706031931 
+"value": 0.9489570275405 
 },
 {
  "date":          15434,
 "source": "R_sq",
-"value": 0.9491599848085 
+"value": 0.9491460009895 
 },
 {
  "date":          15435,
 "source": "R_sq",
-"value": 0.9491435464779 
+"value": 0.949129811693 
 },
 {
  "date":          15439,
 "source": "R_sq",
-"value": 0.9491869071086 
+"value": 0.9491731327537 
 },
 {
  "date":          15440,
 "source": "R_sq",
-"value": 0.9492626342484 
+"value": 0.9492485306479 
 },
 {
  "date":          15441,
 "source": "R_sq",
-"value": 0.9493049763546 
+"value": 0.9492906710267 
 },
 {
  "date":          15442,
 "source": "R_sq",
-"value": 0.9493842527432 
+"value": 0.9493701439884 
 },
 {
  "date":          15443,
 "source": "R_sq",
-"value": 0.9494750131081 
+"value": 0.9494610441982 
 },
 {
  "date":          15446,
 "source": "R_sq",
-"value": 0.9498418984307 
+"value": 0.949829164254 
 },
 {
  "date":          15447,
 "source": "R_sq",
-"value": 0.9500147615469 
+"value": 0.9500023410395 
 },
 {
  "date":          15448,
 "source": "R_sq",
-"value": 0.9499772608774 
+"value": 0.9499648606081 
 },
 {
  "date":          15449,
 "source": "R_sq",
-"value": 0.9496833870262 
+"value": 0.9496709302785 
 },
 {
  "date":          15450,
 "source": "R_sq",
-"value": 0.9497200456533 
+"value": 0.9497078499039 
 },
 {
  "date":          15453,
 "source": "R_sq",
-"value": 0.9497032873919 
+"value": 0.9496909042805 
 },
 {
  "date":          15454,
 "source": "R_sq",
-"value": 0.9495970450814 
+"value":  0.94958367585 
 },
 {
  "date":          15455,
 "source": "R_sq",
-"value": 0.9495654252555 
+"value": 0.9495518555646 
 },
 {
  "date":          15456,
 "source": "R_sq",
-"value": 0.9491771903666 
+"value": 0.9491632804892 
 },
 {
  "date":          15457,
 "source": "R_sq",
-"value": 0.949126996249 
+"value": 0.9491131319436 
 },
 {
  "date":          15460,
 "source": "R_sq",
-"value": 0.9483494112708 
+"value": 0.948335544627 
 },
 {
  "date":          15461,
 "source": "R_sq",
-"value": 0.948310252215 
+"value": 0.9482958997737 
 },
 {
  "date":          15462,
 "source": "R_sq",
-"value": 0.9475225787356 
+"value": 0.9475089122891 
 },
 {
  "date":          15463,
 "source": "R_sq",
-"value": 0.9476019515838 
+"value": 0.9475884969445 
 },
 {
  "date":          15464,
 "source": "R_sq",
-"value": 0.9477523893961 
+"value": 0.9477393713765 
 },
 {
  "date":          15467,
 "source": "R_sq",
-"value": 0.9477167164152 
+"value": 0.9477034018248 
 },
 {
  "date":          15468,
 "source": "R_sq",
-"value": 0.947483942999 
+"value": 0.9474706724738 
 },
 {
  "date":          15469,
 "source": "R_sq",
-"value": 0.9477126233284 
+"value": 0.9476983188293 
 },
 {
  "date":          15470,
 "source": "R_sq",
-"value": 0.9475542502911 
+"value": 0.9475403148235 
 },
 {
  "date":          15471,
 "source": "R_sq",
-"value": 0.9475163754936 
+"value": 0.9475023371947 
 },
 {
  "date":          15474,
 "source": "R_sq",
-"value": 0.9468438560757 
+"value": 0.9468285342934 
 },
 {
  "date":          15475,
 "source": "R_sq",
-"value": 0.9468954747844 
+"value": 0.9468807714008 
 },
 {
  "date":          15476,
 "source": "R_sq",
-"value": 0.9471614119369 
+"value": 0.9471457922551 
 },
 {
  "date":          15477,
 "source": "R_sq",
-"value": 0.9471616359055 
+"value": 0.9471460697126 
 },
 {
  "date":          15478,
 "source": "R_sq",
-"value": 0.9471812806448 
+"value": 0.9471659837354 
 },
 {
  "date":          15481,
 "source": "R_sq",
-"value": 0.9469678201997 
+"value": 0.9469531205288 
 },
 {
  "date":          15482,
 "source": "R_sq",
-"value": 0.9467379548372 
+"value": 0.9467236560833 
 },
 {
  "date":          15483,
 "source": "R_sq",
-"value": 0.9474642286538 
+"value": 0.9474485365759 
 },
 {
  "date":          15484,
 "source": "R_sq",
-"value": 0.9473312352358 
+"value": 0.9473161769639 
 },
 {
  "date":          15485,
 "source": "R_sq",
-"value": 0.9473618323792 
+"value": 0.9473464632951 
 },
 {
  "date":          15489,
 "source": "R_sq",
-"value": 0.9466635338943 
+"value": 0.9466473966995 
 },
 {
  "date":          15490,
 "source": "R_sq",
-"value": 0.9466489290086 
+"value": 0.9466324613237 
 },
 {
  "date":          15491,
 "source": "R_sq",
-"value": 0.946958843998 
+"value": 0.9469431712198 
 },
 {
  "date":          15492,
 "source": "R_sq",
-"value": 0.9474021562965 
+"value": 0.9473865884235 
 },
 {
  "date":          15495,
 "source": "R_sq",
-"value": 0.9466840955929 
+"value": 0.9466682627535 
 },
 {
  "date":          15496,
 "source": "R_sq",
-"value": 0.946807371194 
+"value": 0.9467920762404 
 },
 {
  "date":          15497,
 "source": "R_sq",
-"value": 0.9469890973623 
+"value": 0.9469741004583 
 },
 {
  "date":          15498,
 "source": "R_sq",
-"value": 0.9464922971017 
+"value": 0.9464769980691 
 },
 {
  "date":          15499,
 "source": "R_sq",
-"value": 0.9462957509592 
+"value": 0.9462808155407 
 },
 {
  "date":          15502,
 "source": "R_sq",
-"value": 0.9464100427396 
+"value": 0.9463949996033 
 },
 {
  "date":          15503,
 "source": "R_sq",
-"value": 0.9470186330698 
+"value": 0.9470047506679 
 },
 {
  "date":          15504,
 "source": "R_sq",
-"value": 0.9470023213097 
+"value": 0.9469881304085 
 },
 {
  "date":          15505,
 "source": "R_sq",
-"value": 0.9468166038591 
+"value": 0.9468023010658 
 },
 {
  "date":          15506,
 "source": "R_sq",
-"value": 0.946942948599 
+"value": 0.9469291464621 
 },
 {
  "date":          15509,
 "source": "R_sq",
-"value": 0.9467381987937 
+"value": 0.9467243447947 
 },
 {
  "date":          15510,
 "source": "R_sq",
-"value": 0.9470848591642 
+"value": 0.9470718437189 
 },
 {
  "date":          15511,
 "source": "R_sq",
-"value": 0.9470864163474 
+"value": 0.9470728328745 
 },
 {
  "date":          15512,
 "source": "R_sq",
-"value": 0.9467460644953 
+"value": 0.9467315831597 
 },
 {
  "date":          15513,
 "source": "R_sq",
-"value": 0.9468648620922 
+"value": 0.9468509991795 
 },
 {
  "date":          15516,
 "source": "R_sq",
-"value": 0.9472550060055 
+"value": 0.9472404736295 
 },
 {
  "date":          15517,
 "source": "R_sq",
-"value": 0.9472498387629 
+"value": 0.9472352347597 
 },
 {
  "date":          15518,
 "source": "R_sq",
-"value": 0.9472287787278 
+"value": 0.9472141700018 
 },
 {
  "date":          15519,
 "source": "R_sq",
-"value": 0.9466832216536 
+"value": 0.9466693124102 
 },
 {
  "date":          15520,
 "source": "R_sq",
-"value": 0.9470215775626 
+"value": 0.9470077173175 
 },
 {
  "date":          15523,
 "source": "R_sq",
-"value": 0.9468218373801 
+"value": 0.9468073901938 
 },
 {
  "date":          15524,
 "source": "R_sq",
-"value": 0.946906480016 
+"value": 0.946891676466 
 },
 {
  "date":          15526,
 "source": "R_sq",
-"value": 0.946709015538 
+"value": 0.9466941612627 
 },
 {
  "date":          15527,
 "source": "R_sq",
-"value": 0.9469107429941 
+"value": 0.9468953558398 
 },
 {
  "date":          15530,
 "source": "R_sq",
-"value": 0.9466148570317 
+"value": 0.9466000711871 
 },
 {
  "date":          15531,
 "source": "R_sq",
-"value": 0.9461523683589 
+"value": 0.9461381253222 
 },
 {
  "date":          15532,
 "source": "R_sq",
-"value": 0.9462293178587 
+"value": 0.9462144915485 
 },
 {
  "date":          15533,
 "source": "R_sq",
-"value": 0.9462122739143 
+"value": 0.9461980558742 
 },
 {
  "date":          15534,
 "source": "R_sq",
-"value": 0.9462350251847 
+"value": 0.946221022655 
 },
 {
  "date":          15537,
 "source": "R_sq",
-"value": 0.9461078296823 
+"value": 0.946094643807 
 },
 {
  "date":          15538,
 "source": "R_sq",
-"value": 0.9460521008219 
+"value": 0.9460391476227 
 },
 {
  "date":          15539,
 "source": "R_sq",
-"value": 0.9460530203517 
+"value": 0.9460404942389 
 },
 {
  "date":          15540,
 "source": "R_sq",
-"value": 0.9460496246535 
+"value": 0.9460370856038 
 },
 {
  "date":          15541,
 "source": "R_sq",
-"value": 0.9461469114125 
+"value": 0.9461351819991 
 },
 {
  "date":          15544,
 "source": "R_sq",
-"value": 0.9462534110891 
+"value": 0.9462423776582 
 },
 {
  "date":          15545,
 "source": "R_sq",
-"value": 0.9468710563475 
+"value": 0.9468588333515 
 },
 {
  "date":          15546,
 "source": "R_sq",
-"value": 0.9467776837701 
+"value": 0.9467661742306 
 },
 {
  "date":          15547,
 "source": "R_sq",
-"value": 0.9468160996771 
+"value": 0.946804918622 
 },
 {
  "date":          15548,
 "source": "R_sq",
-"value": 0.947016834579 
+"value": 0.9470058348599 
 },
 {
  "date":          15551,
 "source": "R_sq",
-"value": 0.9469119721842 
+"value": 0.9469007787269 
 },
 {
  "date":          15552,
 "source": "R_sq",
-"value": 0.9469208304134 
+"value": 0.9469095668546 
 },
 {
  "date":          15553,
 "source": "R_sq",
-"value": 0.9469671009279 
+"value": 0.9469562028296 
 },
 {
  "date":          15554,
 "source": "R_sq",
-"value": 0.9471414591924 
+"value": 0.9471294446508 
 },
 {
  "date":          15555,
 "source": "R_sq",
-"value": 0.9471404553851 
+"value": 0.9471273414382 
 },
 {
  "date":          15558,
 "source": "R_sq",
-"value": 0.9473139689507 
+"value": 0.9473000384069 
 },
 {
  "date":          15559,
 "source": "R_sq",
-"value": 0.9466989730729 
+"value": 0.9466847423993 
 },
 {
  "date":          15560,
 "source": "R_sq",
-"value": 0.9467132196628 
+"value": 0.9466992182048 
 },
 {
  "date":          15561,
 "source": "R_sq",
-"value": 0.946613784473 
+"value": 0.9466001270138 
 },
 {
  "date":          15562,
 "source": "R_sq",
-"value": 0.9465716911038 
+"value": 0.9465581357892 
 },
 {
  "date":          15565,
 "source": "R_sq",
-"value": 0.9463405123184 
+"value": 0.9463270765455 
 },
 {
  "date":          15566,
 "source": "R_sq",
-"value": 0.9463129200104 
+"value": 0.9462996620837 
 },
 {
  "date":          15567,
 "source": "R_sq",
-"value": 0.9462969027896 
+"value": 0.9462834910487 
 },
 {
  "date":          15568,
 "source": "R_sq",
-"value": 0.9456351182961 
+"value": 0.9456213655055 
 },
 {
  "date":          15569,
 "source": "R_sq",
-"value": 0.9456642737119 
+"value": 0.945650052858 
 },
 {
  "date":          15572,
 "source": "R_sq",
-"value": 0.945603340558 
+"value": 0.9455891843909 
 },
 {
  "date":          15573,
 "source": "R_sq",
-"value": 0.945612767397 
+"value": 0.9455994018005 
 },
 {
  "date":          15574,
 "source": "R_sq",
-"value": 0.9459393022336 
+"value": 0.9459246050923 
 },
 {
  "date":          15575,
 "source": "R_sq",
-"value": 0.9460535916573 
+"value": 0.9460393612685 
 },
 {
  "date":          15576,
 "source": "R_sq",
-"value": 0.9458407426943 
+"value": 0.9458275567878 
 },
 {
  "date":          15579,
 "source": "R_sq",
-"value": 0.9458024407682 
+"value": 0.9457896327077 
 },
 {
  "date":          15580,
 "source": "R_sq",
-"value": 0.9456718813869 
+"value": 0.9456590777948 
 },
 {
  "date":          15581,
 "source": "R_sq",
-"value": 0.9455680509851 
+"value": 0.9455554674407 
 },
 {
  "date":          15582,
 "source": "R_sq",
-"value": 0.9456718562814 
+"value": 0.9456597822068 
 },
 {
  "date":          15583,
 "source": "R_sq",
-"value": 0.9459369212414 
+"value": 0.9459257823727 
 },
 {
  "date":          15587,
 "source": "R_sq",
-"value": 0.9460903154039 
+"value": 0.946079919467 
 },
 {
  "date":          15588,
 "source": "R_sq",
-"value": 0.9465867484776 
+"value": 0.9465777618736 
 },
 {
  "date":          15589,
 "source": "R_sq",
-"value": 0.9470189484398 
+"value": 0.9470091609791 
 },
 {
  "date":          15590,
 "source": "R_sq",
-"value": 0.9472993710706 
+"value": 0.9472885988682 
 },
 {
  "date":          15593,
 "source": "R_sq",
-"value": 0.9472395083734 
+"value": 0.947228969927 
 },
 {
  "date":          15594,
 "source": "R_sq",
-"value": 0.9473249795031 
+"value": 0.9473138905786 
 },
 {
  "date":          15595,
 "source": "R_sq",
-"value": 0.9471636787882 
+"value": 0.9471524806367 
 },
 {
  "date":          15596,
 "source": "R_sq",
-"value": 0.9473006803622 
+"value": 0.9472889727387 
 },
 {
  "date":          15597,
 "source": "R_sq",
-"value": 0.9473435876962 
+"value": 0.9473323039408 
 },
 {
  "date":          15600,
 "source": "R_sq",
-"value": 0.9473964370534 
+"value": 0.9473845507009 
 },
 {
  "date":          15601,
 "source": "R_sq",
-"value": 0.9471672455156 
+"value": 0.9471558351823 
 },
 {
  "date":          15602,
 "source": "R_sq",
-"value": 0.947164455343 
+"value": 0.9471526661298 
 },
 {
  "date":          15603,
 "source": "R_sq",
-"value": 0.9471454005884 
+"value": 0.9471338552533 
 },
 {
  "date":          15604,
 "source": "R_sq",
-"value": 0.947140404792 
+"value": 0.9471289784824 
 },
 {
  "date":          15607,
 "source": "R_sq",
-"value": 0.9471669607076 
+"value": 0.9471552215371 
 },
 {
  "date":          15608,
 "source": "R_sq",
-"value": 0.9474852111828 
+"value": 0.9474745537309 
 },
 {
  "date":          15609,
 "source": "R_sq",
-"value": 0.947877774503 
+"value": 0.9478658409053 
 },
 {
  "date":          15610,
 "source": "R_sq",
-"value": 0.9476595931853 
+"value": 0.9476478697819 
 },
 {
  "date":          15611,
 "source": "R_sq",
-"value": 0.948130374438 
+"value": 0.9481199663426 
 },
 {
  "date":          15614,
 "source": "R_sq",
-"value": 0.9481197535719 
+"value": 0.9481089360608 
 },
 {
  "date":          15615,
 "source": "R_sq",
-"value": 0.9480754604343 
+"value": 0.9480641920651 
 },
 {
  "date":          15616,
 "source": "R_sq",
-"value": 0.9481645946836 
+"value": 0.9481539028984 
 },
 {
  "date":          15617,
 "source": "R_sq",
-"value": 0.9481749039184 
+"value": 0.9481642814733 
 },
 {
  "date":          15618,
 "source": "R_sq",
-"value": 0.9481661031001 
+"value": 0.9481550840919 
 },
 {
  "date":          15621,
 "source": "R_sq",
-"value": 0.9483113706572 
+"value": 0.9482995621796 
 },
 {
  "date":          15622,
 "source": "R_sq",
-"value": 0.9496153048098 
+"value": 0.9496013194787 
 },
 {
  "date":          15623,
 "source": "R_sq",
-"value": 0.9496308805086 
+"value": 0.9496171570839 
 },
 {
  "date":          15624,
 "source": "R_sq",
-"value": 0.9499253368138 
+"value": 0.9499101566576 
 },
 {
  "date":          15625,
 "source": "R_sq",
-"value": 0.9498363041012 
+"value": 0.949821274617 
 },
 {
  "date":          15628,
 "source": "R_sq",
-"value": 0.9499641810014 
+"value": 0.949948554434 
 },
 {
  "date":          15629,
 "source": "R_sq",
-"value": 0.9502114675852 
+"value":   0.9501967463 
 },
 {
  "date":          15630,
 "source": "R_sq",
-"value": 0.9502959685366 
+"value": 0.9502806140375 
 },
 {
  "date":          15631,
 "source": "R_sq",
-"value": 0.9501224289647 
+"value": 0.9501067859065 
 },
 {
  "date":          15632,
 "source": "R_sq",
-"value": 0.9502497603217 
+"value": 0.9502341660702 
 },
 {
  "date":          15635,
 "source": "R_sq",
-"value": 0.9502939911187 
+"value": 0.9502788364922 
 },
 {
  "date":          15636,
 "source": "R_sq",
-"value": 0.9506925676008 
+"value": 0.9506785284843 
 },
 {
  "date":          15637,
 "source": "R_sq",
-"value": 0.9506981821761 
+"value": 0.9506841539285 
 },
 {
  "date":          15638,
 "source": "R_sq",
-"value": 0.9506349556099 
+"value": 0.950620847031 
 },
 {
  "date":          15639,
 "source": "R_sq",
-"value": 0.9506710756649 
+"value": 0.9506565418768 
 },
 {
  "date":          15644,
 "source": "R_sq",
-"value": 0.951553454683 
+"value": 0.9515410612325 
 },
 {
  "date":          15645,
 "source": "R_sq",
-"value": 0.9517409682655 
+"value": 0.9517295159965 
 },
 {
  "date":          15646,
 "source": "R_sq",
-"value": 0.9519504391351 
+"value": 0.9519399104145 
 },
 {
  "date":          15649,
 "source": "R_sq",
-"value": 0.9520224188641 
+"value": 0.9520111331958 
 },
 {
  "date":          15650,
 "source": "R_sq",
-"value": 0.952020186448 
+"value": 0.9520093696882 
 },
 {
  "date":          15651,
 "source": "R_sq",
-"value": 0.9521487909216 
+"value": 0.9521386566672 
 },
 {
  "date":          15652,
 "source": "R_sq",
-"value": 0.9523698801099 
+"value": 0.9523583946626 
 },
 {
  "date":          15653,
 "source": "R_sq",
-"value": 0.9523677182518 
+"value": 0.9523560703132 
 },
 {
  "date":          15656,
 "source": "R_sq",
-"value": 0.9521938172312 
+"value": 0.9521820346377 
 },
 {
  "date":          15657,
 "source": "R_sq",
-"value": 0.9522543912952 
+"value": 0.9522420865009 
 },
 {
  "date":          15658,
 "source": "R_sq",
-"value": 0.951847902936 
+"value": 0.9518355593132 
 },
 {
  "date":          15659,
 "source": "R_sq",
-"value": 0.9518493510529 
+"value": 0.9518375100656 
 },
 {
  "date":          15660,
 "source": "R_sq",
-"value": 0.9518747982438 
+"value": 0.9518631928887 
 },
 {
  "date":          15663,
 "source": "R_sq",
-"value": 0.9519243399802 
+"value": 0.9519129506683 
 },
 {
  "date":          15664,
 "source": "R_sq",
-"value": 0.9520844812334 
+"value": 0.9520743463905 
 },
 {
  "date":          15665,
 "source": "R_sq",
-"value": 0.9520594044541 
+"value": 0.9520488613848 
 },
 {
  "date":          15667,
 "source": "R_sq",
-"value": 0.9521903609464 
+"value": 0.9521804510641 
 },
 {
  "date":          15670,
 "source": "R_sq",
-"value": 0.952299760792 
+"value": 0.9522906305189 
 },
 {
  "date":          15671,
 "source": "R_sq",
-"value": 0.9521521458736 
+"value": 0.9521436880305 
 },
 {
  "date":          15672,
 "source": "R_sq",
-"value": 0.9522858422296 
+"value": 0.9522783277428 
 },
 {
  "date":          15673,
 "source": "R_sq",
-"value": 0.9523038616795 
+"value": 0.9522965556943 
 },
 {
  "date":          15674,
 "source": "R_sq",
-"value": 0.9523111772445 
+"value": 0.9523036206179 
 },
 {
  "date":          15677,
 "source": "R_sq",
-"value": 0.9524522090803 
+"value": 0.9524454196786 
 },
 {
  "date":          15678,
 "source": "R_sq",
-"value": 0.9525188489782 
+"value": 0.9525114700746 
 },
 {
  "date":          15679,
 "source": "R_sq",
-"value": 0.9525498678904 
+"value": 0.9525410412611 
 },
 {
  "date":          15680,
 "source": "R_sq",
-"value": 0.9525938193144 
+"value": 0.9525854748073 
 },
 {
  "date":          15681,
 "source": "R_sq",
-"value": 0.952537012204 
+"value": 0.9525282072457 
 },
 {
  "date":          15684,
 "source": "R_sq",
-"value": 0.9526270800969 
+"value": 0.9526174771808 
 },
 {
  "date":          15685,
 "source": "R_sq",
-"value": 0.952502599179 
+"value": 0.9524923803463 
 },
 {
  "date":          15686,
 "source": "R_sq",
-"value": 0.9533516137134 
+"value": 0.9533434355861 
 },
 {
  "date":          15687,
 "source": "R_sq",
-"value": 0.9533236199369 
+"value": 0.9533165132611 
 },
 {
  "date":          15688,
 "source": "R_sq",
-"value": 0.9533996776192 
+"value": 0.9533934466639 
 },
 {
  "date":          15691,
 "source": "R_sq",
-"value": 0.9537731995872 
+"value": 0.9537680574472 
 },
 {
  "date":          15692,
 "source": "R_sq",
-"value": 0.9539138729694 
+"value": 0.953909359667 
 },
 {
  "date":          15693,
 "source": "R_sq",
-"value": 0.9538262015412 
+"value": 0.9538219643956 
 },
 {
  "date":          15694,
 "source": "R_sq",
-"value": 0.9538313411156 
+"value": 0.953827687135 
 },
 {
  "date":          15695,
 "source": "R_sq",
-"value": 0.9538559464575 
+"value": 0.953851713736 
 },
 {
  "date":          15698,
 "source": "R_sq",
-"value": 0.9538596776327 
+"value": 0.9538554555951 
 },
 {
  "date":          15700,
 "source": "R_sq",
-"value": 0.9539178959149 
+"value": 0.953914339069 
 },
 {
  "date":          15701,
 "source": "R_sq",
-"value": 0.9539284669484 
+"value": 0.953925028497 
 },
 {
  "date":          15702,
 "source": "R_sq",
-"value": 0.9539185482598 
+"value": 0.9539157185913 
 },
 {
  "date":          15705,
 "source": "R_sq",
-"value": 0.9541008660555 
+"value": 0.9540973388382 
 },
 {
  "date":          15707,
 "source": "R_sq",
-"value": 0.954479358393 
+"value": 0.9544758297645 
 },
 {
  "date":          15708,
 "source": "R_sq",
-"value": 0.9545884731796 
+"value": 0.9545849848555 
 },
 {
  "date":          15709,
 "source": "R_sq",
-"value": 0.9546412645953 
+"value": 0.9546378309076 
 },
 {
  "date":          15712,
 "source": "R_sq",
-"value": 0.9546429585857 
+"value": 0.9546395268372 
 },
 {
  "date":          15713,
 "source": "R_sq",
-"value": 0.9547338975729 
+"value": 0.9547303621991 
 },
 {
  "date":          15714,
 "source": "R_sq",
-"value": 0.9548527942028 
+"value": 0.9548491846764 
 },
 {
  "date":          15715,
 "source": "R_sq",
-"value": 0.9548617315696 
+"value": 0.9548581583927 
 },
 {
  "date":          15716,
 "source": "R_sq",
-"value": 0.9549100935679 
+"value": 0.9549064436971 
 },
 {
  "date":          15719,
 "source": "R_sq",
-"value": 0.9549312639502 
+"value": 0.9549277516057 
 },
 {
  "date":          15720,
 "source": "R_sq",
-"value": 0.9552671535388 
+"value": 0.9552637849903 
 },
 {
  "date":          15721,
 "source": "R_sq",
-"value": 0.9553640535157 
+"value": 0.9553607387753 
 },
 {
  "date":          15722,
 "source": "R_sq",
-"value": 0.9554417156192 
+"value": 0.9554383688164 
 },
 {
  "date":          15723,
 "source": "R_sq",
-"value": 0.9553504189326 
+"value": 0.9553471134271 
 },
 {
  "date":          15727,
 "source": "R_sq",
-"value": 0.9554711516809 
+"value": 0.9554679448051 
 },
 {
  "date":          15728,
 "source": "R_sq",
-"value": 0.955491113585 
+"value": 0.9554877683392 
 },
 {
  "date":          15729,
 "source": "R_sq",
-"value": 0.9552095641067 
+"value": 0.9552063123029 
 },
 {
  "date":          15730,
 "source": "R_sq",
-"value": 0.9549526251864 
+"value": 0.9549494796941 
 },
 {
  "date":          15733,
 "source": "R_sq",
-"value": 0.9557258507255 
+"value": 0.9557224767468 
 },
 {
  "date":          15734,
 "source": "R_sq",
-"value": 0.9556501303718 
+"value": 0.9556474973065 
 },
 {
  "date":          15735,
 "source": "R_sq",
-"value": 0.9557953140494 
+"value": 0.9557918711349 
 },
 {
  "date":          15736,
 "source": "R_sq",
-"value": 0.9557535612566 
+"value": 0.9557503324622 
 },
 {
  "date":          15737,
 "source": "R_sq",
-"value": 0.9557881058269 
+"value": 0.9557842707169 
 },
 {
  "date":          15740,
 "source": "R_sq",
-"value": 0.9558279876837 
+"value": 0.955824158693 
 },
 {
  "date":          15741,
 "source": "R_sq",
-"value": 0.9566381567403 
+"value": 0.956636272672 
 },
 {
  "date":          15742,
 "source": "R_sq",
-"value": 0.9573269605405 
+"value": 0.957323252951 
 },
 {
  "date":          15743,
 "source": "R_sq",
-"value": 0.9577051850858 
+"value": 0.9577030975245 
 },
 {
  "date":          15744,
 "source": "R_sq",
-"value": 0.9577784339757 
+"value": 0.9577769870273 
 },
 {
  "date":          15747,
 "source": "R_sq",
-"value": 0.9577829829394 
+"value": 0.957781888489 
 },
 {
  "date":          15748,
 "source": "R_sq",
-"value": 0.9577846253754 
+"value": 0.9577832927266 
 },
 {
  "date":          15749,
 "source": "R_sq",
-"value":  0.95775580865 
+"value": 0.9577546780994 
 },
 {
  "date":          15750,
 "source": "R_sq",
-"value": 0.9576985289698 
+"value": 0.957697536678 
 },
 {
  "date":          15751,
 "source": "R_sq",
-"value": 0.9577795368329 
+"value": 0.9577775288614 
 },
 {
  "date":          15755,
 "source": "R_sq",
-"value": 0.9575496788366 
+"value": 0.9575470347945 
 },
 {
  "date":          15756,
 "source": "R_sq",
-"value": 0.9576669227605 
+"value": 0.9576648287909 
 },
 {
  "date":          15757,
 "source": "R_sq",
-"value": 0.9576896179023 
+"value": 0.9576876780552 
 },
 {
  "date":          15758,
 "source": "R_sq",
-"value": 0.9579124733276 
+"value": 0.9579116671603 
 },
 {
  "date":          15761,
 "source": "R_sq",
-"value": 0.9580529041769 
+"value": 0.9580521227392 
 },
 {
  "date":          15762,
 "source": "R_sq",
-"value": 0.957873827984 
+"value": 0.9578730370121 
 },
 {
  "date":          15763,
 "source": "R_sq",
-"value": 0.9578748434668 
+"value": 0.9578740705254 
 },
 {
  "date":          15764,
 "source": "R_sq",
-"value": 0.9578013658009 
+"value": 0.9578005658861 
 },
 {
  "date":          15765,
 "source": "R_sq",
-"value": 0.9577174058551 
+"value": 0.9577166138375 
 },
 {
  "date":          15768,
 "source": "R_sq",
-"value": 0.9576737734577 
+"value": 0.9576729875818 
 },
 {
  "date":          15769,
 "source": "R_sq",
-"value": 0.9574722419036 
+"value": 0.9574714022724 
 },
 {
  "date":          15770,
 "source": "R_sq",
-"value": 0.9575331683524 
+"value": 0.9575323184306 
 },
 {
  "date":          15771,
 "source": "R_sq",
-"value": 0.9573316908806 
+"value": 0.9573308460511 
 },
 {
  "date":          15772,
 "source": "R_sq",
-"value": 0.9575761809246 
+"value": 0.9575752961823 
 },
 {
  "date":          15775,
 "source": "R_sq",
-"value": 0.9575852014386 
+"value": 0.9575843052832 
 },
 {
  "date":          15776,
 "source": "R_sq",
-"value": 0.9574024163073 
+"value": 0.9574015380949 
 },
 {
  "date":          15777,
 "source": "R_sq",
-"value": 0.9571908042458 
+"value": 0.9571899284141 
 },
 {
  "date":          15778,
 "source": "R_sq",
-"value": 0.9572076507139 
+"value":   0.9572066959 
 },
 {
  "date":          15779,
 "source": "R_sq",
-"value": 0.9573341772817 
+"value": 0.9573331972448 
 },
 {
  "date":          15782,
 "source": "R_sq",
-"value": 0.9572363449557 
+"value": 0.9572353481777 
 },
 {
  "date":          15783,
 "source": "R_sq",
-"value": 0.957215282264 
+"value": 0.9572143028322 
 },
 {
  "date":          15784,
 "source": "R_sq",
-"value": 0.9572297622728 
+"value": 0.957228851622 
 },
 {
  "date":          15785,
 "source": "R_sq",
-"value": 0.9569425868462 
+"value": 0.9569417540882 
 },
 {
  "date":          15786,
 "source": "R_sq",
-"value": 0.9571942589826 
+"value": 0.9571933903645 
 },
 {
  "date":          15789,
 "source": "R_sq",
-"value": 0.9572296132957 
+"value": 0.9572287357771 
 },
 {
  "date":          15790,
 "source": "R_sq",
-"value": 0.9570894804437 
+"value": 0.9570886180556 
 },
 {
  "date":          15791,
 "source": "R_sq",
-"value": 0.9571330759233 
+"value": 0.9571321982853 
 },
 {
  "date":          15792,
 "source": "R_sq",
-"value": 0.9573865978472 
+"value": 0.9573857557127 
 },
 {
  "date":          15796,
 "source": "R_sq",
-"value": 0.9577293605339 
+"value": 0.9577285968244 
 },
 {
  "date":          15797,
 "source": "R_sq",
-"value": 0.9575123212633 
+"value": 0.9575115914329 
 },
 {
  "date":          15798,
 "source": "R_sq",
-"value": 0.9574474953061 
+"value": 0.9574467288093 
 },
 {
  "date":          15799,
 "source": "R_sq",
-"value": 0.9577460048154 
+"value": 0.9577453017183 
 },
 {
  "date":          15800,
 "source": "R_sq",
-"value": 0.9577326595622 
+"value": 0.9577320003641 
 },
 {
  "date":          15803,
 "source": "R_sq",
-"value": 0.9577479914404 
+"value": 0.9577473283028 
 },
 {
  "date":          15804,
 "source": "R_sq",
-"value": 0.9576876384246 
+"value": 0.9576869661015 
 },
 {
  "date":          15805,
 "source": "R_sq",
-"value": 0.9578392589534 
+"value": 0.9578386146444 
 },
 {
  "date":          15806,
 "source": "R_sq",
-"value": 0.9578978632382 
+"value": 0.957897255155 
 },
 {
  "date":          15807,
 "source": "R_sq",
-"value": 0.9578076274795 
+"value": 0.9578070468116 
 },
 {
  "date":          15810,
 "source": "R_sq",
-"value": 0.958438849164 
+"value": 0.9584382301602 
 },
 {
  "date":          15811,
 "source": "R_sq",
-"value": 0.9584802531782 
+"value": 0.9584796145673 
 },
 {
  "date":          15812,
 "source": "R_sq",
-"value": 0.9584975355239 
+"value": 0.9584969096312 
 },
 {
  "date":          15813,
 "source": "R_sq",
-"value": 0.9583989424162 
+"value": 0.9583983183209 
 },
 {
  "date":          15814,
 "source": "R_sq",
-"value": 0.9587601944223 
+"value": 0.9587595406488 
 },
 {
  "date":          15817,
 "source": "R_sq",
-"value": 0.9587322981536 
+"value": 0.9587316366089 
 },
 {
  "date":          15818,
 "source": "R_sq",
-"value": 0.9586912540425 
+"value": 0.9586906070678 
 },
 {
  "date":          15819,
 "source": "R_sq",
-"value": 0.9586706947484 
+"value": 0.9586700510929 
 },
 {
  "date":          15820,
 "source": "R_sq",
-"value": 0.9586655054042 
+"value": 0.9586648524444 
 },
 {
  "date":          15821,
 "source": "R_sq",
-"value": 0.9587319628246 
+"value": 0.9587312879762 
 },
 {
  "date":          15824,
 "source": "R_sq",
-"value": 0.9588641325925 
+"value": 0.9588634759748 
 },
 {
  "date":          15825,
 "source": "R_sq",
-"value": 0.958944577743 
+"value": 0.958943937423 
 },
 {
  "date":          15826,
 "source": "R_sq",
-"value": 0.9591665821269 
+"value": 0.959165958192 
 },
 {
  "date":          15827,
 "source": "R_sq",
-"value": 0.9591433700564 
+"value": 0.9591427786033 
 },
 {
  "date":          15828,
 "source": "R_sq",
-"value": 0.9591815614915 
+"value": 0.9591809540875 
 },
 {
  "date":          15831,
 "source": "R_sq",
-"value": 0.9592968407455 
+"value": 0.9592961988025 
 },
 {
  "date":          15832,
 "source": "R_sq",
-"value": 0.9590276928115 
+"value": 0.9590270956218 
 },
 {
  "date":          15833,
 "source": "R_sq",
-"value": 0.9590234448315 
+"value": 0.9590228711551 
 },
 {
  "date":          15834,
 "source": "R_sq",
-"value": 0.959017691404 
+"value": 0.9590171121974 
 },
 {
  "date":          15835,
 "source": "R_sq",
-"value": 0.9590193946026 
+"value": 0.9590188377916 
 },
 {
  "date":          15838,
 "source": "R_sq",
-"value": 0.9590837708008 
+"value": 0.9590831663045 
 },
 {
  "date":          15839,
 "source": "R_sq",
-"value": 0.9591409193445 
+"value": 0.9591403186483 
 },
 {
  "date":          15840,
 "source": "R_sq",
-"value": 0.9590302293983 
+"value": 0.9590296381381 
 },
 {
  "date":          15841,
 "source": "R_sq",
-"value": 0.9585843348124 
+"value": 0.9585836617003 
 },
 {
  "date":          15842,
 "source": "R_sq",
-"value": 0.9586023198946 
+"value": 0.9586016301104 
 },
 {
  "date":          15845,
 "source": "R_sq",
-"value": 0.9584901055757 
+"value": 0.9584894073599 
 },
 {
  "date":          15846,
 "source": "R_sq",
-"value": 0.9585933863641 
+"value": 0.9585926759812 
 },
 {
  "date":          15847,
 "source": "R_sq",
-"value": 0.9587146855533 
+"value": 0.9587139630448 
 },
 {
  "date":          15848,
 "source": "R_sq",
-"value": 0.9587456078594 
+"value": 0.9587449060866 
 },
 {
  "date":          15849,
 "source": "R_sq",
-"value": 0.9589147940283 
+"value": 0.9589141418634 
 },
 {
  "date":          15853,
 "source": "R_sq",
-"value": 0.9589228259641 
+"value": 0.9589221636304 
 },
 {
  "date":          15854,
 "source": "R_sq",
-"value": 0.9588279167496 
+"value": 0.9588272707034 
 },
 {
  "date":          15855,
 "source": "R_sq",
-"value": 0.958767681241 
+"value": 0.9587670181065 
 },
 {
  "date":          15856,
 "source": "R_sq",
-"value": 0.9589515323734 
+"value": 0.9589508354383 
 },
 {
  "date":          15859,
 "source": "R_sq",
-"value": 0.9589625571824 
+"value": 0.9589618936528 
 },
 {
  "date":          15860,
 "source": "R_sq",
-"value": 0.9589889097801 
+"value": 0.9589882125035 
 },
 {
  "date":          15861,
 "source": "R_sq",
-"value": 0.9590868026302 
+"value": 0.959086106042 
 },
 {
  "date":          15862,
 "source": "R_sq",
-"value": 0.9589481715822 
+"value": 0.9589474908172 
 },
 {
  "date":          15863,
 "source": "R_sq",
-"value": 0.9589043486776 
+"value": 0.9589036689953 
 },
 {
  "date":          15866,
 "source": "R_sq",
-"value": 0.9588924740522 
+"value": 0.9588917977654 
 },
 {
  "date":          15867,
 "source": "R_sq",
-"value": 0.9590213319748 
+"value": 0.9590206310095 
 },
 {
  "date":          15868,
 "source": "R_sq",
-"value": 0.9589469504512 
+"value": 0.9589462848957 
 },
 {
  "date":          15869,
 "source": "R_sq",
-"value": 0.9590522082332 
+"value": 0.9590515419547 
 },
 {
  "date":          15870,
 "source": "R_sq",
-"value": 0.9591729936181 
+"value": 0.9591722989669 
 },
 {
  "date":          15873,
 "source": "R_sq",
-"value": 0.9591578887589 
+"value": 0.9591571407385 
 },
 {
  "date":          15874,
 "source": "R_sq",
-"value": 0.9591818316052 
+"value": 0.9591810656557 
 },
 {
  "date":          15875,
 "source": "R_sq",
-"value": 0.959213631106 
+"value": 0.9592128417487 
 },
 {
  "date":          15876,
 "source": "R_sq",
-"value": 0.9595690304115 
+"value": 0.9595682166044 
 },
 {
  "date":          15877,
 "source": "R_sq",
-"value": 0.9586555114154 
+"value": 0.9586548017407 
 },
 {
  "date":          15880,
 "source": "R_sq",
-"value": 0.9587599757538 
+"value": 0.9587593221125 
 },
 {
  "date":          15881,
 "source": "R_sq",
-"value": 0.9587410089691 
+"value": 0.9587403466726 
 },
 {
  "date":          15882,
 "source": "R_sq",
-"value": 0.9588399329252 
+"value": 0.9588393660851 
 },
 {
  "date":          15883,
 "source": "R_sq",
-"value": 0.9588205627972 
+"value": 0.9588199930549 
 },
 {
  "date":          15884,
 "source": "R_sq",
-"value": 0.9588402012107 
+"value": 0.9588396719398 
 },
 {
  "date":          15887,
 "source": "R_sq",
-"value": 0.958779159099 
+"value": 0.9587786090929 
 },
 {
  "date":          15888,
 "source": "R_sq",
-"value": 0.9589494032412 
+"value": 0.9589488250732 
 },
 {
  "date":          15889,
 "source": "R_sq",
-"value": 0.9588041313172 
+"value": 0.9588035269893 
 },
 {
  "date":          15891,
 "source": "R_sq",
-"value": 0.9588389804652 
+"value": 0.9588383842204 
 },
 {
  "date":          15894,
 "source": "R_sq",
-"value": 0.9585977417471 
+"value": 0.9585972007137 
 },
 {
  "date":          15895,
 "source": "R_sq",
-"value": 0.958572760343 
+"value": 0.9585722476396 
 },
 {
  "date":          15896,
 "source": "R_sq",
-"value": 0.9585782285863 
+"value": 0.9585776981509 
 },
 {
  "date":          15897,
 "source": "R_sq",
-"value": 0.9583717762514 
+"value": 0.9583712100097 
 },
 {
  "date":          15898,
 "source": "R_sq",
-"value": 0.9584029265295 
+"value": 0.9584023925611 
 },
 {
  "date":          15901,
 "source": "R_sq",
-"value": 0.958338603741 
+"value": 0.9583380737585 
 },
 {
  "date":          15902,
 "source": "R_sq",
-"value": 0.9582203623105 
+"value": 0.9582198142679 
 },
 {
  "date":          15903,
 "source": "R_sq",
-"value": 0.9583511299838 
+"value": 0.9583505229873 
 },
 {
  "date":          15904,
 "source": "R_sq",
-"value": 0.9582686438168 
+"value": 0.9582679980434 
 },
 {
  "date":          15905,
 "source": "R_sq",
-"value": 0.9584493924209 
+"value": 0.9584488091804 
 },
 {
  "date":          15908,
 "source": "R_sq",
-"value": 0.9586149027877 
+"value": 0.9586143489581 
 },
 {
  "date":          15909,
 "source": "R_sq",
-"value": 0.9588942023513 
+"value": 0.9588937632555 
 },
 {
  "date":          15910,
 "source": "R_sq",
-"value": 0.9584998737016 
+"value": 0.9584994044953 
 },
 {
  "date":          15911,
 "source": "R_sq",
-"value": 0.9586786582013 
+"value": 0.9586782179524 
 },
 {
  "date":          15912,
 "source": "R_sq",
-"value": 0.9588991463725 
+"value": 0.958898648086 
 },
 {
  "date":          15915,
 "source": "R_sq",
-"value": 0.9589401200999 
+"value": 0.9589395759593 
 },
 {
  "date":          15916,
 "source": "R_sq",
-"value": 0.9585305524207 
+"value": 0.9585300281234 
 },
 {
  "date":          15917,
 "source": "R_sq",
-"value": 0.9594145254104 
+"value": 0.9594141356307 
 },
 {
  "date":          15918,
 "source": "R_sq",
-"value":   0.9587285866 
+"value": 0.9587282524777 
 },
 {
  "date":          15919,
 "source": "R_sq",
-"value": 0.9589641424377 
+"value": 0.9589638419212 
 },
 {
  "date":          15922,
 "source": "R_sq",
-"value": 0.9560782573195 
+"value": 0.956077981075 
 },
 {
  "date":          15923,
 "source": "R_sq",
-"value": 0.9538658125553 
+"value": 0.9538654526292 
 },
 {
  "date":          15924,
 "source": "R_sq",
-"value": 0.9523873918539 
+"value": 0.9523870350693 
 },
 {
  "date":          15925,
 "source": "R_sq",
-"value": 0.9506533877127 
+"value": 0.9506530619791 
 },
 {
  "date":          15926,
 "source": "R_sq",
-"value": 0.9505783867725 
+"value": 0.9505780922101 
 },
 {
  "date":          15929,
 "source": "R_sq",
-"value": 0.951108704022 
+"value": 0.9511082916421 
 },
 {
  "date":          15930,
 "source": "R_sq",
-"value": 0.9513558340407 
+"value": 0.9513554476672 
 },
 {
  "date":          15931,
 "source": "R_sq",
-"value": 0.9516230315002 
+"value": 0.9516224766953 
 },
 {
  "date":          15932,
 "source": "R_sq",
-"value": 0.9499192392961 
+"value": 0.9499187576037 
 },
 {
  "date":          15933,
 "source": "R_sq",
-"value": 0.9509206136408 
+"value":  0.95091999744 
 },
 {
  "date":          15936,
 "source": "R_sq",
-"value": 0.9508278456538 
+"value": 0.9508272027709 
 },
 {
  "date":          15937,
 "source": "R_sq",
-"value": 0.9499052493765 
+"value": 0.9499045783572 
 },
 {
  "date":          15938,
 "source": "R_sq",
-"value": 0.9496853581359 
+"value": 0.9496846319516 
 },
 {
  "date":          15939,
 "source": "R_sq",
-"value": 0.9493838941113 
+"value": 0.9493831756629 
 },
 {
  "date":          15940,
 "source": "R_sq",
-"value": 0.9488568123206 
+"value": 0.9488561374519 
 },
 {
  "date":          15943,
 "source": "R_sq",
-"value": 0.9482833150557 
+"value": 0.9482825946933 
 },
 {
  "date":          15944,
 "source": "R_sq",
-"value": 0.9485204188444 
+"value": 0.9485197424263 
 },
 {
  "date":          15945,
 "source": "R_sq",
-"value": 0.9485710023371 
+"value": 0.9485703771297 
 },
 {
  "date":          15946,
 "source": "R_sq",
-"value": 0.9488152856342 
+"value":  0.94881473892 
 },
 {
  "date":          15947,
 "source": "R_sq",
-"value": 0.9484005328224 
+"value": 0.9484000374678 
 },
 {
  "date":          15951,
 "source": "R_sq",
-"value": 0.9483872117355 
+"value": 0.948386611201 
 },
 {
  "date":          15952,
 "source": "R_sq",
-"value": 0.9481230776548 
+"value": 0.9481224142379 
 },
 {
  "date":          15953,
 "source": "R_sq",
-"value": 0.9484510829171 
+"value": 0.9484505107649 
 },
 {
  "date":          15954,
 "source": "R_sq",
-"value": 0.9476542812913 
+"value": 0.9476536908225 
 },
 {
  "date":          15957,
 "source": "R_sq",
-"value": 0.9478703751995 
+"value": 0.9478697587984 
 },
 {
  "date":          15958,
 "source": "R_sq",
-"value": 0.9477052480984 
+"value": 0.9477046096472 
 },
 {
  "date":          15959,
 "source": "R_sq",
-"value": 0.9473016546441 
+"value": 0.9473010504965 
 },
 {
  "date":          15960,
 "source": "R_sq",
-"value": 0.9469820727354 
+"value": 0.946981450731 
 },
 {
  "date":          15961,
 "source": "R_sq",
-"value": 0.9470300952586 
+"value": 0.9470294647507 
 },
 {
  "date":          15964,
 "source": "R_sq",
-"value": 0.9471277598932 
+"value": 0.9471271682448 
 },
 {
  "date":          15965,
 "source": "R_sq",
-"value": 0.9481246777105 
+"value": 0.9481242107274 
 },
 {
  "date":          15966,
 "source": "R_sq",
-"value": 0.9473533354775 
+"value": 0.947352919552 
 },
 {
  "date":          15967,
 "source": "R_sq",
-"value": 0.9461181900804 
+"value": 0.9461177725876 
 },
 {
  "date":          15968,
 "source": "R_sq",
-"value": 0.9462830214324 
+"value": 0.946282614666 
 },
 {
  "date":          15971,
 "source": "R_sq",
-"value": 0.946393778298 
+"value": 0.946393269522 
 },
 {
  "date":          15972,
 "source": "R_sq",
-"value": 0.9461324297065 
+"value": 0.9461319611436 
 },
 {
  "date":          15973,
 "source": "R_sq",
-"value": 0.9458327064418 
+"value": 0.9458322985798 
 },
 {
  "date":          15974,
 "source": "R_sq",
-"value": 0.9464869202823 
+"value": 0.9464863887693 
 },
 {
  "date":          15975,
 "source": "R_sq",
-"value": 0.9458203432673 
+"value": 0.9458198476501 
 },
 {
  "date":          15978,
 "source": "R_sq",
-"value": 0.9451616056119 
+"value": 0.9451612360968 
 },
 {
  "date":          15979,
 "source": "R_sq",
-"value": 0.9449248033668 
+"value": 0.9449243782929 
 },
 {
  "date":          15980,
 "source": "R_sq",
-"value": 0.9448159386885 
+"value": 0.9448154652955 
 },
 {
  "date":          15981,
 "source": "R_sq",
-"value": 0.9447396194144 
+"value": 0.9447391011767 
 },
 {
  "date":          15982,
 "source": "R_sq",
-"value": 0.9449917212247 
+"value": 0.9449912948911 
 },
 {
  "date":          15985,
 "source": "R_sq",
-"value": 0.9436630887294 
+"value": 0.9436626357606 
 },
 {
  "date":          15986,
 "source": "R_sq",
-"value": 0.9439928578614 
+"value": 0.943992466791 
 },
 {
  "date":          15987,
 "source": "R_sq",
-"value": 0.9438889421109 
+"value": 0.943888560795 
 },
 {
  "date":          15988,
 "source": "R_sq",
-"value": 0.9445028310122 
+"value": 0.9445025164689 
 },
 {
  "date":          15989,
 "source": "R_sq",
-"value": 0.9442356332099 
+"value": 0.9442352919745 
 },
 {
  "date":          15992,
 "source": "R_sq",
-"value": 0.9436663741874 
+"value": 0.9436660127917 
 },
 {
  "date":          15993,
 "source": "R_sq",
-"value": 0.9431704091921 
+"value": 0.9431700326145 
 },
 {
  "date":          15994,
 "source": "R_sq",
-"value": 0.9421119765585 
+"value":  0.94211176475 
 },
 {
  "date":          15995,
 "source": "R_sq",
-"value": 0.9421726016443 
+"value": 0.9421724028983 
 },
 {
  "date":          15996,
 "source": "R_sq",
-"value": 0.9416118838034 
+"value": 0.9416116055789 
 },
 {
  "date":          15999,
 "source": "R_sq",
-"value": 0.9410066809552 
+"value": 0.9410062916228 
 },
 {
  "date":          16000,
 "source": "R_sq",
-"value": 0.9401858039788 
+"value": 0.9401854920761 
 },
 {
  "date":          16001,
 "source": "R_sq",
-"value": 0.9404574829595 
+"value": 0.9404570129436 
 },
 {
  "date":          16002,
 "source": "R_sq",
-"value": 0.9391267266449 
+"value": 0.9391261023712 
 },
 {
  "date":          16003,
 "source": "R_sq",
-"value": 0.9391297561003 
+"value": 0.9391291316255 
 },
 {
  "date":          16006,
 "source": "R_sq",
-"value": 0.9393773450432 
+"value": 0.9393768808951 
 },
 {
  "date":          16007,
 "source": "R_sq",
-"value": 0.9378863881322 
+"value": 0.9378859919022 
 },
 {
  "date":          16008,
 "source": "R_sq",
-"value": 0.9374837614861 
+"value": 0.9374832649422 
 },
 {
  "date":          16009,
 "source": "R_sq",
-"value": 0.9369390485566 
+"value": 0.9369385426362 
 },
 {
  "date":          16010,
 "source": "R_sq",
-"value": 0.9368890640382 
+"value": 0.9368885509486 
 },
 {
  "date":          16013,
 "source": "R_sq",
-"value": 0.936425003959 
+"value": 0.9364245645194 
 },
 {
  "date":          16014,
 "source": "R_sq",
-"value": 0.9362257365516 
+"value": 0.9362252492907 
 },
 {
  "date":          16015,
 "source": "R_sq",
-"value": 0.9336300672991 
+"value": 0.9336295733624 
 },
 {
  "date":          16016,
 "source": "R_sq",
-"value": 0.9339455036544 
+"value": 0.9339450042131 
 },
 {
  "date":          16017,
 "source": "R_sq",
-"value": 0.9335511405978 
+"value": 0.9335507187209 
 },
 {
  "date":          16020,
 "source": "R_sq",
-"value": 0.9333511254765 
+"value": 0.9333507070572 
 },
 {
  "date":          16021,
 "source": "R_sq",
-"value": 0.9330001560605 
+"value": 0.9329996705872 
 },
 {
  "date":          16022,
 "source": "R_sq",
-"value": 0.9326144993228 
+"value": 0.932613993478 
 },
 {
  "date":          16023,
 "source": "R_sq",
-"value": 0.9314097837028 
+"value": 0.9314094002784 
 },
 {
  "date":          16024,
 "source": "R_sq",
-"value": 0.9313518586882 
+"value": 0.9313515546266 
 },
 {
  "date":          16027,
 "source": "R_sq",
-"value": 0.9304951535969 
+"value": 0.9304948112332 
 },
 {
  "date":          16028,
 "source": "R_sq",
-"value": 0.9306390721889 
+"value": 0.930638775576 
 },
 {
  "date":          16029,
 "source": "R_sq",
-"value": 0.9295878578089 
+"value": 0.9295876034591 
 },
 {
  "date":          16030,
 "source": "R_sq",
-"value": 0.9297562030635 
+"value": 0.9297559930274 
 },
 {
  "date":          16031,
 "source": "R_sq",
-"value": 0.9281517841824 
+"value": 0.9281515243992 
 },
 {
  "date":          16034,
 "source": "R_sq",
-"value": 0.9283828983085 
+"value": 0.928382576746 
 },
 {
  "date":          16035,
 "source": "R_sq",
-"value": 0.9249098267204 
+"value": 0.9249093806956 
 },
 {
  "date":          16036,
 "source": "R_sq",
-"value": 0.9248902236463 
+"value": 0.9248897723316 
 },
 {
  "date":          16038,
 "source": "R_sq",
-"value": 0.9247780464346 
+"value": 0.9247775338136 
 },
 {
  "date":          16041,
 "source": "R_sq",
-"value": 0.9252989049679 
+"value": 0.9252983089767 
 },
 {
  "date":          16042,
 "source": "R_sq",
-"value": 0.9253751369416 
+"value": 0.9253745556347 
 },
 {
  "date":          16043,
 "source": "R_sq",
-"value": 0.9253251601703 
+"value": 0.9253246369642 
 },
 {
  "date":          16044,
 "source": "R_sq",
-"value": 0.9243136585733 
+"value": 0.9243132241359 
 },
 {
  "date":          16045,
 "source": "R_sq",
-"value": 0.9238459953333 
+"value": 0.9238455493426 
 },
 {
  "date":          16048,
 "source": "R_sq",
-"value": 0.9234922857188 
+"value": 0.9234919277763 
 },
 {
  "date":          16049,
 "source": "R_sq",
-"value": 0.9235946107704 
+"value": 0.9235943680145 
 },
 {
  "date":          16050,
 "source": "R_sq",
-"value": 0.9226348929282 
+"value": 0.9226345498416 
 },
 {
  "date":          16051,
 "source": "R_sq",
-"value": 0.9221875660818 
+"value": 0.9221873055737 
 },
 {
  "date":          16052,
 "source": "R_sq",
-"value": 0.9223755083386 
+"value": 0.9223752052756 
 },
 {
  "date":          16055,
 "source": "R_sq",
-"value": 0.9219249832131 
+"value": 0.9219246854203 
 },
 {
  "date":          16056,
 "source": "R_sq",
-"value": 0.9197760010049 
+"value": 0.9197756525649 
 },
 {
  "date":          16057,
 "source": "R_sq",
-"value": 0.9207067292796 
+"value": 0.9207063349232 
 },
 {
  "date":          16058,
 "source": "R_sq",
-"value": 0.9198378190689 
+"value": 0.9198372042561 
 },
 {
  "date":          16059,
 "source": "R_sq",
-"value": 0.920037679253 
+"value": 0.9200370972448 
 },
 {
  "date":          16062,
 "source": "R_sq",
-"value": 0.9200211281446 
+"value": 0.9200205151127 
 },
 {
  "date":          16063,
 "source": "R_sq",
-"value": 0.919856736965 
+"value": 0.9198562047334 
 },
 {
  "date":          16065,
 "source": "R_sq",
-"value": 0.9196281722178 
+"value": 0.9196276352541 
 },
 {
  "date":          16066,
 "source": "R_sq",
-"value": 0.9193613979901 
+"value": 0.9193607915505 
 },
 {
  "date":          16069,
 "source": "R_sq",
-"value": 0.9187823454158 
+"value": 0.9187817215562 
 },
 {
  "date":          16070,
 "source": "R_sq",
-"value": 0.9194066256501 
+"value": 0.9194058865166 
 },
 {
  "date":          16072,
 "source": "R_sq",
-"value": 0.9193680421631 
+"value": 0.9193673558334 
 },
 {
  "date":          16073,
 "source": "R_sq",
-"value": 0.9193722904383 
+"value": 0.9193715996198 
 },
 {
  "date":          16076,
 "source": "R_sq",
-"value": 0.9195501911067 
+"value": 0.919549458089 
 },
 {
  "date":          16077,
 "source": "R_sq",
-"value": 0.9187760903636 
+"value": 0.9187755185964 
 },
 {
  "date":          16078,
 "source": "R_sq",
-"value": 0.9195558089908 
+"value": 0.9195551610282 
 },
 {
  "date":          16079,
 "source": "R_sq",
-"value": 0.9195705588291 
+"value": 0.9195700359742 
 },
 {
  "date":          16080,
 "source": "R_sq",
-"value": 0.9194447439128 
+"value": 0.9194442347613 
 },
 {
  "date":          16083,
 "source": "R_sq",
-"value": 0.9197944402645 
+"value": 0.9197938969342 
 },
 {
  "date":          16084,
 "source": "R_sq",
-"value": 0.9199550563747 
+"value": 0.9199544490184 
 },
 {
  "date":          16085,
 "source": "R_sq",
-"value": 0.9199541393618 
+"value": 0.9199535593605 
 },
 {
  "date":          16086,
 "source": "R_sq",
-"value": 0.9208704781423 
+"value": 0.9208697594891 
 },
 {
  "date":          16087,
 "source": "R_sq",
-"value": 0.9209152553198 
+"value": 0.9209146089106 
 },
 {
  "date":          16091,
 "source": "R_sq",
-"value": 0.920775415951 
+"value": 0.9207746587602 
 },
 {
  "date":          16092,
 "source": "R_sq",
-"value": 0.9203996193147 
+"value": 0.9203987037155 
 },
 {
  "date":          16093,
 "source": "R_sq",
-"value": 0.9216340103397 
+"value": 0.9216332397606 
 },
 {
  "date":          16094,
 "source": "R_sq",
-"value": 0.9230628798173 
+"value": 0.9230620720801 
 },
 {
  "date":          16097,
 "source": "R_sq",
-"value": 0.9230280397359 
+"value": 0.9230272651833 
 },
 {
  "date":          16098,
 "source": "R_sq",
-"value": 0.922245525616 
+"value": 0.9222448904388 
 },
 {
  "date":          16099,
 "source": "R_sq",
-"value": 0.9229067374758 
+"value": 0.9229062091122 
 },
 {
  "date":          16100,
 "source": "R_sq",
-"value": 0.923193923167 
+"value": 0.9231934418217 
 },
 {
  "date":          16101,
 "source": "R_sq",
-"value": 0.9225945029698 
+"value": 0.922594159665 
 },
 {
  "date":          16104,
 "source": "R_sq",
-"value": 0.9237329197856 
+"value": 0.9237325215133 
 },
 {
  "date":          16105,
 "source": "R_sq",
-"value": 0.9235800657763 
+"value": 0.9235797820564 
 },
 {
  "date":          16106,
 "source": "R_sq",
-"value": 0.923046311767 
+"value": 0.923045975357 
 },
 {
  "date":          16107,
 "source": "R_sq",
-"value": 0.9236383636794 
+"value": 0.9236381254943 
 },
 {
  "date":          16108,
 "source": "R_sq",
-"value": 0.9241009909708 
+"value": 0.924100939947 
 },
 {
  "date":          16111,
 "source": "R_sq",
-"value": 0.9240123213769 
+"value": 0.9240122802101 
 },
 {
  "date":          16112,
 "source": "R_sq",
-"value": 0.9240347078137 
+"value": 0.9240347150642 
 },
 {
  "date":          16113,
 "source": "R_sq",
-"value": 0.9237776525977 
+"value": 0.9237775661978 
 },
 {
  "date":          16114,
 "source": "R_sq",
-"value": 0.9214379554026 
+"value": 0.9214380267622 
 },
 {
  "date":          16115,
 "source": "R_sq",
-"value": 0.9213728342179 
+"value": 0.9213728616817 
 },
 {
  "date":          16119,
 "source": "R_sq",
-"value": 0.9212654309896 
+"value": 0.9212655732101 
 },
 {
  "date":          16120,
 "source": "R_sq",
-"value": 0.9210366778563 
+"value": 0.9210366955996 
 },
 {
  "date":          16121,
 "source": "R_sq",
-"value": 0.9206877144211 
+"value": 0.9206877748345 
 },
 {
  "date":          16122,
 "source": "R_sq",
-"value": 0.9207483286355 
+"value": 0.9207484441662 
 },
 {
  "date":          16125,
 "source": "R_sq",
-"value": 0.9206981825871 
+"value": 0.9206983718433 
 },
 {
  "date":          16126,
 "source": "R_sq",
-"value": 0.9208930788942 
+"value": 0.9208933307513 
 },
 {
  "date":          16127,
 "source": "R_sq",
-"value":  0.92076121555 
+"value": 0.9207616281681 
 },
 {
  "date":          16128,
 "source": "R_sq",
-"value": 0.9203279140317 
+"value": 0.920328210295 
 },
 {
  "date":          16129,
 "source": "R_sq",
-"value": 0.9200167131188 
+"value": 0.9200169449665 
 },
 {
  "date":          16132,
 "source": "R_sq",
-"value": 0.9191563245183 
+"value": 0.919156740111 
 },
 {
  "date":          16133,
 "source": "R_sq",
-"value": 0.9190340656178 
+"value": 0.9190344837654 
 },
 {
  "date":          16134,
 "source": "R_sq",
-"value": 0.9188101355737 
+"value": 0.9188104805376 
 },
 {
  "date":          16135,
 "source": "R_sq",
-"value": 0.9185911044059 
+"value": 0.9185914549272 
 },
 {
  "date":          16136,
 "source": "R_sq",
-"value": 0.9190323359125 
+"value": 0.9190326212323 
 },
 {
  "date":          16139,
 "source": "R_sq",
-"value": 0.9187112559543 
+"value": 0.9187116898117 
 },
 {
  "date":          16140,
 "source": "R_sq",
-"value": 0.9175720506466 
+"value": 0.917572430305 
 },
 {
  "date":          16141,
 "source": "R_sq",
-"value": 0.9175286695648 
+"value": 0.9175290702185 
 },
 {
  "date":          16142,
 "source": "R_sq",
-"value": 0.9178718451529 
+"value": 0.9178722447491 
 },
 {
  "date":          16143,
 "source": "R_sq",
-"value": 0.9179050019146 
+"value": 0.9179053955234 
 },
 {
  "date":          16146,
 "source": "R_sq",
-"value": 0.9180870725629 
+"value": 0.918087499968 
 },
 {
  "date":          16147,
 "source": "R_sq",
-"value": 0.9181260482248 
+"value": 0.9181264878192 
 },
 {
  "date":          16148,
 "source": "R_sq",
-"value": 0.9182251660154 
+"value": 0.9182255973032 
 },
 {
  "date":          16149,
 "source": "R_sq",
-"value": 0.9171256764398 
+"value": 0.9171263343153 
 },
 {
  "date":          16150,
 "source": "R_sq",
-"value": 0.9170202862983 
+"value": 0.9170209062582 
 },
 {
  "date":          16153,
 "source": "R_sq",
-"value": 0.9148592812808 
+"value": 0.9148597094426 
 },
 {
  "date":          16154,
 "source": "R_sq",
-"value": 0.9147125224301 
+"value": 0.9147128285864 
 },
 {
  "date":          16155,
 "source": "R_sq",
-"value": 0.9134760754876 
+"value": 0.9134762504608 
 },
 {
  "date":          16156,
 "source": "R_sq",
-"value": 0.9134726123745 
+"value": 0.9134727521217 
 },
 {
  "date":          16157,
 "source": "R_sq",
-"value": 0.9134781987719 
+"value": 0.9134783247241 
 },
 {
  "date":          16160,
 "source": "R_sq",
-"value": 0.9135223926006 
+"value": 0.9135226484944 
 },
 {
  "date":          16161,
 "source": "R_sq",
-"value": 0.9136567728299 
+"value": 0.9136570334195 
 },
 {
  "date":          16162,
 "source": "R_sq",
-"value": 0.9131912597737 
+"value": 0.9131915891536 
 },
 {
  "date":          16163,
 "source": "R_sq",
-"value": 0.9130526771916 
+"value": 0.9130529685327 
 },
 {
  "date":          16164,
 "source": "R_sq",
-"value": 0.9133710246634 
+"value": 0.9133713298729 
 },
 {
  "date":          16167,
 "source": "R_sq",
-"value": 0.9129778564949 
+"value": 0.9129781890336 
 },
 {
  "date":          16168,
 "source": "R_sq",
-"value": 0.912455515718 
+"value": 0.9124557573307 
 },
 {
  "date":          16169,
 "source": "R_sq",
-"value": 0.9122576964058 
+"value": 0.9122579444669 
 },
 {
  "date":          16170,
 "source": "R_sq",
-"value": 0.9126318989621 
+"value": 0.9126320468859 
 },
 {
  "date":          16171,
 "source": "R_sq",
-"value": 0.9132210730746 
+"value": 0.9132211247058 
 },
 {
  "date":          16174,
 "source": "R_sq",
-"value": 0.9127148130846 
+"value": 0.9127148844897 
 },
 {
  "date":          16175,
 "source": "R_sq",
-"value": 0.9126586958791 
+"value": 0.9126587789945 
 },
 {
  "date":          16176,
 "source": "R_sq",
-"value": 0.9128202243343 
+"value": 0.9128203455615 
 },
 {
  "date":          16177,
 "source": "R_sq",
-"value": 0.9128540780753 
+"value": 0.912854203546 
 },
 {
  "date":          16181,
 "source": "R_sq",
-"value": 0.912280724902 
+"value": 0.9122809395698 
 },
 {
  "date":          16182,
 "source": "R_sq",
-"value": 0.9126486323075 
+"value": 0.9126489225433 
 },
 {
  "date":          16183,
 "source": "R_sq",
-"value": 0.912176916103 
+"value": 0.9121772235823 
 },
 {
  "date":          16184,
 "source": "R_sq",
-"value": 0.9120516471564 
+"value": 0.9120519560892 
 },
 {
  "date":          16185,
 "source": "R_sq",
-"value": 0.9124358099087 
+"value": 0.9124361319595 
 },
 {
  "date":          16188,
 "source": "R_sq",
-"value": 0.9126540452442 
+"value": 0.9126543041479 
 },
 {
  "date":          16189,
 "source": "R_sq",
-"value": 0.9127860762073 
+"value": 0.9127862961802 
 },
 {
  "date":          16190,
 "source": "R_sq",
-"value": 0.9127627306073 
+"value": 0.9127629023249 
 },
 {
  "date":          16191,
 "source": "R_sq",
-"value": 0.9124569511481 
+"value": 0.912457120447 
 },
 {
  "date":          16192,
 "source": "R_sq",
-"value": 0.9115958619112 
+"value": 0.9115960311646 
 },
 {
  "date":          16195,
 "source": "R_sq",
-"value": 0.9114281620954 
+"value": 0.9114282632903 
 },
 {
  "date":          16196,
 "source": "R_sq",
-"value": 0.911652108601 
+"value": 0.9116521623431 
 },
 {
  "date":          16197,
 "source": "R_sq",
-"value": 0.9118601562734 
+"value": 0.9118602721276 
 },
 {
  "date":          16198,
 "source": "R_sq",
-"value": 0.9111702010623 
+"value": 0.9111701348935 
 },
 {
  "date":          16199,
 "source": "R_sq",
-"value": 0.9111665147694 
+"value": 0.9111665068363 
 },
 {
  "date":          16202,
 "source": "R_sq",
-"value": 0.9113140454826 
+"value": 0.9113141565109 
 },
 {
  "date":          16203,
 "source": "R_sq",
-"value": 0.9109920908114 
+"value": 0.9109922640458 
 },
 {
  "date":          16204,
 "source": "R_sq",
-"value": 0.9109997458987 
+"value": 0.9109998989929 
 },
 {
  "date":          16205,
 "source": "R_sq",
-"value": 0.9104309522605 
+"value": 0.9104309587424 
 },
 {
  "date":          16206,
 "source": "R_sq",
-"value": 0.9102367414208 
+"value": 0.9102367299312 
 },
 {
  "date":          16209,
 "source": "R_sq",
-"value": 0.9095672180988 
+"value": 0.9095672122569 
 },
 {
  "date":          16210,
 "source": "R_sq",
-"value": 0.9100848512847 
+"value": 0.9100847370106 
 },
 {
  "date":          16211,
 "source": "R_sq",
-"value": 0.9099881631447 
+"value": 0.9099878902743 
 },
 {
  "date":          16212,
 "source": "R_sq",
-"value": 0.9099378604294 
+"value": 0.9099376449377 
 },
 {
  "date":          16213,
 "source": "R_sq",
-"value": 0.9098735864456 
+"value": 0.9098733289315 
 },
 {
  "date":          16217,
 "source": "R_sq",
-"value": 0.9096374988491 
+"value": 0.909637248243 
 },
 {
  "date":          16218,
 "source": "R_sq",
-"value": 0.9089674399403 
+"value": 0.9089673028523 
 },
 {
  "date":          16219,
 "source": "R_sq",
-"value": 0.9089720394045 
+"value": 0.9089720206292 
 },
 {
  "date":          16220,
 "source": "R_sq",
-"value": 0.9068335542776 
+"value":  0.90683359361 
 },
 {
  "date":          16223,
 "source": "R_sq",
-"value": 0.9072560451174 
+"value": 0.9072561556159 
 },
 {
  "date":          16224,
 "source": "R_sq",
-"value": 0.9071244571335 
+"value": 0.9071245834186 
 },
 {
  "date":          16225,
 "source": "R_sq",
-"value": 0.906416286267 
+"value": 0.9064163143929 
 },
 {
  "date":          16226,
 "source": "R_sq",
-"value": 0.9064465566228 
+"value": 0.9064467675045 
 },
 {
  "date":          16227,
 "source": "R_sq",
-"value": 0.9069550093549 
+"value": 0.9069551492319 
 },
 {
  "date":          16230,
 "source": "R_sq",
-"value": 0.9062729051666 
+"value": 0.9062731759521 
 },
 {
  "date":          16231,
 "source": "R_sq",
-"value": 0.9059214604726 
+"value": 0.9059217190183 
 },
 {
  "date":          16232,
 "source": "R_sq",
-"value": 0.9060565340641 
+"value": 0.9060567222356 
 },
 {
  "date":          16233,
 "source": "R_sq",
-"value": 0.9061926828409 
+"value": 0.9061927191838 
 },
 {
  "date":          16234,
 "source": "R_sq",
-"value": 0.9054990087058 
+"value": 0.9054991054093 
 },
 {
  "date":          16237,
 "source": "R_sq",
-"value": 0.9053311916651 
+"value": 0.9053313762094 
 },
 {
  "date":          16238,
 "source": "R_sq",
-"value": 0.9050052370182 
+"value": 0.9050053991933 
 },
 {
  "date":          16239,
 "source": "R_sq",
-"value": 0.9050696941892 
+"value": 0.9050699802241 
 },
 {
  "date":          16240,
 "source": "R_sq",
-"value": 0.9038786364554 
+"value": 0.903879098583 
 },
 {
  "date":          16241,
 "source": "R_sq",
-"value": 0.9027075897086 
+"value": 0.902708192928 
 },
 {
  "date":          16244,
 "source": "R_sq",
-"value": 0.9015594582113 
+"value": 0.9015599738655 
 },
 {
  "date":          16245,
 "source": "R_sq",
-"value": 0.9017238892993 
+"value": 0.9017244099903 
 },
 {
  "date":          16246,
 "source": "R_sq",
-"value": 0.9016967232541 
+"value": 0.9016972251468 
 },
 {
  "date":          16247,
 "source": "R_sq",
-"value": 0.9018330920617 
+"value": 0.9018335154605 
 },
 {
  "date":          16248,
 "source": "R_sq",
-"value": 0.8995848366494 
+"value": 0.8995852055921 
 },
 {
  "date":          16251,
 "source": "R_sq",
-"value": 0.8994672583431 
+"value": 0.8994676165003 
 },
 {
  "date":          15330,
 "source": "SelectionShare",
-"value": 0.05043178507251 
+"value": 0.0504396746888 
 },
 {
  "date":          15331,
 "source": "SelectionShare",
-"value": 0.05077889635409 
+"value": 0.05078726310118 
 },
 {
  "date":          15335,
 "source": "SelectionShare",
-"value": 0.05070072067984 
+"value": 0.05070956259893 
 },
 {
  "date":          15336,
 "source": "SelectionShare",
-"value": 0.05060365341248 
+"value": 0.05061288335408 
 },
 {
  "date":          15337,
 "source": "SelectionShare",
-"value": 0.0501641813376 
+"value": 0.050174154623 
 },
 {
  "date":          15338,
 "source": "SelectionShare",
-"value": 0.0501649637603 
+"value": 0.05017491110862 
 },
 {
  "date":          15342,
 "source": "SelectionShare",
-"value": 0.05027401552362 
+"value": 0.05028433903837 
 },
 {
  "date":          15343,
 "source": "SelectionShare",
-"value": 0.0502993116341 
+"value": 0.05030960724817 
 },
 {
  "date":          15344,
 "source": "SelectionShare",
-"value": 0.05013173083999 
+"value": 0.05014142822571 
 },
 {
  "date":          15345,
 "source": "SelectionShare",
-"value": 0.05018865176891 
+"value": 0.05019750448127 
 },
 {
  "date":          15348,
 "source": "SelectionShare",
-"value": 0.05022818501868 
+"value": 0.05023684896579 
 },
 {
  "date":          15349,
 "source": "SelectionShare",
-"value": 0.05017746409851 
+"value": 0.05018603075462 
 },
 {
  "date":          15350,
 "source": "SelectionShare",
-"value": 0.05060878642162 
+"value": 0.0506169202697 
 },
 {
  "date":          15351,
 "source": "SelectionShare",
-"value": 0.05079488590332 
+"value": 0.05080332251507 
 },
 {
  "date":          15352,
 "source": "SelectionShare",
-"value": 0.05093135880019 
+"value": 0.05093955505292 
 },
 {
  "date":          15356,
 "source": "SelectionShare",
-"value": 0.05117177849556 
+"value": 0.05118039786249 
 },
 {
  "date":          15357,
 "source": "SelectionShare",
-"value": 0.05112424205541 
+"value": 0.05113280374949 
 },
 {
  "date":          15358,
 "source": "SelectionShare",
-"value": 0.05113802695974 
+"value": 0.0511468953024 
 },
 {
  "date":          15359,
 "source": "SelectionShare",
-"value": 0.0515763828149 
+"value": 0.05158450472504 
 },
 {
  "date":          15362,
 "source": "SelectionShare",
-"value": 0.0514049631247 
+"value": 0.05141275562252 
 },
 {
  "date":          15363,
 "source": "SelectionShare",
-"value": 0.05146436690037 
+"value": 0.05147213454813 
 },
 {
  "date":          15364,
 "source": "SelectionShare",
-"value": 0.05131081043462 
+"value": 0.05131885473509 
 },
 {
  "date":          15365,
 "source": "SelectionShare",
-"value": 0.05172996609637 
+"value": 0.05173889208192 
 },
 {
  "date":          15366,
 "source": "SelectionShare",
-"value": 0.0517058371685 
+"value": 0.05171422073498 
 },
 {
  "date":          15369,
 "source": "SelectionShare",
-"value": 0.05218318779499 
+"value": 0.05219141127368 
 },
 {
  "date":          15370,
 "source": "SelectionShare",
-"value": 0.0516820429712 
+"value": 0.0516910835234 
 },
 {
  "date":          15371,
 "source": "SelectionShare",
-"value": 0.05181031206613 
+"value": 0.0518193752732 
 },
 {
  "date":          15372,
 "source": "SelectionShare",
-"value": 0.05188977786207 
+"value": 0.05189892362279 
 },
 {
  "date":          15373,
 "source": "SelectionShare",
-"value": 0.05204535798921 
+"value": 0.05205497978281 
 },
 {
  "date":          15376,
 "source": "SelectionShare",
-"value": 0.05181523703792 
+"value": 0.0518257040626 
 },
 {
  "date":          15377,
 "source": "SelectionShare",
-"value": 0.05183090597357 
+"value": 0.05184179957218 
 },
 {
  "date":          15378,
 "source": "SelectionShare",
-"value": 0.05199119278451 
+"value": 0.05200285336081 
 },
 {
  "date":          15379,
 "source": "SelectionShare",
-"value": 0.05167811551394 
+"value": 0.05168950441267 
 },
 {
  "date":          15380,
 "source": "SelectionShare",
-"value": 0.05152392805473 
+"value": 0.05153635095626 
 },
 {
  "date":          15383,
 "source": "SelectionShare",
-"value": 0.05146858154289 
+"value": 0.05148091750173 
 },
 {
  "date":          15384,
 "source": "SelectionShare",
-"value": 0.05147630976014 
+"value": 0.05148848222937 
 },
 {
  "date":          15385,
 "source": "SelectionShare",
-"value": 0.05136497638751 
+"value": 0.05137641817527 
 },
 {
  "date":          15386,
 "source": "SelectionShare",
-"value": 0.05130606876379 
+"value": 0.05131763390528 
 },
 {
  "date":          15387,
 "source": "SelectionShare",
-"value": 0.05130746236766 
+"value": 0.05131902331354 
 },
 {
  "date":          15391,
 "source": "SelectionShare",
-"value": 0.05136723834031 
+"value": 0.05137908992021 
 },
 {
  "date":          15392,
 "source": "SelectionShare",
-"value": 0.05146762127111 
+"value": 0.05147930891501 
 },
 {
  "date":          15393,
 "source": "SelectionShare",
-"value": 0.05150233348006 
+"value": 0.05151389719418 
 },
 {
  "date":          15394,
 "source": "SelectionShare",
-"value": 0.05153846014437 
+"value": 0.05155036756389 
 },
 {
  "date":          15397,
 "source": "SelectionShare",
-"value": 0.05108872965107 
+"value": 0.05110007027565 
 },
 {
  "date":          15398,
 "source": "SelectionShare",
-"value": 0.05130066357527 
+"value": 0.05131242958278 
 },
 {
  "date":          15399,
 "source": "SelectionShare",
-"value": 0.05133846913822 
+"value": 0.05135034191686 
 },
 {
  "date":          15400,
 "source": "SelectionShare",
-"value": 0.05131201879814 
+"value": 0.05132371756442 
 },
 {
  "date":          15401,
 "source": "SelectionShare",
-"value": 0.05131410233154 
+"value": 0.05132572579333 
 },
 {
  "date":          15404,
 "source": "SelectionShare",
-"value": 0.05132155103004 
+"value": 0.05133322220303 
 },
 {
  "date":          15405,
 "source": "SelectionShare",
-"value": 0.05134375262512 
+"value": 0.05135517194084 
 },
 {
  "date":          15406,
 "source": "SelectionShare",
-"value": 0.05127086729896 
+"value": 0.05128250442082 
 },
 {
  "date":          15407,
 "source": "SelectionShare",
-"value": 0.05128421104812 
+"value": 0.05129665751161 
 },
 {
  "date":          15408,
 "source": "SelectionShare",
-"value": 0.05141265877379 
+"value": 0.0514249283355 
 },
 {
  "date":          15411,
 "source": "SelectionShare",
-"value": 0.05127126798019 
+"value": 0.05128333188712 
 },
 {
  "date":          15412,
 "source": "SelectionShare",
-"value": 0.05126637438826 
+"value": 0.05127848505307 
 },
 {
  "date":          15413,
 "source": "SelectionShare",
-"value": 0.05124625516864 
+"value": 0.05125815139866 
 },
 {
  "date":          15414,
 "source": "SelectionShare",
-"value": 0.05110934988021 
+"value": 0.05112148449799 
 },
 {
  "date":          15415,
 "source": "SelectionShare",
-"value": 0.05105907516263 
+"value": 0.05107070471063 
 },
 {
  "date":          15418,
 "source": "SelectionShare",
-"value": 0.05068945055768 
+"value": 0.05070060546896 
 },
 {
  "date":          15419,
 "source": "SelectionShare",
-"value": 0.05072441345699 
+"value": 0.05073540260638 
 },
 {
  "date":          15420,
 "source": "SelectionShare",
-"value": 0.05063788265537 
+"value": 0.05064920998741 
 },
 {
  "date":          15421,
 "source": "SelectionShare",
-"value": 0.05050022278784 
+"value": 0.05051137146275 
 },
 {
  "date":          15422,
 "source": "SelectionShare",
-"value": 0.05049137035927 
+"value": 0.05050247276132 
 },
 {
  "date":          15425,
 "source": "SelectionShare",
-"value": 0.05042532600805 
+"value": 0.05043632849791 
 },
 {
  "date":          15426,
 "source": "SelectionShare",
-"value": 0.05021085409398 
+"value": 0.05022073013075 
 },
 {
  "date":          15427,
 "source": "SelectionShare",
-"value": 0.05019641218593 
+"value": 0.0502062439645 
 },
 {
  "date":          15428,
 "source": "SelectionShare",
-"value": 0.05021699693364 
+"value": 0.05022666509618 
 },
 {
  "date":          15429,
 "source": "SelectionShare",
-"value": 0.05022068981146 
+"value": 0.05023040435551 
 },
 {
  "date":          15432,
 "source": "SelectionShare",
-"value": 0.0502424592541 
+"value": 0.05025314200476 
 },
 {
  "date":          15433,
 "source": "SelectionShare",
-"value": 0.05021410902201 
+"value": 0.05022458216572 
 },
 {
  "date":          15434,
 "source": "SelectionShare",
-"value": 0.05001920742552 
+"value": 0.05003013860512 
 },
 {
  "date":          15435,
 "source": "SelectionShare",
-"value": 0.05003214715218 
+"value": 0.05004287897047 
 },
 {
  "date":          15439,
 "source": "SelectionShare",
-"value": 0.04999242861817 
+"value": 0.05000316648026 
 },
 {
  "date":          15440,
 "source": "SelectionShare",
-"value": 0.04993385695387 
+"value": 0.04994481671735 
 },
 {
  "date":          15441,
 "source": "SelectionShare",
-"value": 0.04989963908886 
+"value": 0.04991087212103 
 },
 {
  "date":          15442,
 "source": "SelectionShare",
-"value": 0.04983913618024 
+"value": 0.04985022376535 
 },
 {
  "date":          15443,
 "source": "SelectionShare",
-"value": 0.04977383815473 
+"value": 0.04978473397962 
 },
 {
  "date":          15446,
 "source": "SelectionShare",
-"value": 0.04935249415606 
+"value": 0.04936191883154 
 },
 {
  "date":          15447,
 "source": "SelectionShare",
-"value": 0.04921073099297 
+"value": 0.04921982032889 
 },
 {
  "date":          15448,
 "source": "SelectionShare",
-"value": 0.04926767693857 
+"value": 0.04927669231041 
 },
 {
  "date":          15449,
 "source": "SelectionShare",
-"value": 0.04949701068647 
+"value": 0.049506055646 
 },
 {
  "date":          15450,
 "source": "SelectionShare",
-"value": 0.04946496786352 
+"value": 0.04947375402489 
 },
 {
  "date":          15453,
 "source": "SelectionShare",
-"value": 0.04946392799917 
+"value": 0.0494729093065 
 },
 {
  "date":          15454,
 "source": "SelectionShare",
-"value": 0.04962346710312 
+"value": 0.04963335701225 
 },
 {
  "date":          15455,
 "source": "SelectionShare",
-"value": 0.04966730736172 
+"value": 0.04967745603101 
 },
 {
  "date":          15456,
 "source": "SelectionShare",
-"value": 0.05000212638717 
+"value": 0.05001262950393 
 },
 {
  "date":          15457,
 "source": "SelectionShare",
-"value": 0.05004651920314 
+"value": 0.05005696457579 
 },
 {
  "date":          15460,
 "source": "SelectionShare",
-"value": 0.05074085760637 
+"value": 0.05075110572958 
 },
 {
  "date":          15461,
 "source": "SelectionShare",
-"value": 0.05079033506485 
+"value": 0.0508008927648 
 },
 {
  "date":          15462,
 "source": "SelectionShare",
-"value": 0.05169580288845 
+"value": 0.05170665578755 
 },
 {
  "date":          15463,
 "source": "SelectionShare",
-"value": 0.05160367608202 
+"value": 0.05161424600138 
 },
 {
  "date":          15464,
 "source": "SelectionShare",
-"value": 0.05148058823128 
+"value": 0.05149080560301 
 },
 {
  "date":          15467,
 "source": "SelectionShare",
-"value": 0.05150971996797 
+"value": 0.05152018567098 
 },
 {
  "date":          15468,
 "source": "SelectionShare",
-"value": 0.05169770352929 
+"value": 0.05170806259107 
 },
 {
  "date":          15469,
 "source": "SelectionShare",
-"value": 0.05141260342888 
+"value": 0.05142417323111 
 },
 {
  "date":          15470,
 "source": "SelectionShare",
-"value": 0.05153937069685 
+"value": 0.05155049766374 
 },
 {
  "date":          15471,
 "source": "SelectionShare",
-"value": 0.05157268136448 
+"value": 0.05158389251797 
 },
 {
  "date":          15474,
 "source": "SelectionShare",
-"value": 0.05230068836411 
+"value": 0.05231195897363 
 },
 {
  "date":          15475,
 "source": "SelectionShare",
-"value": 0.05226318246058 
+"value": 0.05227388993652 
 },
 {
  "date":          15476,
 "source": "SelectionShare",
-"value": 0.05200956098803 
+"value": 0.05202112140538 
 },
 {
  "date":          15477,
 "source": "SelectionShare",
-"value": 0.05203862812607 
+"value": 0.05205020637433 
 },
 {
  "date":          15478,
 "source": "SelectionShare",
-"value": 0.05203422684365 
+"value": 0.05204545289304 
 },
 {
  "date":          15481,
 "source": "SelectionShare",
-"value": 0.05255683785384 
+"value": 0.05256841150222 
 },
 {
  "date":          15482,
 "source": "SelectionShare",
-"value": 0.05278748692526 
+"value": 0.05279853866545 
 },
 {
  "date":          15483,
 "source": "SelectionShare",
-"value": 0.05229933120444 
+"value": 0.05231129693882 
 },
 {
  "date":          15484,
 "source": "SelectionShare",
-"value": 0.0525023313064 
+"value": 0.05251412294141 
 },
 {
  "date":          15485,
 "source": "SelectionShare",
-"value": 0.05245321552553 
+"value": 0.05246537902669 
 },
 {
  "date":          15489,
 "source": "SelectionShare",
-"value": 0.05304908450211 
+"value": 0.05306155580872 
 },
 {
  "date":          15490,
 "source": "SelectionShare",
-"value": 0.05306072746293 
+"value": 0.05307344222603 
 },
 {
  "date":          15491,
 "source": "SelectionShare",
-"value": 0.05274348289837 
+"value": 0.0527554191649 
 },
 {
  "date":          15492,
 "source": "SelectionShare",
-"value": 0.05238028156171 
+"value": 0.05239215664003 
 },
 {
  "date":          15495,
 "source": "SelectionShare",
-"value": 0.05302593566403 
+"value": 0.05303817102959 
 },
 {
  "date":          15496,
 "source": "SelectionShare",
-"value": 0.05290081735698 
+"value": 0.05291250430631 
 },
 {
  "date":          15497,
 "source": "SelectionShare",
-"value": 0.0527222793988 
+"value": 0.05273382712595 
 },
 {
  "date":          15498,
 "source": "SelectionShare",
-"value": 0.0531719468453 
+"value": 0.05318386169027 
 },
 {
  "date":          15499,
 "source": "SelectionShare",
-"value": 0.05337875047125 
+"value": 0.05339025694261 
 },
 {
  "date":          15502,
 "source": "SelectionShare",
-"value": 0.05328252259977 
+"value": 0.05329413069534 
 },
 {
  "date":          15503,
 "source": "SelectionShare",
-"value": 0.05260114718752 
+"value": 0.05261144549295 
 },
 {
  "date":          15504,
 "source": "SelectionShare",
-"value": 0.05265476916346 
+"value": 0.05266536620838 
 },
 {
  "date":          15505,
 "source": "SelectionShare",
-"value": 0.05282085529006 
+"value": 0.05283146768141 
 },
 {
  "date":          15506,
 "source": "SelectionShare",
-"value": 0.05268729658579 
+"value": 0.05269734424578 
 },
 {
  "date":          15509,
 "source": "SelectionShare",
-"value": 0.05285638140185 
+"value": 0.05286647609654 
 },
 {
  "date":          15510,
 "source": "SelectionShare",
-"value": 0.05249680021749 
+"value": 0.05250599668766 
 },
 {
  "date":          15511,
 "source": "SelectionShare",
-"value": 0.0524957317393 
+"value": 0.05250558472274 
 },
 {
  "date":          15512,
 "source": "SelectionShare",
-"value": 0.05278508673665 
+"value": 0.05279528246147 
 },
 {
  "date":          15513,
 "source": "SelectionShare",
-"value": 0.05262776387653 
+"value": 0.05263727924693 
 },
 {
  "date":          15516,
 "source": "SelectionShare",
-"value": 0.0522393975544 
+"value": 0.05224970069936 
 },
 {
  "date":          15517,
 "source": "SelectionShare",
-"value": 0.05224520980403 
+"value": 0.05225557776276 
 },
 {
  "date":          15518,
 "source": "SelectionShare",
-"value": 0.05226380731174 
+"value": 0.0522742135425 
 },
 {
  "date":          15519,
 "source": "SelectionShare",
-"value": 0.0527989243458 
+"value": 0.05280900869521 
 },
 {
  "date":          15520,
 "source": "SelectionShare",
-"value": 0.05251493513065 
+"value": 0.05252498554807 
 },
 {
  "date":          15523,
 "source": "SelectionShare",
-"value": 0.05273998334748 
+"value": 0.05275076582153 
 },
 {
  "date":          15524,
 "source": "SelectionShare",
-"value": 0.05265285378656 
+"value": 0.05266406333429 
 },
 {
  "date":          15526,
 "source": "SelectionShare",
-"value": 0.05281340347636 
+"value": 0.05282463809078 
 },
 {
  "date":          15527,
 "source": "SelectionShare",
-"value": 0.05260784703154 
+"value": 0.05261968907197 
 },
 {
  "date":          15530,
 "source": "SelectionShare",
-"value": 0.05296814496881 
+"value": 0.05297925577148 
 },
 {
  "date":          15531,
 "source": "SelectionShare",
-"value": 0.05350798881305 
+"value": 0.05351916337947 
 },
 {
  "date":          15532,
 "source": "SelectionShare",
-"value": 0.05339947248928 
+"value": 0.05341129339726 
 },
 {
  "date":          15533,
 "source": "SelectionShare",
-"value": 0.05342712798149 
+"value": 0.05343836464888 
 },
 {
  "date":          15534,
 "source": "SelectionShare",
-"value": 0.05341357495602 
+"value": 0.05342458913424 
 },
 {
  "date":          15537,
 "source": "SelectionShare",
-"value": 0.05357728006631 
+"value": 0.05358782461691 
 },
 {
  "date":          15538,
 "source": "SelectionShare",
-"value": 0.05365567141499 
+"value": 0.05366607419874 
 },
 {
  "date":          15539,
 "source": "SelectionShare",
-"value": 0.05367453096868 
+"value": 0.05368461069424 
 },
 {
  "date":          15540,
 "source": "SelectionShare",
-"value": 0.05367782762269 
+"value": 0.05368792023963 
 },
 {
  "date":          15541,
 "source": "SelectionShare",
-"value": 0.05357401808451 
+"value": 0.05358318289408 
 },
 {
  "date":          15544,
 "source": "SelectionShare",
-"value": 0.05347318209659 
+"value": 0.05348152785907 
 },
 {
  "date":          15545,
 "source": "SelectionShare",
-"value": 0.05276546675631 
+"value": 0.0527751870461 
 },
 {
  "date":          15546,
 "source": "SelectionShare",
-"value": 0.05294628291227 
+"value": 0.05295569507707 
 },
 {
  "date":          15547,
 "source": "SelectionShare",
-"value": 0.05291868679407 
+"value": 0.05292770766904 
 },
 {
  "date":          15548,
 "source": "SelectionShare",
-"value": 0.05275984230885 
+"value": 0.05276869880744 
 },
 {
  "date":          15551,
 "source": "SelectionShare",
-"value": 0.05288297831841 
+"value": 0.05289207460469 
 },
 {
  "date":          15552,
 "source": "SelectionShare",
-"value": 0.05287608557802 
+"value": 0.05288524453005 
 },
 {
  "date":          15553,
 "source": "SelectionShare",
-"value": 0.05282871769403 
+"value": 0.05283750419573 
 },
 {
  "date":          15554,
 "source": "SelectionShare",
-"value": 0.052641143599 
+"value": 0.0526511306154 
 },
 {
  "date":          15555,
 "source": "SelectionShare",
-"value": 0.05276717316775 
+"value": 0.05277752914311 
 },
 {
  "date":          15558,
 "source": "SelectionShare",
-"value": 0.05257278509236 
+"value": 0.05258405951152 
 },
 {
  "date":          15559,
 "source": "SelectionShare",
-"value": 0.05330308225279 
+"value": 0.053314744103 
 },
 {
  "date":          15560,
 "source": "SelectionShare",
-"value": 0.05328728570212 
+"value": 0.05329869354375 
 },
 {
  "date":          15561,
 "source": "SelectionShare",
-"value": 0.0533731035616 
+"value": 0.05338419755417 
 },
 {
  "date":          15562,
 "source": "SelectionShare",
-"value": 0.05342815445916 
+"value": 0.05343916524869 
 },
 {
  "date":          15565,
 "source": "SelectionShare",
-"value": 0.05362274490858 
+"value": 0.05363362481755 
 },
 {
  "date":          15566,
 "source": "SelectionShare",
-"value": 0.05365180794859 
+"value": 0.05366246641499 
 },
 {
  "date":          15567,
 "source": "SelectionShare",
-"value": 0.05366709175937 
+"value": 0.05367791487809 
 },
 {
  "date":          15568,
 "source": "SelectionShare",
-"value": 0.05439714521951 
+"value": 0.05440839142466 
 },
 {
  "date":          15569,
 "source": "SelectionShare",
-"value": 0.05435649628347 
+"value": 0.05436830819194 
 },
 {
  "date":          15572,
 "source": "SelectionShare",
-"value": 0.05441116608227 
+"value": 0.05442286894102 
 },
 {
  "date":          15573,
 "source": "SelectionShare",
-"value": 0.05441193765812 
+"value": 0.05442305052376 
 },
 {
  "date":          15574,
 "source": "SelectionShare",
-"value": 0.05413625267577 
+"value": 0.0541484918771 
 },
 {
  "date":          15575,
 "source": "SelectionShare",
-"value": 0.05401760173735 
+"value": 0.05402930334663 
 },
 {
  "date":          15576,
 "source": "SelectionShare",
-"value": 0.05435008583042 
+"value": 0.05436153455781 
 },
 {
  "date":          15579,
 "source": "SelectionShare",
-"value": 0.05439244541902 
+"value": 0.05440356540602 
 },
 {
  "date":          15580,
 "source": "SelectionShare",
-"value": 0.05449854695578 
+"value": 0.05450967572285 
 },
 {
  "date":          15581,
 "source": "SelectionShare",
-"value": 0.05458127258461 
+"value": 0.05459217268152 
 },
 {
  "date":          15582,
 "source": "SelectionShare",
-"value": 0.05447977722771 
+"value": 0.05449014724818 
 },
 {
  "date":          15583,
 "source": "SelectionShare",
-"value": 0.05419390025918 
+"value": 0.05420325954921 
 },
 {
  "date":          15587,
 "source": "SelectionShare",
-"value": 0.05402529374441 
+"value": 0.05403385032205 
 },
 {
  "date":          15588,
 "source": "SelectionShare",
-"value": 0.05355312002283 
+"value": 0.05356039262413 
 },
 {
  "date":          15589,
 "source": "SelectionShare",
-"value": 0.0531313516072 
+"value": 0.0531395468689 
 },
 {
  "date":          15590,
 "source": "SelectionShare",
-"value": 0.05279475615827 
+"value": 0.05280409582884 
 },
 {
  "date":          15593,
 "source": "SelectionShare",
-"value": 0.05287491157458 
+"value": 0.05288397737374 
 },
 {
  "date":          15594,
 "source": "SelectionShare",
-"value": 0.05277173136148 
+"value": 0.05278145014449 
 },
 {
  "date":          15595,
 "source": "SelectionShare",
-"value": 0.05290095560964 
+"value": 0.05291079355584 
 },
 {
  "date":          15596,
 "source": "SelectionShare",
-"value": 0.05278676836629 
+"value": 0.05279719338194 
 },
 {
  "date":          15597,
 "source": "SelectionShare",
-"value": 0.05273592425386 
+"value": 0.05274587135698 
 },
 {
  "date":          15600,
 "source": "SelectionShare",
-"value": 0.05267349154917 
+"value": 0.05268407900095 
 },
 {
  "date":          15601,
 "source": "SelectionShare",
-"value": 0.05286963867551 
+"value": 0.05287993109906 
 },
 {
  "date":          15602,
 "source": "SelectionShare",
-"value": 0.05287173106768 
+"value": 0.05288245470198 
 },
 {
  "date":          15603,
 "source": "SelectionShare",
-"value": 0.05288981199257 
+"value": 0.05290028641041 
 },
 {
  "date":          15604,
 "source": "SelectionShare",
-"value": 0.05289421751957 
+"value": 0.05290455712579 
 },
 {
  "date":          15607,
 "source": "SelectionShare",
-"value": 0.05286347460672 
+"value": 0.05287417032697 
 },
 {
  "date":          15608,
 "source": "SelectionShare",
-"value": 0.05253522764689 
+"value": 0.05254472968642 
 },
 {
  "date":          15609,
 "source": "SelectionShare",
-"value": 0.0521111480014 
+"value": 0.05212200005962 
 },
 {
  "date":          15610,
 "source": "SelectionShare",
-"value": 0.05229058966707 
+"value": 0.05230127693893 
 },
 {
  "date":          15611,
 "source": "SelectionShare",
-"value": 0.05174734377361 
+"value": 0.05175652377959 
 },
 {
  "date":          15614,
 "source": "SelectionShare",
-"value": 0.05176352343527 
+"value": 0.05177319229476 
 },
 {
  "date":          15615,
 "source": "SelectionShare",
-"value": 0.05179398489105 
+"value": 0.05180415454537 
 },
 {
  "date":          15616,
 "source": "SelectionShare",
-"value": 0.05169569926354 
+"value": 0.05170522046822 
 },
 {
  "date":          15617,
 "source": "SelectionShare",
-"value": 0.05168851682612 
+"value": 0.05169798810711 
 },
 {
  "date":          15618,
 "source": "SelectionShare",
-"value": 0.05167896081445 
+"value": 0.05168888306411 
 },
 {
  "date":          15621,
 "source": "SelectionShare",
-"value": 0.05151321968577 
+"value": 0.0515240314385 
 },
 {
  "date":          15622,
 "source": "SelectionShare",
-"value": 0.0499922532906 
+"value": 0.05000558945177 
 },
 {
  "date":          15623,
 "source": "SelectionShare",
-"value": 0.04997668072464 
+"value": 0.04998976161337 
 },
 {
  "date":          15624,
 "source": "SelectionShare",
-"value": 0.04971471521568 
+"value": 0.04972903647184 
 },
 {
  "date":          15625,
 "source": "SelectionShare",
-"value": 0.04980152341735 
+"value": 0.04981573361618 
 },
 {
  "date":          15628,
 "source": "SelectionShare",
-"value": 0.04965908998168 
+"value": 0.04967401274953 
 },
 {
  "date":          15629,
 "source": "SelectionShare",
-"value": 0.04940445169838 
+"value": 0.04941837516196 
 },
 {
  "date":          15630,
 "source": "SelectionShare",
-"value": 0.04930581370052 
+"value": 0.04932049203076 
 },
 {
  "date":          15631,
 "source": "SelectionShare",
-"value": 0.04950884270932 
+"value": 0.049523879009 
 },
 {
  "date":          15632,
 "source": "SelectionShare",
-"value": 0.04939560996851 
+"value": 0.04941063408348 
 },
 {
  "date":          15635,
 "source": "SelectionShare",
-"value": 0.04934638145415 
+"value": 0.0493609118563 
 },
 {
  "date":          15636,
 "source": "SelectionShare",
-"value": 0.04892466032528 
+"value": 0.04893792017274 
 },
 {
  "date":          15637,
 "source": "SelectionShare",
-"value": 0.04891995383556 
+"value": 0.04893321162997 
 },
 {
  "date":          15638,
 "source": "SelectionShare",
-"value": 0.0489729651859 
+"value": 0.04898633098403 
 },
 {
  "date":          15639,
 "source": "SelectionShare",
-"value": 0.04892335437628 
+"value": 0.04893722849517 
 },
 {
  "date":          15644,
 "source": "SelectionShare",
-"value": 0.04826824952642 
+"value": 0.04828054902527 
 },
 {
  "date":          15645,
 "source": "SelectionShare",
-"value": 0.04808081916991 
+"value": 0.04809208291534 
 },
 {
  "date":          15646,
 "source": "SelectionShare",
-"value": 0.04785928044254 
+"value": 0.04786949023074 
 },
 {
  "date":          15649,
 "source": "SelectionShare",
-"value": 0.04777383058252 
+"value": 0.04778487214742 
 },
 {
  "date":          15650,
 "source": "SelectionShare",
-"value": 0.04777901428231 
+"value": 0.04778955344411 
 },
 {
  "date":          15651,
 "source": "SelectionShare",
-"value": 0.04759033512594 
+"value": 0.04760005525484 
 },
 {
  "date":          15652,
 "source": "SelectionShare",
-"value": 0.04737222856526 
+"value": 0.04738327994075 
 },
 {
  "date":          15653,
 "source": "SelectionShare",
-"value": 0.04737237198434 
+"value": 0.04738362301629 
 },
 {
  "date":          15656,
 "source": "SelectionShare",
-"value": 0.04752092998786 
+"value": 0.04753231228603 
 },
 {
  "date":          15657,
 "source": "SelectionShare",
-"value": 0.04745002969567 
+"value": 0.04746203580396 
 },
 {
  "date":          15658,
 "source": "SelectionShare",
-"value": 0.04783484264315 
+"value": 0.04784690287238 
 },
 {
  "date":          15659,
 "source": "SelectionShare",
-"value": 0.04784007043825 
+"value": 0.04785158254602 
 },
 {
  "date":          15660,
 "source": "SelectionShare",
-"value": 0.04781708262373 
+"value": 0.04782833804981 
 },
 {
  "date":          15663,
 "source": "SelectionShare",
-"value": 0.04777754761484 
+"value": 0.04778860974429 
 },
 {
  "date":          15664,
 "source": "SelectionShare",
-"value": 0.04766259743095 
+"value": 0.04767261086361 
 },
 {
  "date":          15665,
 "source": "SelectionShare",
-"value": 0.04768193467315 
+"value": 0.04769239502514 
 },
 {
  "date":          15667,
 "source": "SelectionShare",
-"value": 0.04756122605253 
+"value": 0.04757097426681 
 },
 {
  "date":          15670,
 "source": "SelectionShare",
-"value": 0.04743074819353 
+"value": 0.04743961489556 
 },
 {
  "date":          15671,
 "source": "SelectionShare",
-"value": 0.04755876177701 
+"value": 0.04756716052822 
 },
 {
  "date":          15672,
 "source": "SelectionShare",
-"value": 0.04743331027947 
+"value": 0.04744081800994 
 },
 {
  "date":          15673,
 "source": "SelectionShare",
-"value": 0.04741905379651 
+"value": 0.04742635084213 
 },
 {
  "date":          15674,
 "source": "SelectionShare",
-"value": 0.04740780416499 
+"value": 0.04741540472487 
 },
 {
  "date":          15677,
 "source": "SelectionShare",
-"value": 0.04725296211461 
+"value": 0.04725968792543 
 },
 {
  "date":          15678,
 "source": "SelectionShare",
-"value": 0.04716856104473 
+"value": 0.04717597633504 
 },
 {
  "date":          15679,
 "source": "SelectionShare",
-"value": 0.04711740136477 
+"value": 0.04712648308986 
 },
 {
  "date":          15680,
 "source": "SelectionShare",
-"value": 0.04706818193307 
+"value": 0.04707673823521 
 },
 {
  "date":          15681,
 "source": "SelectionShare",
-"value": 0.0471308824267 
+"value": 0.04713995881067 
 },
 {
  "date":          15684,
 "source": "SelectionShare",
-"value": 0.04701974611991 
+"value": 0.0470297468725 
 },
 {
  "date":          15685,
 "source": "SelectionShare",
-"value": 0.04715221394391 
+"value": 0.04716286212484 
 },
 {
  "date":          15686,
 "source": "SelectionShare",
-"value": 0.04622383882159 
+"value": 0.04623225192083 
 },
 {
  "date":          15687,
 "source": "SelectionShare",
-"value": 0.04626358332252 
+"value": 0.04627079506805 
 },
 {
  "date":          15688,
 "source": "SelectionShare",
-"value": 0.04618236579658 
+"value": 0.04618858383288 
 },
 {
  "date":          15691,
 "source": "SelectionShare",
-"value": 0.0457935045017 
+"value": 0.04579850600482 
 },
 {
  "date":          15692,
 "source": "SelectionShare",
-"value": 0.04566301832839 
+"value": 0.04566730832015 
 },
 {
  "date":          15693,
 "source": "SelectionShare",
-"value": 0.04575977732911 
+"value": 0.04576379617974 
 },
 {
  "date":          15694,
 "source": "SelectionShare",
-"value": 0.04576417482204 
+"value": 0.04576751744984 
 },
 {
  "date":          15695,
 "source": "SelectionShare",
-"value": 0.04574793329181 
+"value":  0.04575193013 
 },
 {
  "date":          15698,
 "source": "SelectionShare",
-"value": 0.04574433718395 
+"value": 0.04574833214732 
 },
 {
  "date":          15700,
 "source": "SelectionShare",
-"value": 0.04568415598884 
+"value": 0.04568739358766 
 },
 {
  "date":          15701,
 "source": "SelectionShare",
-"value": 0.04567239058322 
+"value": 0.04567549081066 
 },
 {
  "date":          15702,
 "source": "SelectionShare",
-"value": 0.04568833760577 
+"value": 0.04569079898479 
 },
 {
  "date":          15705,
 "source": "SelectionShare",
-"value": 0.0454896210803 
+"value": 0.04549263543743 
 },
 {
  "date":          15707,
 "source": "SelectionShare",
-"value": 0.04515191951805 
+"value": 0.04515492212951 
 },
 {
  "date":          15708,
 "source": "SelectionShare",
-"value": 0.04502183912059 
+"value": 0.04502479033417 
 },
 {
  "date":          15709,
 "source": "SelectionShare",
-"value": 0.04496130071253 
+"value": 0.04496418540191 
 },
 {
  "date":          15712,
 "source": "SelectionShare",
-"value": 0.04496229818011 
+"value": 0.04496518078185 
 },
 {
  "date":          15713,
 "source": "SelectionShare",
-"value": 0.04486543355281 
+"value": 0.04486844553141 
 },
 {
  "date":          15714,
 "source": "SelectionShare",
-"value": 0.04473631034135 
+"value": 0.04473940996019 
 },
 {
  "date":          15715,
 "source": "SelectionShare",
-"value": 0.04472951802243 
+"value": 0.04473257508136 
 },
 {
  "date":          15716,
 "source": "SelectionShare",
-"value": 0.04467679674335 
+"value": 0.04467994715278 
 },
 {
  "date":          15719,
 "source": "SelectionShare",
-"value": 0.04464070850388 
+"value": 0.04464368222182 
 },
 {
  "date":          15720,
 "source": "SelectionShare",
-"value": 0.04428644336987 
+"value": 0.04428925620441 
 },
 {
  "date":          15721,
 "source": "SelectionShare",
-"value": 0.04416956136675 
+"value": 0.044172306865 
 },
 {
  "date":          15722,
 "source": "SelectionShare",
-"value": 0.04408790948921 
+"value": 0.04409069815121 
 },
 {
  "date":          15723,
 "source": "SelectionShare",
-"value": 0.04418327717891 
+"value": 0.04418601163388 
 },
 {
  "date":          15727,
 "source": "SelectionShare",
-"value": 0.04403617424991 
+"value": 0.04403878452665 
 },
 {
  "date":          15728,
 "source": "SelectionShare",
-"value": 0.0440274977351 
+"value": 0.04403028112271 
 },
 {
  "date":          15729,
 "source": "SelectionShare",
-"value": 0.04434841716216 
+"value": 0.0443510807394 
 },
 {
  "date":          15730,
 "source": "SelectionShare",
-"value": 0.04459068655379 
+"value": 0.04459323099273 
 },
 {
  "date":          15733,
 "source": "SelectionShare",
-"value": 0.04375090153148 
+"value": 0.04375372636046 
 },
 {
  "date":          15734,
 "source": "SelectionShare",
-"value": 0.04382742110754 
+"value": 0.04382964193474 
 },
 {
  "date":          15735,
 "source": "SelectionShare",
-"value": 0.04365548813464 
+"value": 0.04365865436865 
 },
 {
  "date":          15736,
 "source": "SelectionShare",
-"value": 0.04370845087134 
+"value": 0.04371139542673 
 },
 {
  "date":          15737,
 "source": "SelectionShare",
-"value": 0.04367756282809 
+"value": 0.04368123106412 
 },
 {
  "date":          15740,
 "source": "SelectionShare",
-"value": 0.04364787493273 
+"value": 0.04365156139514 
 },
 {
  "date":          15741,
 "source": "SelectionShare",
-"value": 0.04274966136511 
+"value": 0.04275115740419 
 },
 {
  "date":          15742,
 "source": "SelectionShare",
-"value": 0.04193779329892 
+"value": 0.04194140283313 
 },
 {
  "date":          15743,
 "source": "SelectionShare",
-"value": 0.04151298500763 
+"value": 0.04151473504226 
 },
 {
  "date":          15744,
 "source": "SelectionShare",
-"value": 0.04143371538051 
+"value": 0.04143477311147 
 },
 {
  "date":          15747,
 "source": "SelectionShare",
-"value": 0.04143195492138 
+"value": 0.04143262752521 
 },
 {
  "date":          15748,
 "source": "SelectionShare",
-"value": 0.04142732970249 
+"value": 0.04142828775522 
 },
 {
  "date":          15749,
 "source": "SelectionShare",
-"value": 0.0414573265654 
+"value": 0.04145808395023 
 },
 {
  "date":          15750,
 "source": "SelectionShare",
-"value": 0.04151951980488 
+"value": 0.04152013551212 
 },
 {
  "date":          15751,
 "source": "SelectionShare",
-"value": 0.04142212195543 
+"value": 0.04142394325788 
 },
 {
  "date":          15755,
 "source": "SelectionShare",
-"value": 0.04162307550159 
+"value": 0.04162539332627 
 },
 {
  "date":          15756,
 "source": "SelectionShare",
-"value": 0.04151432515472 
+"value": 0.04151605081769 
 },
 {
  "date":          15757,
 "source": "SelectionShare",
-"value": 0.04149724161776 
+"value": 0.04149880414266 
 },
 {
  "date":          15758,
 "source": "SelectionShare",
-"value": 0.04127382847009 
+"value": 0.0412742721745 
 },
 {
  "date":          15761,
 "source": "SelectionShare",
-"value": 0.04113682679698 
+"value": 0.04113726760419 
 },
 {
  "date":          15762,
 "source": "SelectionShare",
-"value": 0.04131842411783 
+"value": 0.04131888012556 
 },
 {
  "date":          15763,
 "source": "SelectionShare",
-"value": 0.04132751698342 
+"value": 0.04132795711524 
 },
 {
  "date":          15764,
 "source": "SelectionShare",
-"value": 0.04138235090975 
+"value": 0.04138281360166 
 },
 {
  "date":          15765,
 "source": "SelectionShare",
-"value": 0.04147303454807 
+"value": 0.0414734876634 
 },
 {
  "date":          15768,
 "source": "SelectionShare",
-"value": 0.04151019656267 
+"value": 0.04151064299069 
 },
 {
  "date":          15769,
 "source": "SelectionShare",
-"value": 0.04173150309787 
+"value": 0.04173201025809 
 },
 {
  "date":          15770,
 "source": "SelectionShare",
-"value": 0.04166083379595 
+"value": 0.04166135484595 
 },
 {
  "date":          15771,
 "source": "SelectionShare",
-"value": 0.04182890818913 
+"value": 0.04182942421876 
 },
 {
  "date":          15772,
 "source": "SelectionShare",
-"value": 0.04156010712375 
+"value": 0.04156067043659 
 },
 {
  "date":          15775,
 "source": "SelectionShare",
-"value": 0.04154651131201 
+"value": 0.04154708982413 
 },
 {
  "date":          15776,
 "source": "SelectionShare",
-"value": 0.04174256450315 
+"value": 0.0417431185906 
 },
 {
  "date":          15777,
 "source": "SelectionShare",
-"value": 0.04194127136535 
+"value": 0.0419418179893 
 },
 {
  "date":          15778,
 "source": "SelectionShare",
-"value": 0.04193979133701 
+"value": 0.04194042799589 
 },
 {
  "date":          15779,
 "source": "SelectionShare",
-"value": 0.04179757930496 
+"value": 0.04179824566513 
 },
 {
  "date":          15782,
 "source": "SelectionShare",
-"value": 0.04187565313038 
+"value": 0.04187633580984 
 },
 {
  "date":          15783,
 "source": "SelectionShare",
-"value": 0.04189693126436 
+"value": 0.04189759180949 
 },
 {
  "date":          15784,
 "source": "SelectionShare",
-"value": 0.04186997924264 
+"value": 0.04187055660713 
 },
 {
  "date":          15785,
 "source": "SelectionShare",
-"value": 0.04216891218117 
+"value": 0.04216939504411 
 },
 {
  "date":          15786,
 "source": "SelectionShare",
-"value": 0.04188984137908 
+"value": 0.04189036904305 
 },
 {
  "date":          15789,
 "source": "SelectionShare",
-"value": 0.04184958529315 
+"value": 0.04185012431678 
 },
 {
  "date":          15790,
 "source": "SelectionShare",
-"value": 0.04200155791536 
+"value": 0.04200207934887 
 },
 {
  "date":          15791,
 "source": "SelectionShare",
-"value": 0.04194914430331 
+"value": 0.04194968149527 
 },
 {
  "date":          15792,
 "source": "SelectionShare",
-"value": 0.04165172704887 
+"value": 0.04165221856782 
 },
 {
  "date":          15796,
 "source": "SelectionShare",
-"value": 0.04125069201637 
+"value": 0.04125108589329 
 },
 {
  "date":          15797,
 "source": "SelectionShare",
-"value": 0.04149634062873 
+"value": 0.04149669274327 
 },
 {
  "date":          15798,
 "source": "SelectionShare",
-"value": 0.04158299685154 
+"value": 0.04158339215186 
 },
 {
  "date":          15799,
 "source": "SelectionShare",
-"value": 0.04122742308041 
+"value": 0.04122773855019 
 },
 {
  "date":          15800,
 "source": "SelectionShare",
-"value": 0.04123841315591 
+"value": 0.04123867241914 
 },
 {
  "date":          15803,
 "source": "SelectionShare",
-"value": 0.04122548503379 
+"value": 0.04122575045499 
 },
 {
  "date":          15804,
 "source": "SelectionShare",
-"value": 0.04129717942219 
+"value": 0.04129745643537 
 },
 {
  "date":          15805,
 "source": "SelectionShare",
-"value": 0.04113956519841 
+"value": 0.04113980697859 
 },
 {
  "date":          15806,
 "source": "SelectionShare",
-"value": 0.0410666611282 
+"value": 0.04106685721971 
 },
 {
  "date":          15807,
 "source": "SelectionShare",
-"value": 0.04116856910289 
+"value": 0.04116872985917 
 },
 {
  "date":          15810,
 "source": "SelectionShare",
-"value": 0.04053356703608 
+"value": 0.04053378587607 
 },
 {
  "date":          15811,
 "source": "SelectionShare",
-"value": 0.04050214400847 
+"value": 0.04050238395668 
 },
 {
  "date":          15812,
 "source": "SelectionShare",
-"value": 0.04044294207344 
+"value": 0.04044317240433 
 },
 {
  "date":          15813,
 "source": "SelectionShare",
-"value": 0.04054061138616 
+"value": 0.04054083060043 
 },
 {
  "date":          15814,
 "source": "SelectionShare",
-"value": 0.04013911645425 
+"value": 0.04013937455612 
 },
 {
  "date":          15817,
 "source": "SelectionShare",
-"value": 0.04017450433961 
+"value": 0.0401747716526 
 },
 {
  "date":          15818,
 "source": "SelectionShare",
-"value": 0.04022091598255 
+"value": 0.04022116788078 
 },
 {
  "date":          15819,
 "source": "SelectionShare",
-"value": 0.04023707072118 
+"value": 0.04023731837476 
 },
 {
  "date":          15820,
 "source": "SelectionShare",
-"value": 0.04024662622755 
+"value": 0.04024688540296 
 },
 {
  "date":          15821,
 "source": "SelectionShare",
-"value": 0.04017240604155 
+"value": 0.04017269252008 
 },
 {
  "date":          15824,
 "source": "SelectionShare",
-"value": 0.04001954959644 
+"value": 0.0400198112224 
 },
 {
  "date":          15825,
 "source": "SelectionShare",
-"value": 0.03992216024629 
+"value": 0.03992240095895 
 },
 {
  "date":          15826,
 "source": "SelectionShare",
-"value": 0.03967065368535 
+"value": 0.03967087173475 
 },
 {
  "date":          15827,
 "source": "SelectionShare",
-"value": 0.0396958050869 
+"value": 0.03969598533572 
 },
 {
  "date":          15828,
 "source": "SelectionShare",
-"value": 0.03966691078659 
+"value": 0.03966710858363 
 },
 {
  "date":          15831,
 "source": "SelectionShare",
-"value": 0.03953700148834 
+"value": 0.03953724156895 
 },
 {
  "date":          15832,
 "source": "SelectionShare",
-"value": 0.03982990818715 
+"value": 0.0398300935351 
 },
 {
  "date":          15833,
 "source": "SelectionShare",
-"value": 0.03981740641721 
+"value": 0.03981756323318 
 },
 {
  "date":          15834,
 "source": "SelectionShare",
-"value": 0.03982234873419 
+"value": 0.0398225123697 
 },
 {
  "date":          15835,
 "source": "SelectionShare",
-"value": 0.03980929231308 
+"value": 0.03980942827114 
 },
 {
  "date":          15838,
 "source": "SelectionShare",
-"value": 0.03974219392575 
+"value": 0.03974239029056 
 },
 {
  "date":          15839,
 "source": "SelectionShare",
-"value": 0.03969500334612 
+"value": 0.0396951951458 
 },
 {
  "date":          15840,
 "source": "SelectionShare",
-"value": 0.03981215257215 
+"value": 0.0398123300404 
 },
 {
  "date":          15841,
 "source": "SelectionShare",
-"value": 0.04033878082494 
+"value": 0.04033906314162 
 },
 {
  "date":          15842,
 "source": "SelectionShare",
-"value": 0.04032787262308 
+"value": 0.04032817466691 
 },
 {
  "date":          15845,
 "source": "SelectionShare",
-"value": 0.04043030219564 
+"value": 0.04043061489356 
 },
 {
  "date":          15846,
 "source": "SelectionShare",
-"value": 0.04031161758681 
+"value": 0.04031194661248 
 },
 {
  "date":          15847,
 "source": "SelectionShare",
-"value": 0.04018044549586 
+"value": 0.04018078927705 
 },
 {
  "date":          15848,
 "source": "SelectionShare",
-"value": 0.0401387990375 
+"value": 0.04013911700464 
 },
 {
  "date":          15849,
 "source": "SelectionShare",
-"value": 0.03993474364898 
+"value": 0.03993499971582 
 },
 {
  "date":          15853,
 "source": "SelectionShare",
-"value": 0.03992140079771 
+"value": 0.03992166767826 
 },
 {
  "date":          15854,
 "source": "SelectionShare",
-"value": 0.04005123913175 
+"value": 0.04005150250064 
 },
 {
  "date":          15855,
 "source": "SelectionShare",
-"value": 0.04012520199711 
+"value": 0.04012548597076 
 },
 {
  "date":          15856,
 "source": "SelectionShare",
-"value": 0.03995084335403 
+"value": 0.03995116859559 
 },
 {
  "date":          15859,
 "source": "SelectionShare",
-"value": 0.03992010851335 
+"value": 0.03992039339046 
 },
 {
  "date":          15860,
 "source": "SelectionShare",
-"value": 0.03989953601526 
+"value": 0.03989986401169 
 },
 {
  "date":          15861,
 "source": "SelectionShare",
-"value": 0.03980662729331 
+"value": 0.03980695711637 
 },
 {
  "date":          15862,
 "source": "SelectionShare",
-"value": 0.03995581008458 
+"value": 0.03995612294105 
 },
 {
  "date":          15863,
 "source": "SelectionShare",
-"value": 0.04001328500394 
+"value": 0.04001359864292 
 },
 {
  "date":          15866,
 "source": "SelectionShare",
-"value": 0.0400266637091 
+"value": 0.04002697309591 
 },
 {
  "date":          15867,
 "source": "SelectionShare",
-"value": 0.03988912353705 
+"value": 0.0398894549236 
 },
 {
  "date":          15868,
 "source": "SelectionShare",
-"value": 0.03993755167748 
+"value": 0.03993784158062 
 },
 {
  "date":          15869,
 "source": "SelectionShare",
-"value": 0.03984569943927 
+"value": 0.0398459868301 
 },
 {
  "date":          15870,
 "source": "SelectionShare",
-"value": 0.03971482993551 
+"value": 0.03971515291622 
 },
 {
  "date":          15873,
 "source": "SelectionShare",
-"value": 0.03973759704228 
+"value": 0.03973798368123 
 },
 {
  "date":          15874,
 "source": "SelectionShare",
-"value": 0.03970692828921 
+"value": 0.03970732849642 
 },
 {
  "date":          15875,
 "source": "SelectionShare",
-"value": 0.03969336025828 
+"value": 0.03969378921673 
 },
 {
  "date":          15876,
 "source": "SelectionShare",
-"value": 0.03939158265023 
+"value": 0.03939204496961 
 },
 {
  "date":          15877,
 "source": "SelectionShare",
-"value": 0.04042227477879 
+"value": 0.04042260540373 
 },
 {
  "date":          15880,
 "source": "SelectionShare",
-"value": 0.04030106290129 
+"value": 0.04030132892298 
 },
 {
  "date":          15881,
 "source": "SelectionShare",
-"value": 0.04031169927286 
+"value": 0.04031197324831 
 },
 {
  "date":          15882,
 "source": "SelectionShare",
-"value": 0.04019390033934 
+"value": 0.04019406340366 
 },
 {
  "date":          15883,
 "source": "SelectionShare",
-"value": 0.04021019255555 
+"value": 0.04021035912017 
 },
 {
  "date":          15884,
 "source": "SelectionShare",
-"value": 0.04018976018018 
+"value": 0.04018988596589 
 },
 {
  "date":          15887,
 "source": "SelectionShare",
-"value": 0.04026613738721 
+"value": 0.04026628727672 
 },
 {
  "date":          15888,
 "source": "SelectionShare",
-"value": 0.0400719008195 
+"value": 0.0400720860727 
 },
 {
  "date":          15889,
 "source": "SelectionShare",
-"value": 0.04022573853675 
+"value": 0.04022595786247 
 },
 {
  "date":          15891,
 "source": "SelectionShare",
-"value": 0.04019675774768 
+"value": 0.04019696709691 
 },
 {
  "date":          15894,
 "source": "SelectionShare",
-"value": 0.04041789978594 
+"value": 0.04041804488276 
 },
 {
  "date":          15895,
 "source": "SelectionShare",
-"value": 0.04044644595221 
+"value": 0.04044655686924 
 },
 {
  "date":          15896,
 "source": "SelectionShare",
-"value": 0.04043973901147 
+"value": 0.04043987197202 
 },
 {
  "date":          15897,
 "source": "SelectionShare",
-"value": 0.04063738555789 
+"value": 0.04063755109693 
 },
 {
  "date":          15898,
 "source": "SelectionShare",
-"value": 0.04059520196457 
+"value": 0.04059532805175 
 },
 {
  "date":          15901,
 "source": "SelectionShare",
-"value": 0.04065559011022 
+"value": 0.04065571092837 
 },
 {
  "date":          15902,
 "source": "SelectionShare",
-"value": 0.04074892066753 
+"value": 0.04074906031759 
 },
 {
  "date":          15903,
 "source": "SelectionShare",
-"value": 0.04060676703978 
+"value": 0.04060698169505 
 },
 {
  "date":          15904,
 "source": "SelectionShare",
-"value": 0.04068511108512 
+"value": 0.04068537018309 
 },
 {
  "date":          15905,
 "source": "SelectionShare",
-"value": 0.04046501960043 
+"value": 0.04046519911195 
 },
 {
  "date":          15908,
 "source": "SelectionShare",
-"value": 0.04026727232843 
+"value": 0.04026741444379 
 },
 {
  "date":          15909,
 "source": "SelectionShare",
-"value": 0.03992750324526 
+"value": 0.03992749816169 
 },
 {
  "date":          15910,
 "source": "SelectionShare",
-"value": 0.04030986048182 
+"value": 0.04030989134916 
 },
 {
  "date":          15911,
 "source": "SelectionShare",
-"value": 0.04009775752351 
+"value": 0.0400977504022 
 },
 {
  "date":          15912,
 "source": "SelectionShare",
-"value": 0.03985761044465 
+"value": 0.03985767708097 
 },
 {
  "date":          15915,
 "source": "SelectionShare",
-"value": 0.03981964885111 
+"value": 0.03981977422388 
 },
 {
  "date":          15916,
 "source": "SelectionShare",
-"value": 0.04015919352031 
+"value": 0.04015929231419 
 },
 {
  "date":          15917,
 "source": "SelectionShare",
-"value": 0.03915033874184 
+"value": 0.03915027348476 
 },
 {
  "date":          15918,
 "source": "SelectionShare",
-"value": 0.04061115277033 
+"value": 0.04061113849003 
 },
 {
  "date":          15919,
 "source": "SelectionShare",
-"value": 0.04033628765922 
+"value": 0.04033623009675 
 },
 {
  "date":          15922,
 "source": "SelectionShare",
-"value": 0.04246679161831 
+"value": 0.04246668489432 
 },
 {
  "date":          15923,
 "source": "SelectionShare",
-"value": 0.04462262597944 
+"value": 0.04462269173184 
 },
 {
  "date":          15924,
 "source": "SelectionShare",
-"value": 0.04594693207013 
+"value": 0.04594685165488 
 },
 {
  "date":          15925,
 "source": "SelectionShare",
-"value": 0.04830228313008 
+"value": 0.04830231870931 
 },
 {
  "date":          15926,
 "source": "SelectionShare",
-"value": 0.04838869231063 
+"value": 0.04838868420093 
 },
 {
  "date":          15929,
 "source": "SelectionShare",
-"value": 0.04827099975471 
+"value": 0.04827104793769 
 },
 {
  "date":          15930,
 "source": "SelectionShare",
-"value": 0.04805808676511 
+"value": 0.04805811261335 
 },
 {
  "date":          15931,
 "source": "SelectionShare",
-"value": 0.04772351683378 
+"value": 0.04772377751815 
 },
 {
  "date":          15932,
 "source": "SelectionShare",
-"value": 0.0487791638271 
+"value": 0.04877933693267 
 },
 {
  "date":          15933,
 "source": "SelectionShare",
-"value": 0.04829518118744 
+"value": 0.04829546759576 
 },
 {
  "date":          15936,
 "source": "SelectionShare",
-"value": 0.0484257715202 
+"value": 0.04842609347585 
 },
 {
  "date":          15937,
 "source": "SelectionShare",
-"value": 0.04922658514986 
+"value": 0.04922682079661 
 },
 {
  "date":          15938,
 "source": "SelectionShare",
-"value": 0.0494400768634 
+"value": 0.04944038482977 
 },
 {
  "date":          15939,
 "source": "SelectionShare",
-"value": 0.0497956054832 
+"value": 0.04979588399481 
 },
 {
  "date":          15940,
 "source": "SelectionShare",
-"value": 0.0503191691753 
+"value": 0.05031938451636 
 },
 {
  "date":          15943,
 "source": "SelectionShare",
-"value": 0.0508923168544 
+"value": 0.05089247072157 
 },
 {
  "date":          15944,
 "source": "SelectionShare",
-"value": 0.05060514221465 
+"value": 0.05060526884583 
 },
 {
  "date":          15945,
 "source": "SelectionShare",
-"value": 0.05053606510152 
+"value": 0.05053612113085 
 },
 {
  "date":          15946,
 "source": "SelectionShare",
-"value": 0.05026928523035 
+"value": 0.05026925375365 
 },
 {
  "date":          15947,
 "source": "SelectionShare",
-"value": 0.05062937071136 
+"value": 0.05062931914489 
 },
 {
  "date":          15951,
 "source": "SelectionShare",
-"value": 0.0506606280076 
+"value": 0.05066071686724 
 },
 {
  "date":          15952,
 "source": "SelectionShare",
-"value": 0.05134093700489 
+"value": 0.05134093569217 
 },
 {
  "date":          15953,
 "source": "SelectionShare",
-"value": 0.05098019168016 
+"value": 0.05098008204655 
 },
 {
  "date":          15954,
 "source": "SelectionShare",
-"value": 0.05161991794117 
+"value": 0.05161980436125 
 },
 {
  "date":          15957,
 "source": "SelectionShare",
-"value": 0.05139865785818 
+"value": 0.05139857943449 
 },
 {
  "date":          15958,
 "source": "SelectionShare",
-"value": 0.05156976106338 
+"value": 0.05156971392788 
 },
 {
  "date":          15959,
 "source": "SelectionShare",
-"value": 0.05197510063252 
+"value": 0.05197499933077 
 },
 {
  "date":          15960,
 "source": "SelectionShare",
-"value": 0.05237997804861 
+"value": 0.05237993402464 
 },
 {
  "date":          15961,
 "source": "SelectionShare",
-"value": 0.05232042971099 
+"value": 0.05232039511732 
 },
 {
  "date":          15964,
 "source": "SelectionShare",
-"value": 0.05218584062396 
+"value": 0.05218575976062 
 },
 {
  "date":          15965,
 "source": "SelectionShare",
-"value": 0.05096223234964 
+"value": 0.05096198003679 
 },
 {
  "date":          15966,
 "source": "SelectionShare",
-"value": 0.05152217239104 
+"value": 0.0515218563166 
 },
 {
  "date":          15967,
 "source": "SelectionShare",
-"value": 0.05242564989271 
+"value": 0.05242527834683 
 },
 {
  "date":          15968,
 "source": "SelectionShare",
-"value": 0.05226135976836 
+"value": 0.05226098113181 
 },
 {
  "date":          15971,
 "source": "SelectionShare",
-"value": 0.05240560760322 
+"value": 0.05240525762371 
 },
 {
  "date":          15972,
 "source": "SelectionShare",
-"value": 0.05265764164758 
+"value": 0.05265723912057 
 },
 {
  "date":          15973,
 "source": "SelectionShare",
-"value": 0.05294133816762 
+"value": 0.05294090734144 
 },
 {
  "date":          15974,
 "source": "SelectionShare",
-"value": 0.05221231169127 
+"value": 0.05221203134997 
 },
 {
  "date":          15975,
 "source": "SelectionShare",
-"value": 0.05268870902855 
+"value": 0.05268838295953 
 },
 {
  "date":          15978,
 "source": "SelectionShare",
-"value": 0.05365126512379 
+"value": 0.05365091544717 
 },
 {
  "date":          15979,
 "source": "SelectionShare",
-"value": 0.0541300570244 
+"value": 0.05412964980267 
 },
 {
  "date":          15980,
 "source": "SelectionShare",
-"value": 0.05424029178754 
+"value": 0.05423989428331 
 },
 {
  "date":          15981,
 "source": "SelectionShare",
-"value": 0.05429053713749 
+"value": 0.05429015534668 
 },
 {
  "date":          15982,
 "source": "SelectionShare",
-"value": 0.05400595773015 
+"value": 0.05400546921004 
 },
 {
  "date":          15985,
 "source": "SelectionShare",
-"value": 0.05539554609078 
+"value": 0.05539514980937 
 },
 {
  "date":          15986,
 "source": "SelectionShare",
-"value": 0.0550423579204 
+"value": 0.05504189628084 
 },
 {
  "date":          15987,
 "source": "SelectionShare",
-"value": 0.05512875379543 
+"value": 0.0551282890845 
 },
 {
  "date":          15988,
 "source": "SelectionShare",
-"value": 0.0546510171166 
+"value": 0.05465048285222 
 },
 {
  "date":          15989,
 "source": "SelectionShare",
-"value": 0.05483776485555 
+"value": 0.0548372587237 
 },
 {
  "date":          15992,
 "source": "SelectionShare",
-"value": 0.05539826499413 
+"value": 0.05539773541544 
 },
 {
  "date":          15993,
 "source": "SelectionShare",
-"value": 0.05598588025564 
+"value": 0.05598542032417 
 },
 {
  "date":          15994,
 "source": "SelectionShare",
-"value": 0.05683482562064 
+"value": 0.05683422342205 
 },
 {
  "date":          15995,
 "source": "SelectionShare",
-"value": 0.05677664021893 
+"value": 0.056776019539 
 },
 {
  "date":          15996,
 "source": "SelectionShare",
-"value": 0.0572419394479 
+"value": 0.05724140242987 
 },
 {
  "date":          15999,
 "source": "SelectionShare",
-"value": 0.05786828769738 
+"value": 0.05786788295518 
 },
 {
  "date":          16000,
 "source": "SelectionShare",
-"value": 0.05857253102576 
+"value": 0.05857202121595 
 },
 {
  "date":          16001,
 "source": "SelectionShare",
-"value": 0.05834767532502 
+"value": 0.05834733961081 
 },
 {
  "date":          16002,
 "source": "SelectionShare",
-"value": 0.05988361825868 
+"value": 0.05988318586927 
 },
 {
  "date":          16003,
 "source": "SelectionShare",
-"value": 0.05987599274001 
+"value": 0.05987556438545 
 },
 {
  "date":          16006,
 "source": "SelectionShare",
-"value": 0.06061877045419 
+"value": 0.06061830423963 
 },
 {
  "date":          16007,
 "source": "SelectionShare",
-"value": 0.0618979376496 
+"value": 0.06189730870692 
 },
 {
  "date":          16008,
 "source": "SelectionShare",
-"value": 0.0622529405384 
+"value": 0.06225241005548 
 },
 {
  "date":          16009,
 "source": "SelectionShare",
-"value": 0.06315020473425 
+"value": 0.06314977409057 
 },
 {
  "date":          16010,
 "source": "SelectionShare",
-"value": 0.06319261745933 
+"value": 0.06319219616145 
 },
 {
  "date":          16013,
 "source": "SelectionShare",
-"value": 0.06373346555037 
+"value": 0.06373295380075 
 },
 {
  "date":          16014,
 "source": "SelectionShare",
-"value": 0.06388734101387 
+"value": 0.06388688602607 
 },
 {
  "date":          16015,
 "source": "SelectionShare",
-"value": 0.06600547200098 
+"value": 0.06600495519599 
 },
 {
  "date":          16016,
 "source": "SelectionShare",
-"value": 0.06576025359376 
+"value": 0.06575974487985 
 },
 {
  "date":          16017,
 "source": "SelectionShare",
-"value": 0.06634737026399 
+"value": 0.06634685378658 
 },
 {
  "date":          16020,
 "source": "SelectionShare",
-"value": 0.06653539311953 
+"value": 0.06653486446156 
 },
 {
  "date":          16021,
 "source": "SelectionShare",
-"value": 0.06695304563926 
+"value": 0.06695260722341 
 },
 {
  "date":          16022,
 "source": "SelectionShare",
-"value": 0.06742029617308 
+"value": 0.06741983393512 
 },
 {
  "date":          16023,
 "source": "SelectionShare",
-"value": 0.06863956770766 
+"value": 0.06863894402461 
 },
 {
  "date":          16024,
 "source": "SelectionShare",
-"value": 0.06871176091701 
+"value": 0.06871103560079 
 },
 {
  "date":          16027,
 "source": "SelectionShare",
-"value": 0.06946191268597 
+"value": 0.06946122305726 
 },
 {
  "date":          16028,
 "source": "SelectionShare",
-"value": 0.06928122452463 
+"value": 0.06928047664349 
 },
 {
  "date":          16029,
 "source": "SelectionShare",
-"value": 0.07010481079558 
+"value": 0.07010397773317 
 },
 {
  "date":          16030,
 "source": "SelectionShare",
-"value": 0.06996137906932 
+"value": 0.06996049001633 
 },
 {
  "date":          16031,
 "source": "SelectionShare",
-"value": 0.07110069854569 
+"value": 0.07109974391357 
 },
 {
  "date":          16034,
 "source": "SelectionShare",
-"value": 0.07081852893871 
+"value": 0.07081765426448 
 },
 {
  "date":          16035,
 "source": "SelectionShare",
-"value": 0.07323743514129 
+"value": 0.0732356745115 
 },
 {
  "date":          16036,
 "source": "SelectionShare",
-"value": 0.07326922791142 
+"value": 0.07326747762613 
 },
 {
  "date":          16038,
 "source": "SelectionShare",
-"value": 0.0734284173708 
+"value": 0.07342675673017 
 },
 {
  "date":          16041,
 "source": "SelectionShare",
-"value": 0.07304729092807 
+"value": 0.07304565477451 
 },
 {
  "date":          16042,
 "source": "SelectionShare",
-"value": 0.07296080370768 
+"value": 0.07295914249119 
 },
 {
  "date":          16043,
 "source": "SelectionShare",
-"value": 0.07302168186641 
+"value": 0.07301993455344 
 },
 {
  "date":          16044,
 "source": "SelectionShare",
-"value": 0.07369790303007 
+"value": 0.07369603753804 
 },
 {
  "date":          16045,
 "source": "SelectionShare",
-"value": 0.07397940631509 
+"value": 0.07397750522708 
 },
 {
  "date":          16048,
 "source": "SelectionShare",
-"value": 0.07423724321021 
+"value": 0.07423526389789 
 },
 {
  "date":          16049,
 "source": "SelectionShare",
-"value": 0.07413488942948 
+"value": 0.0741327797117 
 },
 {
  "date":          16050,
 "source": "SelectionShare",
-"value": 0.07479811384284 
+"value": 0.07479609515584 
 },
 {
  "date":          16051,
 "source": "SelectionShare",
-"value": 0.07539831420552 
+"value": 0.07539617019624 
 },
 {
  "date":          16052,
 "source": "SelectionShare",
-"value": 0.07516985853144 
+"value": 0.07516776201247 
 },
 {
  "date":          16055,
 "source": "SelectionShare",
-"value": 0.07571427261383 
+"value": 0.07571219328619 
 },
 {
  "date":          16056,
 "source": "SelectionShare",
-"value": 0.0766421045221 
+"value": 0.07663973154878 
 },
 {
  "date":          16057,
 "source": "SelectionShare",
-"value": 0.07567974978535 
+"value": 0.07567752291588 
 },
 {
  "date":          16058,
 "source": "SelectionShare",
-"value": 0.07693380928043 
+"value": 0.07693186536013 
 },
 {
  "date":          16059,
 "source": "SelectionShare",
-"value": 0.07674404627269 
+"value": 0.07674208518974 
 },
 {
  "date":          16062,
 "source": "SelectionShare",
-"value": 0.07682511137765 
+"value": 0.07682318112318 
 },
 {
  "date":          16063,
 "source": "SelectionShare",
-"value": 0.07694854473619 
+"value": 0.07694654978053 
 },
 {
  "date":          16065,
 "source": "SelectionShare",
-"value": 0.07708631364153 
+"value": 0.07708431701638 
 },
 {
  "date":          16066,
 "source": "SelectionShare",
-"value": 0.07741628556602 
+"value": 0.07741439649456 
 },
 {
  "date":          16069,
 "source": "SelectionShare",
-"value": 0.07806758853639 
+"value": 0.078065813531 
 },
 {
  "date":          16070,
 "source": "SelectionShare",
-"value": 0.07724376047893 
+"value": 0.07724215321924 
 },
 {
  "date":          16072,
 "source": "SelectionShare",
-"value": 0.07727909537626 
+"value": 0.07727742336713 
 },
 {
  "date":          16073,
 "source": "SelectionShare",
-"value": 0.07725393468983 
+"value": 0.07725227392168 
 },
 {
  "date":          16076,
 "source": "SelectionShare",
-"value": 0.07705117205456 
+"value": 0.07704956101317 
 },
 {
  "date":          16077,
 "source": "SelectionShare",
-"value": 0.07784191151861 
+"value": 0.07784016076303 
 },
 {
  "date":          16078,
 "source": "SelectionShare",
-"value": 0.07679409849618 
+"value": 0.0767924510719 
 },
 {
  "date":          16079,
 "source": "SelectionShare",
-"value": 0.07675062623281 
+"value": 0.07674880237602 
 },
 {
  "date":          16080,
 "source": "SelectionShare",
-"value": 0.07685781715383 
+"value": 0.07685598358247 
 },
 {
  "date":          16083,
 "source": "SelectionShare",
-"value": 0.07658462333096 
+"value": 0.076582805452 
 },
 {
  "date":          16084,
 "source": "SelectionShare",
-"value": 0.07645870966513 
+"value": 0.07645690922891 
 },
 {
  "date":          16085,
 "source": "SelectionShare",
-"value": 0.07645087137955 
+"value": 0.07644903870003 
 },
 {
  "date":          16086,
 "source": "SelectionShare",
-"value": 0.07520020859801 
+"value": 0.07519857448568 
 },
 {
  "date":          16087,
 "source": "SelectionShare",
-"value": 0.07517530723223 
+"value": 0.07517356278965 
 },
 {
  "date":          16091,
 "source": "SelectionShare",
-"value": 0.07539002285637 
+"value": 0.07538843516618 
 },
 {
  "date":          16092,
 "source": "SelectionShare",
-"value": 0.07591025526654 
+"value": 0.075908851765 
 },
 {
  "date":          16093,
 "source": "SelectionShare",
-"value": 0.07455754434229 
+"value": 0.07455593718263 
 },
 {
  "date":          16094,
 "source": "SelectionShare",
-"value": 0.07341997584895 
+"value": 0.07341858566635 
 },
 {
  "date":          16097,
 "source": "SelectionShare",
-"value": 0.07349749251396 
+"value": 0.07349605842774 
 },
 {
  "date":          16098,
 "source": "SelectionShare",
-"value": 0.07433655775663 
+"value": 0.07433498531417 
 },
 {
  "date":          16099,
 "source": "SelectionShare",
-"value": 0.07392658405281 
+"value": 0.07392496545969 
 },
 {
  "date":          16100,
 "source": "SelectionShare",
-"value": 0.07375314623316 
+"value": 0.07375148302096 
 },
 {
  "date":          16101,
 "source": "SelectionShare",
-"value": 0.07466550052624 
+"value": 0.0746637718745 
 },
 {
  "date":          16104,
 "source": "SelectionShare",
-"value": 0.07354326860165 
+"value": 0.07354152893075 
 },
 {
  "date":          16105,
 "source": "SelectionShare",
-"value": 0.07370595419889 
+"value": 0.0737040879909 
 },
 {
  "date":          16106,
 "source": "SelectionShare",
-"value": 0.07439670608922 
+"value": 0.07439492486796 
 },
 {
  "date":          16107,
 "source": "SelectionShare",
-"value": 0.07380121579092 
+"value": 0.07379930535272 
 },
 {
  "date":          16108,
 "source": "SelectionShare",
-"value": 0.07328189917004 
+"value": 0.07327982692258 
 },
 {
  "date":          16111,
 "source": "SelectionShare",
-"value": 0.07332573650515 
+"value": 0.07332366389756 
 },
 {
  "date":          16112,
 "source": "SelectionShare",
-"value": 0.07334510007522 
+"value": 0.07334301172401 
 },
 {
  "date":          16113,
 "source": "SelectionShare",
-"value": 0.07365615751614 
+"value": 0.07365421201582 
 },
 {
  "date":          16114,
 "source": "SelectionShare",
-"value": 0.07603110949758 
+"value": 0.07602899106155 
 },
 {
  "date":          16115,
 "source": "SelectionShare",
-"value": 0.07614966981394 
+"value": 0.07614760821812 
 },
 {
  "date":          16119,
 "source": "SelectionShare",
-"value": 0.07627965985159 
+"value": 0.07627743746601 
 },
 {
  "date":          16120,
 "source": "SelectionShare",
-"value": 0.07652508209929 
+"value": 0.07652303155837 
 },
 {
  "date":          16121,
 "source": "SelectionShare",
-"value": 0.0768915110603 
+"value": 0.07688942555462 
 },
 {
  "date":          16122,
 "source": "SelectionShare",
-"value": 0.07680433517598 
+"value": 0.07680216678792 
 },
 {
  "date":          16125,
 "source": "SelectionShare",
-"value": 0.07687915780558 
+"value": 0.07687690256922 
 },
 {
  "date":          16126,
 "source": "SelectionShare",
-"value": 0.07659425136583 
+"value": 0.07659190650806 
 },
 {
  "date":          16127,
 "source": "SelectionShare",
-"value": 0.07677707898095 
+"value": 0.07677450893058 
 },
 {
  "date":          16128,
 "source": "SelectionShare",
-"value": 0.07733338854651 
+"value": 0.07733095405174 
 },
 {
  "date":          16129,
 "source": "SelectionShare",
-"value": 0.07772785972156 
+"value": 0.07772552502087 
 },
 {
  "date":          16132,
 "source": "SelectionShare",
-"value": 0.07871101097214 
+"value": 0.07870841840819 
 },
 {
  "date":          16133,
 "source": "SelectionShare",
-"value": 0.07923106012892 
+"value": 0.07922844205292 
 },
 {
  "date":          16134,
 "source": "SelectionShare",
-"value": 0.07945394013917 
+"value": 0.07945141962467 
 },
 {
  "date":          16135,
 "source": "SelectionShare",
-"value": 0.079714691983 
+"value": 0.07971222500962 
 },
 {
  "date":          16136,
 "source": "SelectionShare",
-"value": 0.07918031260752 
+"value": 0.07917791337624 
 },
 {
  "date":          16139,
 "source": "SelectionShare",
-"value": 0.07962454906188 
+"value": 0.07962192793175 
 },
 {
  "date":          16140,
 "source": "SelectionShare",
-"value": 0.08108600590117 
+"value": 0.0810836072695 
 },
 {
  "date":          16141,
 "source": "SelectionShare",
-"value": 0.08113065402043 
+"value": 0.08112822896605 
 },
 {
  "date":          16142,
 "source": "SelectionShare",
-"value": 0.0806953408938 
+"value": 0.0806929285495 
 },
 {
  "date":          16143,
 "source": "SelectionShare",
-"value": 0.08066176711992 
+"value": 0.08065936003166 
 },
 {
  "date":          16146,
 "source": "SelectionShare",
-"value": 0.08051835647574 
+"value": 0.08051590331544 
 },
 {
  "date":          16147,
 "source": "SelectionShare",
-"value": 0.08049942325987 
+"value": 0.08049697951813 
 },
 {
  "date":          16148,
 "source": "SelectionShare",
-"value": 0.08043000524284 
+"value": 0.08042756758809 
 },
 {
  "date":          16149,
 "source": "SelectionShare",
-"value": 0.08172013938707 
+"value": 0.08171743134441 
 },
 {
  "date":          16150,
 "source": "SelectionShare",
-"value": 0.08184795174705 
+"value": 0.0818452978455 
 },
 {
  "date":          16153,
 "source": "SelectionShare",
-"value": 0.08406641524923 
+"value": 0.08406403880694 
 },
 {
  "date":          16154,
 "source": "SelectionShare",
-"value": 0.08426031006171 
+"value": 0.08425811182103 
 },
 {
  "date":          16155,
 "source": "SelectionShare",
-"value": 0.08542328809401 
+"value": 0.08542124745976 
 },
 {
  "date":          16156,
 "source": "SelectionShare",
-"value": 0.08542472588516 
+"value": 0.0854227380585 
 },
 {
  "date":          16157,
 "source": "SelectionShare",
-"value": 0.08543719598868 
+"value": 0.08543522551242 
 },
 {
  "date":          16160,
 "source": "SelectionShare",
-"value": 0.08536854450774 
+"value": 0.08536646821864 
 },
 {
  "date":          16161,
 "source": "SelectionShare",
-"value": 0.0852970196895 
+"value": 0.08529493218286 
 },
 {
  "date":          16162,
 "source": "SelectionShare",
-"value": 0.08567742840421 
+"value": 0.08567525980808 
 },
 {
  "date":          16163,
 "source": "SelectionShare",
-"value": 0.08586471772239 
+"value": 0.08586260367607 
 },
 {
  "date":          16164,
 "source": "SelectionShare",
-"value": 0.08564083925659 
+"value": 0.08563870542731 
 },
 {
  "date":          16167,
 "source": "SelectionShare",
-"value": 0.08591697196443 
+"value": 0.08591482186179 
 },
 {
  "date":          16168,
 "source": "SelectionShare",
-"value": 0.08651930097731 
+"value": 0.08651726333036 
 },
 {
  "date":          16169,
 "source": "SelectionShare",
-"value": 0.08664329080933 
+"value": 0.08664124484446 
 },
 {
  "date":          16170,
 "source": "SelectionShare",
-"value": 0.08610099686783 
+"value": 0.08609898333773 
 },
 {
  "date":          16171,
 "source": "SelectionShare",
-"value": 0.08551562687888 
+"value": 0.08551374499847 
 },
 {
  "date":          16174,
 "source": "SelectionShare",
-"value": 0.08590593465499 
+"value": 0.0859040759873 
 },
 {
  "date":          16175,
 "source": "SelectionShare",
-"value": 0.08594891022267 
+"value": 0.08594706137237 
 },
 {
  "date":          16176,
 "source": "SelectionShare",
-"value": 0.08587564716125 
+"value": 0.0858737663454 
 },
 {
  "date":          16177,
 "source": "SelectionShare",
-"value": 0.08583721947091 
+"value": 0.08583532972116 
 },
 {
  "date":          16181,
 "source": "SelectionShare",
-"value": 0.08640682258484 
+"value": 0.08640482735082 
 },
 {
  "date":          16182,
 "source": "SelectionShare",
-"value": 0.08594138079558 
+"value": 0.08593928220041 
 },
 {
  "date":          16183,
 "source": "SelectionShare",
-"value": 0.08629603045561 
+"value": 0.08629395444048 
 },
 {
  "date":          16184,
 "source": "SelectionShare",
-"value": 0.08637808587746 
+"value": 0.08637602771354 
 },
 {
  "date":          16185,
 "source": "SelectionShare",
-"value": 0.08604883665413 
+"value": 0.08604674941758 
 },
 {
  "date":          16188,
 "source": "SelectionShare",
-"value": 0.08570986008565 
+"value": 0.08570787406472 
 },
 {
  "date":          16189,
 "source": "SelectionShare",
-"value": 0.0855742024358 
+"value": 0.08557226276162 
 },
 {
  "date":          16190,
 "source": "SelectionShare",
-"value": 0.08562267231668 
+"value": 0.08562080364862 
 },
 {
  "date":          16191,
 "source": "SelectionShare",
-"value": 0.08595754188583 
+"value": 0.08595569877062 
 },
 {
  "date":          16192,
 "source": "SelectionShare",
-"value": 0.08691205906962 
+"value": 0.08691028748528 
 },
 {
  "date":          16195,
 "source": "SelectionShare",
-"value": 0.08714717043534 
+"value": 0.08714549711655 
 },
 {
  "date":          16196,
 "source": "SelectionShare",
-"value": 0.08699745322593 
+"value": 0.08699583856041 
 },
 {
  "date":          16197,
 "source": "SelectionShare",
-"value": 0.08675936980991 
+"value": 0.08675767181949 
 },
 {
  "date":          16198,
 "source": "SelectionShare",
-"value": 0.08766054468272 
+"value": 0.08765910785494 
 },
 {
  "date":          16199,
 "source": "SelectionShare",
-"value": 0.08765848915402 
+"value": 0.08765697422398 
 },
 {
  "date":          16202,
 "source": "SelectionShare",
-"value": 0.08757409322406 
+"value": 0.08757247202252 
 },
 {
  "date":          16203,
 "source": "SelectionShare",
-"value": 0.08795549226265 
+"value": 0.0879537851806 
 },
 {
  "date":          16204,
 "source": "SelectionShare",
-"value": 0.08796482442562 
+"value": 0.08796314425658 
 },
 {
  "date":          16205,
 "source": "SelectionShare",
-"value": 0.08906987387123 
+"value": 0.08906826585172 
 },
 {
  "date":          16206,
 "source": "SelectionShare",
-"value": 0.08921259940282 
+"value": 0.08921102594094 
 },
 {
  "date":          16209,
 "source": "SelectionShare",
-"value": 0.09017658820017 
+"value": 0.09017515304121 
 },
 {
  "date":          16210,
 "source": "SelectionShare",
-"value": 0.08959155455756 
+"value": 0.08959026654996 
 },
 {
  "date":          16211,
 "source": "SelectionShare",
-"value": 0.08967902876848 
+"value": 0.08967789916136 
 },
 {
  "date":          16212,
 "source": "SelectionShare",
-"value": 0.08974836336397 
+"value": 0.08974715954898 
 },
 {
  "date":          16213,
 "source": "SelectionShare",
-"value": 0.08986812957251 
+"value": 0.08986697903873 
 },
 {
  "date":          16217,
 "source": "SelectionShare",
-"value": 0.09002287902825 
+"value": 0.09002172728058 
 },
 {
  "date":          16218,
 "source": "SelectionShare",
-"value": 0.09056644498688 
+"value": 0.09056515695578 
 },
 {
  "date":          16219,
 "source": "SelectionShare",
-"value": 0.09056497085112 
+"value": 0.09056353342892 
 },
 {
  "date":          16220,
 "source": "SelectionShare",
-"value": 0.09200250958136 
+"value": 0.09200085434775 
 },
 {
  "date":          16223,
 "source": "SelectionShare",
-"value": 0.09143004513456 
+"value": 0.09142828355637 
 },
 {
  "date":          16224,
 "source": "SelectionShare",
-"value": 0.09153132487253 
+"value": 0.09152953372048 
 },
 {
  "date":          16225,
 "source": "SelectionShare",
-"value": 0.09262504568867 
+"value": 0.09262299156249 
 },
 {
  "date":          16226,
 "source": "SelectionShare",
-"value": 0.0925052500266 
+"value": 0.09250298721561 
 },
 {
  "date":          16227,
 "source": "SelectionShare",
-"value": 0.09203518246594 
+"value": 0.09203295466416 
 },
 {
  "date":          16230,
 "source": "SelectionShare",
-"value": 0.0925929841648 
+"value": 0.09259061226924 
 },
 {
  "date":          16231,
 "source": "SelectionShare",
-"value": 0.09279773347155 
+"value": 0.09279537366149 
 },
 {
  "date":          16232,
 "source": "SelectionShare",
-"value": 0.09261505300959 
+"value": 0.09261278787958 
 },
 {
  "date":          16233,
 "source": "SelectionShare",
-"value": 0.09251352775543 
+"value": 0.09251138692321 
 },
 {
  "date":          16234,
 "source": "SelectionShare",
-"value": 0.09321514542992 
+"value": 0.09321290872283 
 },
 {
  "date":          16237,
 "source": "SelectionShare",
-"value": 0.09342130127646 
+"value": 0.0934189431816 
 },
 {
  "date":          16238,
 "source": "SelectionShare",
-"value": 0.09364109963156 
+"value": 0.09363878068328 
 },
 {
  "date":          16239,
 "source": "SelectionShare",
-"value": 0.0935709028584 
+"value": 0.09356844383305 
 },
 {
  "date":          16240,
 "source": "SelectionShare",
-"value": 0.09476610385803 
+"value": 0.09476352641906 
 },
 {
  "date":          16241,
 "source": "SelectionShare",
-"value": 0.09618534326076 
+"value": 0.09618257803662 
 },
 {
  "date":          16244,
 "source": "SelectionShare",
-"value": 0.09744264931352 
+"value": 0.09743991887747 
 },
 {
  "date":          16245,
 "source": "SelectionShare",
-"value": 0.09731860161396 
+"value": 0.09731584737004 
 },
 {
  "date":          16246,
 "source": "SelectionShare",
-"value": 0.09735072268112 
+"value": 0.09734795657413 
 },
 {
  "date":          16247,
 "source": "SelectionShare",
-"value": 0.09713694775629 
+"value": 0.09713429956825 
 },
 {
  "date":          16248,
 "source": "SelectionShare",
-"value": 0.098817915274 
+"value": 0.0988153401516 
 },
 {
  "date":          16251,
 "source": "SelectionShare",
-"value": 0.09896017698081 
+"value": 0.09895763261043 
 },
 {
  "date":          15330,
 "source": "TimingShare",
-"value": 0.001199898194642 
+"value": 0.001202802822886 
 },
 {
  "date":          15331,
 "source": "TimingShare",
-"value": 0.001120327438566 
+"value": 0.001123094444406 
 },
 {
  "date":          15335,
 "source": "TimingShare",
-"value": 0.001074906696385 
+"value": 0.001077774137259 
 },
 {
  "date":          15336,
 "source": "TimingShare",
-"value": 0.001076537778406 
+"value": 0.001079402346754 
 },
 {
  "date":          15337,
 "source": "TimingShare",
-"value": 0.001124219268571 
+"value": 0.001126899597528 
 },
 {
  "date":          15338,
 "source": "TimingShare",
-"value": 0.001118117607094 
+"value": 0.001120834238773 
 },
 {
  "date":          15342,
 "source": "TimingShare",
-"value": 0.001053736270519 
+"value": 0.001056421794971 
 },
 {
  "date":          15343,
 "source": "TimingShare",
-"value": 0.001044042712489 
+"value": 0.001046740396106 
 },
 {
  "date":          15344,
 "source": "TimingShare",
-"value": 0.001038230470417 
+"value": 0.001040974899163 
 },
 {
  "date":          15345,
 "source": "TimingShare",
-"value": 0.001045466787338 
+"value": 0.001048402555395 
 },
 {
  "date":          15348,
 "source": "TimingShare",
-"value": 0.001040972192514 
+"value": 0.00104394440422 
 },
 {
  "date":          15349,
 "source": "TimingShare",
-"value": 0.0009769446219182 
+"value": 0.0009798594364469 
 },
 {
  "date":          15350,
 "source": "TimingShare",
-"value": 0.0008975547686337 
+"value": 0.0009006448975964 
 },
 {
  "date":          15351,
 "source": "TimingShare",
-"value": 0.000866998971855 
+"value": 0.0008699800275288 
 },
 {
  "date":          15352,
 "source": "TimingShare",
-"value": 0.0008779944272645 
+"value": 0.000880975450944 
 },
 {
  "date":          15356,
 "source": "TimingShare",
-"value": 0.0009347626724495 
+"value": 0.0009376710007281 
 },
 {
  "date":          15357,
 "source": "TimingShare",
-"value": 0.000923745568385 
+"value": 0.0009266210709875 
 },
 {
  "date":          15358,
 "source": "TimingShare",
-"value": 0.000921379870998 
+"value": 0.0009241627920258 
 },
 {
  "date":          15359,
 "source": "TimingShare",
-"value": 0.0008473713954088 
+"value": 0.0008503249679304 
 },
 {
  "date":          15362,
 "source": "TimingShare",
-"value": 0.0008271291674052 
+"value": 0.0008300674231755 
 },
 {
  "date":          15363,
 "source": "TimingShare",
-"value": 0.000846077425952 
+"value": 0.0008490005417635 
 },
 {
  "date":          15364,
 "source": "TimingShare",
-"value": 0.0008213261944634 
+"value": 0.0008242912811105 
 },
 {
  "date":          15365,
 "source": "TimingShare",
-"value": 0.0007894623012075 
+"value": 0.0007923483987435 
 },
 {
  "date":          15366,
 "source": "TimingShare",
-"value": 0.0007851233736686 
+"value": 0.0007881013124808 
 },
 {
  "date":          15369,
 "source": "TimingShare",
-"value": 0.000907563475332 
+"value": 0.0009105933381958 
 },
 {
  "date":          15370,
 "source": "TimingShare",
-"value": 0.0009827901950717 
+"value": 0.0009856776237706 
 },
 {
  "date":          15371,
 "source": "TimingShare",
-"value": 0.0009011873176512 
+"value": 0.0009040705040311 
 },
 {
  "date":          15372,
 "source": "TimingShare",
-"value": 0.0009257083336524 
+"value": 0.000928605323857 
 },
 {
  "date":          15373,
 "source": "TimingShare",
-"value": 0.0008695354347967 
+"value": 0.0008724062456104 
 },
 {
  "date":          15376,
 "source": "TimingShare",
-"value": 0.0008567816594568 
+"value": 0.0008596015865036 
 },
 {
  "date":          15377,
 "source": "TimingShare",
-"value": 0.0008547540970525 
+"value": 0.0008574806374132 
 },
 {
  "date":          15378,
 "source": "TimingShare",
-"value": 0.0008009346385909 
+"value": 0.0008036830084475 
 },
 {
  "date":          15379,
 "source": "TimingShare",
-"value": 0.0008664994349439 
+"value": 0.0008692981574569 
 },
 {
  "date":          15380,
 "source": "TimingShare",
-"value": 0.0008896057961126 
+"value": 0.0008922788956917 
 },
 {
  "date":          15383,
 "source": "TimingShare",
-"value": 0.0008857587774632 
+"value": 0.0008884429459509 
 },
 {
  "date":          15384,
 "source": "TimingShare",
-"value": 0.0008826826935765 
+"value": 0.0008854011148041 
 },
 {
  "date":          15385,
 "source": "TimingShare",
-"value": 0.0008498638157539 
+"value": 0.0008526610535671 
 },
 {
  "date":          15386,
 "source": "TimingShare",
-"value": 0.0008371433739587 
+"value": 0.0008399135396941 
 },
 {
  "date":          15387,
 "source": "TimingShare",
-"value": 0.0008368606163295 
+"value": 0.0008396222866639 
 },
 {
  "date":          15391,
 "source": "TimingShare",
-"value": 0.0008285260480403 
+"value": 0.0008312348678414 
 },
 {
  "date":          15392,
 "source": "TimingShare",
-"value": 0.0008204859774773 
+"value": 0.000823294182461 
 },
 {
  "date":          15393,
 "source": "TimingShare",
-"value": 0.0008172084095249 
+"value": 0.0008200262162743 
 },
 {
  "date":          15394,
 "source": "TimingShare",
-"value": 0.000809785036531 
+"value": 0.0008125330225672 
 },
 {
  "date":          15397,
 "source": "TimingShare",
-"value": 0.0008965598716275 
+"value": 0.0008994202744628 
 },
 {
  "date":          15398,
 "source": "TimingShare",
-"value": 0.0008926975434653 
+"value": 0.0008955217694194 
 },
 {
  "date":          15399,
 "source": "TimingShare",
-"value": 0.0008936367531979 
+"value": 0.0008964614196672 
 },
 {
  "date":          15400,
 "source": "TimingShare",
-"value": 0.0008939024510876 
+"value": 0.0008967440025445 
 },
 {
  "date":          15401,
 "source": "TimingShare",
-"value": 0.0008914660866917 
+"value": 0.0008943541311438 
 },
 {
  "date":          15404,
 "source": "TimingShare",
-"value": 0.000896810266708 
+"value": 0.0008997146721152 
 },
 {
  "date":          15405,
 "source": "TimingShare",
-"value": 0.0008490571481258 
+"value": 0.0008519446455317 
 },
 {
  "date":          15406,
 "source": "TimingShare",
-"value": 0.0008514288669988 
+"value": 0.0008542441153472 
 },
 {
  "date":          15407,
 "source": "TimingShare",
-"value": 0.0008073865587256 
+"value": 0.0008101012587083 
 },
 {
  "date":          15408,
 "source": "TimingShare",
-"value": 0.0007913566683619 
+"value": 0.0007941070553834 
 },
 {
  "date":          15411,
 "source": "TimingShare",
-"value": 0.0008133519374519 
+"value": 0.0008161434343397 
 },
 {
  "date":          15412,
 "source": "TimingShare",
-"value": 0.0007756222364938 
+"value": 0.0007784744678258 
 },
 {
  "date":          15413,
 "source": "TimingShare",
-"value": 0.0007906323445433 
+"value": 0.0007935482078045 
 },
 {
  "date":          15414,
 "source": "TimingShare",
-"value": 0.000798423976064 
+"value": 0.0008013152232324 
 },
 {
  "date":          15415,
 "source": "TimingShare",
-"value": 0.0008000577152345 
+"value": 0.0008030268678371 
 },
 {
  "date":          15418,
 "source": "TimingShare",
-"value": 0.0008457607331216 
+"value": 0.0008488099310739 
 },
 {
  "date":          15419,
 "source": "TimingShare",
-"value": 0.0008309640108669 
+"value": 0.0008340576896826 
 },
 {
  "date":          15420,
 "source": "TimingShare",
-"value": 0.0008399343891237 
+"value": 0.0008429929419171 
 },
 {
  "date":          15421,
 "source": "TimingShare",
-"value": 0.0008660661685767 
+"value": 0.0008691895251253 
 },
 {
  "date":          15422,
 "source": "TimingShare",
-"value": 0.0008615562263533 
+"value": 0.0008646681905007 
 },
 {
  "date":          15425,
 "source": "TimingShare",
-"value": 0.0008299716873361 
+"value": 0.0008330477572376 
 },
 {
  "date":          15426,
 "source": "TimingShare",
-"value": 0.0008211075916064 
+"value": 0.0008243004096973 
 },
 {
  "date":          15427,
 "source": "TimingShare",
-"value": 0.0008208815867124 
+"value": 0.0008240872465406 
 },
 {
  "date":          15428,
 "source": "TimingShare",
-"value": 0.0008216045414581 
+"value": 0.0008248668324681 
 },
 {
  "date":          15429,
 "source": "TimingShare",
-"value": 0.0008204990291837 
+"value": 0.0008237359568882 
 },
 {
  "date":          15432,
 "source": "TimingShare",
-"value": 0.0008136460708682 
+"value": 0.0008167123788331 
 },
 {
  "date":          15433,
 "source": "TimingShare",
-"value": 0.0008152877849198 
+"value": 0.0008183902937784 
 },
 {
  "date":          15434,
 "source": "TimingShare",
-"value": 0.0008208077660195 
+"value": 0.0008238604054 
 },
 {
  "date":          15435,
 "source": "TimingShare",
-"value": 0.0008243063699405 
+"value": 0.0008273093365329 
 },
 {
  "date":          15439,
 "source": "TimingShare",
-"value": 0.0008206642732086 
+"value": 0.0008237007660158 
 },
 {
  "date":          15440,
 "source": "TimingShare",
-"value": 0.0008035087977167 
+"value": 0.0008066526347678 
 },
 {
  "date":          15441,
 "source": "TimingShare",
-"value": 0.0007953845565388 
+"value": 0.0007984568522405 
 },
 {
  "date":          15442,
 "source": "TimingShare",
-"value": 0.0007766110766039 
+"value": 0.0007796322462922 
 },
 {
  "date":          15443,
 "source": "TimingShare",
-"value": 0.0007511487371243 
+"value": 0.0007542218222181 
 },
 {
  "date":          15446,
 "source": "TimingShare",
-"value": 0.0008056074132004 
+"value": 0.0008089169144165 
 },
 {
  "date":          15447,
 "source": "TimingShare",
-"value": 0.0007745074601225 
+"value": 0.0007778386316537 
 },
 {
  "date":          15448,
 "source": "TimingShare",
-"value": 0.0007550621840116 
+"value": 0.0007584470814731 
 },
 {
  "date":          15449,
 "source": "TimingShare",
-"value": 0.0008196022873717 
+"value": 0.0008230140754691 
 },
 {
  "date":          15450,
 "source": "TimingShare",
-"value": 0.0008149864831587 
+"value": 0.0008183960712265 
 },
 {
  "date":          15453,
 "source": "TimingShare",
-"value": 0.0008327846089575 
+"value": 0.0008361864130183 
 },
 {
  "date":          15454,
 "source": "TimingShare",
-"value": 0.0007794878154402 
+"value": 0.0007829671377827 
 },
 {
  "date":          15455,
 "source": "TimingShare",
-"value": 0.0007672673828024 
+"value": 0.0007706884044266 
 },
 {
  "date":          15456,
 "source": "TimingShare",
-"value": 0.0008206832461944 
+"value": 0.0008240900068571 
 },
 {
  "date":          15457,
 "source": "TimingShare",
-"value": 0.0008264845478213 
+"value": 0.0008299034806117 
 },
 {
  "date":          15460,
 "source": "TimingShare",
-"value": 0.0009097311228047 
+"value": 0.0009133496434483 
 },
 {
  "date":          15461,
 "source": "TimingShare",
-"value": 0.0008994127201188 
+"value": 0.0009032074614627 
 },
 {
  "date":          15462,
 "source": "TimingShare",
-"value": 0.0007816183759226 
+"value": 0.0007844319233833 
 },
 {
  "date":          15463,
 "source": "TimingShare",
-"value": 0.0007943723341666 
+"value": 0.0007972570541502 
 },
 {
  "date":          15464,
 "source": "TimingShare",
-"value": 0.0007670223726613 
+"value": 0.0007698230205396 
 },
 {
  "date":          15467,
 "source": "TimingShare",
-"value": 0.0007735636168104 
+"value": 0.0007764125042596 
 },
 {
  "date":          15468,
 "source": "TimingShare",
-"value": 0.0008183534717229 
+"value": 0.0008212649350967 
 },
 {
  "date":          15469,
 "source": "TimingShare",
-"value": 0.000874773242711 
+"value": 0.0008775079395704 
 },
 {
  "date":          15470,
 "source": "TimingShare",
-"value": 0.0009063790120338 
+"value": 0.0009091875127764 
 },
 {
  "date":          15471,
 "source": "TimingShare",
-"value": 0.0009109431419664 
+"value": 0.0009137702873363 
 },
 {
  "date":          15474,
 "source": "TimingShare",
-"value": 0.0008554555601701 
+"value": 0.0008595067329671 
 },
 {
  "date":          15475,
 "source": "TimingShare",
-"value": 0.0008413427550121 
+"value": 0.0008453386626693 
 },
 {
  "date":          15476,
 "source": "TimingShare",
-"value": 0.0008290270750664 
+"value": 0.0008330863395202 
 },
 {
  "date":          15477,
 "source": "TimingShare",
-"value": 0.000799735968422 
+"value": 0.0008037239130293 
 },
 {
  "date":          15478,
 "source": "TimingShare",
-"value": 0.0007844925116032 
+"value": 0.000788563371536 
 },
 {
  "date":          15481,
 "source": "TimingShare",
-"value": 0.0004753419464383 
+"value": 0.0004784679689898 
 },
 {
  "date":          15482,
 "source": "TimingShare",
-"value": 0.0004745582375493 
+"value": 0.0004778052512378 
 },
 {
  "date":          15483,
 "source": "TimingShare",
-"value": 0.0002364401417084 
+"value": 0.0002401664852662 
 },
 {
  "date":          15484,
 "source": "TimingShare",
-"value": 0.0001664334578481 
+"value": 0.000169700094688 
 },
 {
  "date":          15485,
 "source": "TimingShare",
-"value": 0.0001849520952971 
+"value": 0.0001881576781932 
 },
 {
  "date":          15489,
 "source": "TimingShare",
-"value": 0.0002873816035715 
+"value": 0.0002910474917894 
 },
 {
  "date":          15490,
 "source": "TimingShare",
-"value": 0.0002903435284367 
+"value": 0.0002940964503091 
 },
 {
  "date":          15491,
 "source": "TimingShare",
-"value": 0.0002976731036396 
+"value": 0.0003014096152677 
 },
 {
  "date":          15492,
 "source": "TimingShare",
-"value": 0.0002175621417605 
+"value": 0.0002212549364988 
 },
 {
  "date":          15495,
 "source": "TimingShare",
-"value": 0.0002899687430623 
+"value": 0.0002935662169244 
 },
 {
  "date":          15496,
 "source": "TimingShare",
-"value": 0.0002918114489705 
+"value": 0.0002954194532933 
 },
 {
  "date":          15497,
 "source": "TimingShare",
-"value": 0.0002886232389248 
+"value": 0.0002920724157064 
 },
 {
  "date":          15498,
 "source": "TimingShare",
-"value": 0.000335756053019 
+"value": 0.0003391402405922 
 },
 {
  "date":          15499,
 "source": "TimingShare",
-"value": 0.0003254985696008 
+"value": 0.0003289275166705 
 },
 {
  "date":          15502,
 "source": "TimingShare",
-"value": 0.0003074346605878 
+"value": 0.0003108697013476 
 },
 {
  "date":          15503,
 "source": "TimingShare",
-"value": 0.0003802197427017 
+"value": 0.000383803839145 
 },
 {
  "date":          15504,
 "source": "TimingShare",
-"value": 0.0003429095267913 
+"value": 0.0003465033830943 
 },
 {
  "date":          15505,
 "source": "TimingShare",
-"value": 0.000362540850808 
+"value": 0.0003662312528159 
 },
 {
  "date":          15506,
 "source": "TimingShare",
-"value": 0.0003697548151791 
+"value": 0.0003735092921145 
 },
 {
  "date":          15509,
 "source": "TimingShare",
-"value": 0.0004054198044949 
+"value": 0.0004091791087642 
 },
 {
  "date":          15510,
 "source": "TimingShare",
-"value": 0.00041834061828 
+"value": 0.0004221595934479 
 },
 {
  "date":          15511,
 "source": "TimingShare",
-"value": 0.0004178519132615 
+"value": 0.0004215824027981 
 },
 {
  "date":          15512,
 "source": "TimingShare",
-"value": 0.0004688487680244 
+"value": 0.0004731343788579 
 },
 {
  "date":          15513,
 "source": "TimingShare",
-"value": 0.0005073740312926 
+"value": 0.0005117215735323 
 },
 {
  "date":          15516,
 "source": "TimingShare",
-"value": 0.000505596440061 
+"value": 0.0005098256711033 
 },
 {
  "date":          15517,
 "source": "TimingShare",
-"value": 0.0005049514330269 
+"value": 0.0005091874775876 
 },
 {
  "date":          15518,
 "source": "TimingShare",
-"value": 0.0005074139604218 
+"value": 0.0005116164557473 
 },
 {
  "date":          15519,
 "source": "TimingShare",
-"value": 0.0005178540006139 
+"value": 0.0005216788945865 
 },
 {
  "date":          15520,
 "source": "TimingShare",
-"value": 0.0004634873067619 
+"value": 0.0004672971344747 
 },
 {
  "date":          15523,
 "source": "TimingShare",
-"value": 0.0004381792724252 
+"value": 0.0004418439847151 
 },
 {
  "date":          15524,
 "source": "TimingShare",
-"value": 0.0004406661974413 
+"value": 0.000444260199689 
 },
 {
  "date":          15526,
 "source": "TimingShare",
-"value": 0.0004775809856376 
+"value": 0.0004812006465277 
 },
 {
  "date":          15527,
 "source": "TimingShare",
-"value": 0.0004814099743477 
+"value": 0.000484955088232 
 },
 {
  "date":          15530,
 "source": "TimingShare",
-"value": 0.0004169979994851 
+"value": 0.000420673041385 
 },
 {
  "date":          15531,
 "source": "TimingShare",
-"value": 0.0003396428280852 
+"value": 0.0003427112983472 
 },
 {
  "date":          15532,
 "source": "TimingShare",
-"value": 0.0003712096519764 
+"value": 0.0003742150542669 
 },
 {
  "date":          15533,
 "source": "TimingShare",
-"value": 0.0003605981042252 
+"value": 0.0003635794769286 
 },
 {
  "date":          15534,
 "source": "TimingShare",
-"value": 0.0003513998592761 
+"value": 0.000354388210777 
 },
 {
  "date":          15537,
 "source": "TimingShare",
-"value": 0.0003148902513645 
+"value": 0.0003175315760951 
 },
 {
  "date":          15538,
 "source": "TimingShare",
-"value": 0.0002922277630935 
+"value": 0.0002947781785651 
 },
 {
  "date":          15539,
 "source": "TimingShare",
-"value": 0.0002724486796356 
+"value": 0.0002748950668819 
 },
 {
  "date":          15540,
 "source": "TimingShare",
-"value": 0.0002725477237698 
+"value": 0.000274994156555 
 },
 {
  "date":          15541,
 "source": "TimingShare",
-"value": 0.0002790705029869 
+"value": 0.0002816351068223 
 },
 {
  "date":          15544,
 "source": "TimingShare",
-"value": 0.0002734068143545 
+"value": 0.0002760944827416 
 },
 {
  "date":          15545,
 "source": "TimingShare",
-"value": 0.0003634768962129 
+"value": 0.0003659796023872 
 },
 {
  "date":          15546,
 "source": "TimingShare",
-"value": 0.0002760333175861 
+"value": 0.0002781306922802 
 },
 {
  "date":          15547,
 "source": "TimingShare",
-"value": 0.0002652135288575 
+"value": 0.000267373709008 
 },
 {
  "date":          15548,
 "source": "TimingShare",
-"value": 0.0002233231121877 
+"value": 0.0002254663326526 
 },
 {
  "date":          15551,
 "source": "TimingShare",
-"value": 0.0002050494973525 
+"value": 0.0002071466683697 
 },
 {
  "date":          15552,
 "source": "TimingShare",
-"value": 0.0002030840085718 
+"value": 0.0002051886153545 
 },
 {
  "date":          15553,
 "source": "TimingShare",
-"value": 0.000204181378103 
+"value": 0.000206292974668 
 },
 {
  "date":          15554,
 "source": "TimingShare",
-"value": 0.0002173972086102 
+"value": 0.0002194247338145 
 },
 {
  "date":          15555,
 "source": "TimingShare",
-"value": 9.237144715172e-05 
+"value": 9.512941868333e-05 
 },
 {
  "date":          15558,
 "source": "TimingShare",
-"value": 0.0001132459569316 
+"value": 0.0001159020815847 
 },
 {
  "date":          15559,
 "source": "TimingShare",
-"value":              0 
+"value": 5.134977142601e-07 
 },
 {
  "date":          15560,
 "source": "TimingShare",
-"value":              0 
+"value": 2.088251443211e-06 
 },
 {
  "date":          15561,
 "source": "TimingShare",
-"value": 1.311196541742e-05 
+"value": 1.567543207781e-05 
 },
 {
  "date":          15562,
 "source": "TimingShare",
-"value": 1.544370605176e-07 
+"value": 2.698962151749e-06 
 },
 {
  "date":          15565,
 "source": "TimingShare",
-"value": 3.674277303523e-05 
+"value": 3.929863690625e-05 
 },
 {
  "date":          15566,
 "source": "TimingShare",
-"value": 3.527204099845e-05 
+"value": 3.787150129295e-05 
 },
 {
  "date":          15567,
 "source": "TimingShare",
-"value": 3.600545104087e-05 
+"value": 3.859407322478e-05 
 },
 {
  "date":          15568,
@@ -7669,1377 +7680,1377 @@ perfComp %>>%
 {
  "date":          15609,
 "source": "TimingShare",
-"value": 1.107749562348e-05 
+"value": 1.215903504078e-05 
 },
 {
  "date":          15610,
 "source": "TimingShare",
-"value": 4.98171476133e-05 
+"value": 5.085327915607e-05 
 },
 {
  "date":          15611,
 "source": "TimingShare",
-"value": 0.0001222817883906 
+"value": 0.0001235098778115 
 },
 {
  "date":          15614,
 "source": "TimingShare",
-"value": 0.0001167229928032 
+"value": 0.0001178716444297 
 },
 {
  "date":          15615,
 "source": "TimingShare",
-"value": 0.0001305546746401 
+"value": 0.0001316533895266 
 },
 {
  "date":          15616,
 "source": "TimingShare",
-"value": 0.0001397060528898 
+"value": 0.0001408766333677 
 },
 {
  "date":          15617,
 "source": "TimingShare",
-"value": 0.000136579255427 
+"value": 0.0001377304195603 
 },
 {
  "date":          15618,
 "source": "TimingShare",
-"value": 0.0001549360854538 
+"value": 0.0001560328440166 
 },
 {
  "date":          15621,
 "source": "TimingShare",
-"value": 0.0001754096570186 
+"value": 0.00017640638194 
 },
 {
  "date":          15622,
 "source": "TimingShare",
-"value": 0.0003924418995528 
+"value": 0.0003930910694971 
 },
 {
  "date":          15623,
 "source": "TimingShare",
-"value": 0.0003924387667916 
+"value": 0.0003930813026862 
 },
 {
  "date":          15624,
 "source": "TimingShare",
-"value": 0.0003599479705498 
+"value": 0.0003608068705849 
 },
 {
  "date":          15625,
 "source": "TimingShare",
-"value": 0.0003621724814417 
+"value": 0.0003629917668397 
 },
 {
  "date":          15628,
 "source": "TimingShare",
-"value": 0.0003767290168758 
+"value": 0.0003774328164723 
 },
 {
  "date":          15629,
 "source": "TimingShare",
-"value": 0.0003840807163948 
+"value": 0.0003848785380409 
 },
 {
  "date":          15630,
 "source": "TimingShare",
-"value": 0.000398217762851 
+"value": 0.0003988939317599 
 },
 {
  "date":          15631,
 "source": "TimingShare",
-"value": 0.0003687283259489 
+"value": 0.0003693350844624 
 },
 {
  "date":          15632,
 "source": "TimingShare",
-"value": 0.0003546297097933 
+"value": 0.0003551998463268 
 },
 {
  "date":          15635,
 "source": "TimingShare",
-"value": 0.0003596274271928 
+"value": 0.0003602516515053 
 },
 {
  "date":          15636,
 "source": "TimingShare",
-"value": 0.0003827720739065 
+"value": 0.0003835513429695 
 },
 {
  "date":          15637,
 "source": "TimingShare",
-"value": 0.0003818639883206 
+"value": 0.0003826344415373 
 },
 {
  "date":          15638,
 "source": "TimingShare",
-"value": 0.0003920792041461 
+"value": 0.0003928219849412 
 },
 {
  "date":          15639,
 "source": "TimingShare",
-"value": 0.0004055699588584 
+"value": 0.0004062296280104 
 },
 {
  "date":          15644,
 "source": "TimingShare",
-"value": 0.0001782957905347 
+"value": 0.0001783897422694 
 },
 {
  "date":          15645,
 "source": "TimingShare",
-"value": 0.0001782125645776 
+"value": 0.0001784010881277 
 },
 {
  "date":          15646,
 "source": "TimingShare",
-"value": 0.0001902804223396 
+"value": 0.0001905993547353 
 },
 {
  "date":          15649,
 "source": "TimingShare",
-"value": 0.0002037505533885 
+"value": 0.0002039946567886 
 },
 {
  "date":          15650,
 "source": "TimingShare",
-"value": 0.0002007992697062 
+"value": 0.0002010768676866 
 },
 {
  "date":          15651,
 "source": "TimingShare",
-"value": 0.0002608739524965 
+"value": 0.0002612880779809 
 },
 {
  "date":          15652,
 "source": "TimingShare",
-"value": 0.0002578913248431 
+"value": 0.0002583253966458 
 },
 {
  "date":          15653,
 "source": "TimingShare",
-"value": 0.0002599097638575 
+"value": 0.0002603066705525 
 },
 {
  "date":          15656,
 "source": "TimingShare",
-"value": 0.0002852527809384 
+"value": 0.0002856530763003 
 },
 {
  "date":          15657,
 "source": "TimingShare",
-"value": 0.0002955790091708 
+"value": 0.0002958776951857 
 },
 {
  "date":          15658,
 "source": "TimingShare",
-"value": 0.0003172544208488 
+"value": 0.0003175378144418 
 },
 {
  "date":          15659,
 "source": "TimingShare",
-"value": 0.0003105785088144 
+"value": 0.0003109073884096 
 },
 {
  "date":          15660,
 "source": "TimingShare",
-"value": 0.0003081191324342 
+"value": 0.000308469061488 
 },
 {
  "date":          15663,
 "source": "TimingShare",
-"value": 0.0002981124049722 
+"value": 0.0002984395874216 
 },
 {
  "date":          15664,
 "source": "TimingShare",
-"value": 0.0002529213356425 
+"value": 0.0002530427458769 
 },
 {
  "date":          15665,
 "source": "TimingShare",
-"value": 0.0002586608727748 
+"value": 0.0002587435900477 
 },
 {
  "date":          15667,
 "source": "TimingShare",
-"value": 0.0002484130010475 
+"value": 0.0002485746690769 
 },
 {
  "date":          15670,
 "source": "TimingShare",
-"value": 0.0002694910144743 
+"value": 0.0002697545855405 
 },
 {
  "date":          15671,
 "source": "TimingShare",
-"value": 0.0002890923493741 
+"value": 0.0002891514412662 
 },
 {
  "date":          15672,
 "source": "TimingShare",
-"value": 0.0002808474909422 
+"value": 0.000280854247312 
 },
 {
  "date":          15673,
 "source": "TimingShare",
-"value": 0.0002770845239443 
+"value": 0.0002770934635955 
 },
 {
  "date":          15674,
 "source": "TimingShare",
-"value": 0.0002810185905026 
+"value": 0.0002809746572489 
 },
 {
  "date":          15677,
 "source": "TimingShare",
-"value": 0.0002948288050757 
+"value": 0.0002948923959526 
 },
 {
  "date":          15678,
 "source": "TimingShare",
-"value": 0.0003125899770872 
+"value": 0.0003125535903822 
 },
 {
  "date":          15679,
 "source": "TimingShare",
-"value": 0.0003327307447891 
+"value": 0.0003324756490768 
 },
 {
  "date":          15680,
 "source": "TimingShare",
-"value": 0.0003379987525149 
+"value": 0.0003377869575293 
 },
 {
  "date":          15681,
 "source": "TimingShare",
-"value": 0.000332105369307 
+"value": 0.0003318339436222 
 },
 {
  "date":          15684,
 "source": "TimingShare",
-"value": 0.0003531737831415 
+"value": 0.0003527759466771 
 },
 {
  "date":          15685,
 "source": "TimingShare",
-"value": 0.000345186877099 
+"value": 0.0003447575288713 
 },
 {
  "date":          15686,
 "source": "TimingShare",
-"value": 0.0004245474650461 
+"value": 0.0004243124930432 
 },
 {
  "date":          15687,
 "source": "TimingShare",
-"value": 0.0004127967405664 
+"value": 0.0004126916708839 
 },
 {
  "date":          15688,
 "source": "TimingShare",
-"value": 0.0004179565841735 
+"value": 0.0004179695032671 
 },
 {
  "date":          15691,
 "source": "TimingShare",
-"value": 0.0004332959110765 
+"value": 0.000433436548009 
 },
 {
  "date":          15692,
 "source": "TimingShare",
-"value": 0.0004231087022295 
+"value": 0.0004233320128059 
 },
 {
  "date":          15693,
 "source": "TimingShare",
-"value": 0.0004140211297104 
+"value": 0.0004142394246898 
 },
 {
  "date":          15694,
 "source": "TimingShare",
-"value": 0.0004044840623226 
+"value": 0.0004047954152064 
 },
 {
  "date":          15695,
 "source": "TimingShare",
-"value": 0.000396120250727 
+"value": 0.0003963561340188 
 },
 {
  "date":          15698,
 "source": "TimingShare",
-"value": 0.0003959851833231 
+"value": 0.0003962122575988 
 },
 {
  "date":          15700,
 "source": "TimingShare",
-"value": 0.0003979480962552 
+"value": 0.0003982673433239 
 },
 {
  "date":          15701,
 "source": "TimingShare",
-"value": 0.0003991424683655 
+"value": 0.0003994806923509 
 },
 {
  "date":          15702,
 "source": "TimingShare",
-"value": 0.0003931141344476 
+"value": 0.0003934824238826 
 },
 {
  "date":          15705,
 "source": "TimingShare",
-"value": 0.0004095128642197 
+"value": 0.0004100257243257 
 },
 {
  "date":          15707,
 "source": "TimingShare",
-"value": 0.0003687220889114 
+"value": 0.0003692481060403 
 },
 {
  "date":          15708,
 "source": "TimingShare",
-"value": 0.0003896876998132 
+"value": 0.0003902248103104 
 },
 {
  "date":          15709,
 "source": "TimingShare",
-"value": 0.0003974346922066 
+"value": 0.0003979836905228 
 },
 {
  "date":          15712,
 "source": "TimingShare",
-"value": 0.0003947432341426 
+"value": 0.0003952923809941 
 },
 {
  "date":          15713,
 "source": "TimingShare",
-"value": 0.0004006688742404 
+"value": 0.0004011922695199 
 },
 {
  "date":          15714,
 "source": "TimingShare",
-"value": 0.000410895455895 
+"value": 0.000411405363367 
 },
 {
  "date":          15715,
 "source": "TimingShare",
-"value": 0.0004087504080182 
+"value": 0.0004092665258986 
 },
 {
  "date":          15716,
 "source": "TimingShare",
-"value": 0.0004131096887592 
+"value": 0.0004136091501707 
 },
 {
  "date":          15719,
 "source": "TimingShare",
-"value": 0.0004280275458842 
+"value": 0.0004285661724265 
 },
 {
  "date":          15720,
 "source": "TimingShare",
-"value": 0.0004464030912882 
+"value": 0.0004469588052958 
 },
 {
  "date":          15721,
 "source": "TimingShare",
-"value": 0.0004663851175786 
+"value": 0.0004669543596749 
 },
 {
  "date":          15722,
 "source": "TimingShare",
-"value": 0.0004703748916315 
+"value": 0.0004709330323717 
 },
 {
  "date":          15723,
 "source": "TimingShare",
-"value": 0.0004663038884543 
+"value": 0.0004668749390616 
 },
 {
  "date":          15727,
 "source": "TimingShare",
-"value": 0.0004926740691838 
+"value": 0.0004932706682529 
 },
 {
  "date":          15728,
 "source": "TimingShare",
-"value": 0.0004813886799242 
+"value": 0.0004819505381133 
 },
 {
  "date":          15729,
 "source": "TimingShare",
-"value": 0.000442018731163 
+"value": 0.0004426069577049 
 },
 {
  "date":          15730,
 "source": "TimingShare",
-"value": 0.0004566882598377 
+"value": 0.0004572893131267 
 },
 {
  "date":          15733,
 "source": "TimingShare",
-"value": 0.0005232477430716 
+"value": 0.0005237968927223 
 },
 {
  "date":          15734,
 "source": "TimingShare",
-"value": 0.0005224485206082 
+"value": 0.0005228607587893 
 },
 {
  "date":          15735,
 "source": "TimingShare",
-"value": 0.0005491978159852 
+"value": 0.0005494744964268 
 },
 {
  "date":          15736,
 "source": "TimingShare",
-"value": 0.0005379878720684 
+"value": 0.0005382721110528 
 },
 {
  "date":          15737,
 "source": "TimingShare",
-"value": 0.0005343313449773 
+"value": 0.0005344982189511 
 },
 {
  "date":          15740,
 "source": "TimingShare",
-"value": 0.0005241373835217 
+"value": 0.00052427991189 
 },
 {
  "date":          15741,
 "source": "TimingShare",
-"value": 0.0006121818945968 
+"value": 0.000612569923778 
 },
 {
  "date":          15742,
 "source": "TimingShare",
-"value": 0.0007352461605749 
+"value": 0.0007353442158247 
 },
 {
  "date":          15743,
 "source": "TimingShare",
-"value": 0.0007818299066071 
+"value": 0.0007821674332636 
 },
 {
  "date":          15744,
 "source": "TimingShare",
-"value": 0.0007878506437782 
+"value": 0.0007882398612371 
 },
 {
  "date":          15747,
 "source": "TimingShare",
-"value": 0.0007850621392188 
+"value": 0.0007854839857637 
 },
 {
  "date":          15748,
 "source": "TimingShare",
-"value": 0.0007880449220775 
+"value": 0.0007884195181902 
 },
 {
  "date":          15749,
 "source": "TimingShare",
-"value": 0.0007868647845633 
+"value": 0.0007872379503235 
 },
 {
  "date":          15750,
 "source": "TimingShare",
-"value": 0.0007819512253653 
+"value": 0.0007823278099158 
 },
 {
  "date":          15751,
 "source": "TimingShare",
-"value": 0.000798341211664 
+"value": 0.0007985278807252 
 },
 {
  "date":          15755,
 "source": "TimingShare",
-"value": 0.0008272456617941 
+"value": 0.000827571879209 
 },
 {
  "date":          15756,
 "source": "TimingShare",
-"value": 0.0008187520847691 
+"value": 0.0008191203914137 
 },
 {
  "date":          15757,
 "source": "TimingShare",
-"value": 0.0008131404799435 
+"value": 0.0008135178021691 
 },
 {
  "date":          15758,
 "source": "TimingShare",
-"value": 0.0008136982023209 
+"value": 0.0008140606652321 
 },
 {
  "date":          15761,
 "source": "TimingShare",
-"value": 0.0008102690260764 
+"value": 0.0008106096565897 
 },
 {
  "date":          15762,
 "source": "TimingShare",
-"value": 0.000807747898174 
+"value": 0.000808082862373 
 },
 {
  "date":          15763,
 "source": "TimingShare",
-"value": 0.0007976395498094 
+"value": 0.0007979723593744 
 },
 {
  "date":          15764,
 "source": "TimingShare",
-"value": 0.0008162832893809 
+"value": 0.0008166205122418 
 },
 {
  "date":          15765,
 "source": "TimingShare",
-"value": 0.0008095595968303 
+"value": 0.0008098984991101 
 },
 {
  "date":          15768,
 "source": "TimingShare",
-"value": 0.0008160299796252 
+"value": 0.0008163694275235 
 },
 {
  "date":          15769,
 "source": "TimingShare",
-"value": 0.0007962549985532 
+"value": 0.0007965874695193 
 },
 {
  "date":          15770,
 "source": "TimingShare",
-"value": 0.0008059978516688 
+"value": 0.0008063267234752 
 },
 {
  "date":          15771,
 "source": "TimingShare",
-"value": 0.0008394009302709 
+"value": 0.0008397297301435 
 },
 {
  "date":          15772,
 "source": "TimingShare",
-"value": 0.000863711951671 
+"value": 0.0008640333810854 
 },
 {
  "date":          15775,
 "source": "TimingShare",
-"value": 0.0008682872494349 
+"value": 0.0008686048926321 
 },
 {
  "date":          15776,
 "source": "TimingShare",
-"value": 0.0008550191895092 
+"value": 0.000855343314544 
 },
 {
  "date":          15777,
 "source": "TimingShare",
-"value": 0.0008679243888261 
+"value": 0.0008682535966017 
 },
 {
  "date":          15778,
 "source": "TimingShare",
-"value": 0.0008525579490581 
+"value": 0.0008528761041504 
 },
 {
  "date":          15779,
 "source": "TimingShare",
-"value": 0.0008682434133816 
+"value": 0.0008685570901028 
 },
 {
  "date":          15782,
 "source": "TimingShare",
-"value": 0.0008880019139588 
+"value": 0.0008883160124638 
 },
 {
  "date":          15783,
 "source": "TimingShare",
-"value": 0.0008877864716292 
+"value": 0.0008881053582678 
 },
 {
  "date":          15784,
 "source": "TimingShare",
-"value": 0.0009002584846059 
+"value": 0.0009005917708342 
 },
 {
  "date":          15785,
 "source": "TimingShare",
-"value": 0.0008885009725956 
+"value": 0.0008888508677413 
 },
 {
  "date":          15786,
 "source": "TimingShare",
-"value": 0.0009158996383265 
+"value": 0.0009162405924922 
 },
 {
  "date":          15789,
 "source": "TimingShare",
-"value": 0.0009208014111505 
+"value": 0.0009211399061474 
 },
 {
  "date":          15790,
 "source": "TimingShare",
-"value": 0.0009089616408869 
+"value": 0.0009093025954847 
 },
 {
  "date":          15791,
 "source": "TimingShare",
-"value": 0.0009177797733752 
+"value": 0.0009181202194392 
 },
 {
  "date":          15792,
 "source": "TimingShare",
-"value": 0.0009616751039665 
+"value": 0.0009620257194865 
 },
 {
  "date":          15796,
 "source": "TimingShare",
-"value": 0.001019947449741 
+"value": 0.001020317282352 
 },
 {
  "date":          15797,
 "source": "TimingShare",
-"value": 0.0009913381080101 
+"value": 0.0009917158238412 
 },
 {
  "date":          15798,
 "source": "TimingShare",
-"value": 0.0009695078423702 
+"value": 0.000969879038797 
 },
 {
  "date":          15799,
 "source": "TimingShare",
-"value": 0.001026572104229 
+"value": 0.001026959731474 
 },
 {
  "date":          15800,
 "source": "TimingShare",
-"value": 0.001028927281914 
+"value": 0.001029327216719 
 },
 {
  "date":          15803,
 "source": "TimingShare",
-"value": 0.001026523525846 
+"value": 0.001026921242225 
 },
 {
  "date":          15804,
 "source": "TimingShare",
-"value": 0.001015182153228 
+"value": 0.001015577463164 
 },
 {
  "date":          15805,
 "source": "TimingShare",
-"value": 0.001021175848136 
+"value": 0.00102157837702 
 },
 {
  "date":          15806,
 "source": "TimingShare",
-"value": 0.001035475633564 
+"value": 0.001035887625285 
 },
 {
  "date":          15807,
 "source": "TimingShare",
-"value": 0.001023803417562 
+"value": 0.001024223329253 
 },
 {
  "date":          15810,
 "source": "TimingShare",
-"value": 0.001027583799908 
+"value": 0.001027983963729 
 },
 {
  "date":          15811,
 "source": "TimingShare",
-"value": 0.001017602813298 
+"value": 0.001018001475991 
 },
 {
  "date":          15812,
 "source": "TimingShare",
-"value": 0.001059522402681 
+"value": 0.001059917964423 
 },
 {
  "date":          15813,
 "source": "TimingShare",
-"value": 0.001060446197627 
+"value": 0.001060851078682 
 },
 {
  "date":          15814,
 "source": "TimingShare",
-"value": 0.00110068912347 
+"value": 0.001101084795105 
 },
 {
  "date":          15817,
 "source": "TimingShare",
-"value": 0.001093197506745 
+"value": 0.001093591738492 
 },
 {
  "date":          15818,
 "source": "TimingShare",
-"value": 0.001087829974947 
+"value": 0.001088225051461 
 },
 {
  "date":          15819,
 "source": "TimingShare",
-"value": 0.001092234530422 
+"value": 0.001092630532313 
 },
 {
  "date":          15820,
 "source": "TimingShare",
-"value": 0.001087868368279 
+"value": 0.001088262152594 
 },
 {
  "date":          15821,
 "source": "TimingShare",
-"value": 0.001095631133813 
+"value": 0.001096019503685 
 },
 {
  "date":          15824,
 "source": "TimingShare",
-"value": 0.001116317811102 
+"value": 0.001116712802771 
 },
 {
  "date":          15825,
 "source": "TimingShare",
-"value": 0.001133262010726 
+"value": 0.001133661618037 
 },
 {
  "date":          15826,
 "source": "TimingShare",
-"value": 0.001162764187731 
+"value": 0.0011631700732 
 },
 {
  "date":          15827,
 "source": "TimingShare",
-"value": 0.001160824856692 
+"value": 0.001161236061014 
 },
 {
  "date":          15828,
 "source": "TimingShare",
-"value": 0.001151527721949 
+"value": 0.001151937328923 
 },
 {
  "date":          15831,
 "source": "TimingShare",
-"value": 0.001166157766136 
+"value": 0.001166559628566 
 },
 {
  "date":          15832,
 "source": "TimingShare",
-"value": 0.001142399001382 
+"value": 0.001142810843145 
 },
 {
  "date":          15833,
 "source": "TimingShare",
-"value": 0.001159148751245 
+"value": 0.00115956561174 
 },
 {
  "date":          15834,
 "source": "TimingShare",
-"value": 0.001159959861811 
+"value": 0.001160375432939 
 },
 {
  "date":          15835,
 "source": "TimingShare",
-"value": 0.001171313084333 
+"value": 0.001171733937226 
 },
 {
  "date":          15838,
 "source": "TimingShare",
-"value": 0.001174035273457 
+"value": 0.001174443404928 
 },
 {
  "date":          15839,
 "source": "TimingShare",
-"value": 0.001164077309396 
+"value": 0.001164486205852 
 },
 {
  "date":          15840,
 "source": "TimingShare",
-"value": 0.001157618029502 
+"value": 0.0011580318215 
 },
 {
  "date":          15841,
 "source": "TimingShare",
-"value": 0.001076884362679 
+"value": 0.001077275158032 
 },
 {
  "date":          15842,
 "source": "TimingShare",
-"value": 0.00106980748232 
+"value": 0.001070195222735 
 },
 {
  "date":          15845,
 "source": "TimingShare",
-"value": 0.001079592228667 
+"value": 0.001079977746508 
 },
 {
  "date":          15846,
 "source": "TimingShare",
-"value": 0.001094996049064 
+"value": 0.001095377406365 
 },
 {
  "date":          15847,
 "source": "TimingShare",
-"value": 0.001104868950838 
+"value": 0.001105247678171 
 },
 {
  "date":          15848,
 "source": "TimingShare",
-"value": 0.001115593103077 
+"value": 0.001115976908731 
 },
 {
  "date":          15849,
 "source": "TimingShare",
-"value": 0.00115046232274 
+"value": 0.001150858420801 
 },
 {
  "date":          15853,
 "source": "TimingShare",
-"value": 0.0011557732382 
+"value": 0.001156168691326 
 },
 {
  "date":          15854,
 "source": "TimingShare",
-"value": 0.001120844118623 
+"value": 0.001121226795992 
 },
 {
  "date":          15855,
 "source": "TimingShare",
-"value": 0.001107116761869 
+"value": 0.001107495922699 
 },
 {
  "date":          15856,
 "source": "TimingShare",
-"value": 0.001097624272552 
+"value": 0.001097995966067 
 },
 {
  "date":          15859,
 "source": "TimingShare",
-"value": 0.001117334304234 
+"value": 0.001117712956732 
 },
 {
  "date":          15860,
 "source": "TimingShare",
-"value": 0.001111554204663 
+"value": 0.00111192348478 
 },
 {
  "date":          15861,
 "source": "TimingShare",
-"value": 0.001106570076505 
+"value": 0.001106936841608 
 },
 {
  "date":          15862,
 "source": "TimingShare",
-"value": 0.001096018333231 
+"value": 0.00109638624176 
 },
 {
  "date":          15863,
 "source": "TimingShare",
-"value": 0.001082366318424 
+"value": 0.001082732361824 
 },
 {
  "date":          15866,
 "source": "TimingShare",
-"value": 0.001080862238686 
+"value": 0.001081229138703 
 },
 {
  "date":          15867,
 "source": "TimingShare",
-"value": 0.001089544488121 
+"value": 0.001089914066925 
 },
 {
  "date":          15868,
 "source": "TimingShare",
-"value": 0.001115497871311 
+"value": 0.001115873523678 
 },
 {
  "date":          15869,
 "source": "TimingShare",
-"value": 0.001102092327559 
+"value": 0.001102471215236 
 },
 {
  "date":          15870,
 "source": "TimingShare",
-"value": 0.001112176446364 
+"value": 0.001112548116843 
 },
 {
  "date":          15873,
 "source": "TimingShare",
-"value": 0.001104514198798 
+"value": 0.00110487558029 
 },
 {
  "date":          15874,
 "source": "TimingShare",
-"value": 0.001111240105573 
+"value": 0.001111605847884 
 },
 {
  "date":          15875,
 "source": "TimingShare",
-"value": 0.001093008635714 
+"value": 0.001093369034606 
 },
 {
  "date":          15876,
 "source": "TimingShare",
-"value": 0.001039386938252 
+"value": 0.001039738425977 
 },
 {
  "date":          15877,
 "source": "TimingShare",
-"value": 0.0009222138057978 
+"value": 0.000922592855537 
 },
 {
  "date":          15880,
 "source": "TimingShare",
-"value": 0.0009389613448554 
+"value": 0.0009393489645135 
 },
 {
  "date":          15881,
 "source": "TimingShare",
-"value": 0.00094729175801 
+"value": 0.0009476800791171 
 },
 {
  "date":          15882,
 "source": "TimingShare",
-"value": 0.0009661667354928 
+"value": 0.0009665705112054 
 },
 {
  "date":          15883,
 "source": "TimingShare",
-"value": 0.0009692446472901 
+"value": 0.0009696478249213 
 },
 {
  "date":          15884,
 "source": "TimingShare",
-"value": 0.0009700386090966 
+"value": 0.0009704420943185 
 },
 {
  "date":          15887,
 "source": "TimingShare",
-"value": 0.0009547035137469 
+"value": 0.0009551036303513 
 },
 {
  "date":          15888,
 "source": "TimingShare",
-"value": 0.0009786959392802 
+"value": 0.0009790888541027 
 },
 {
  "date":          15889,
 "source": "TimingShare",
-"value": 0.0009701301460784 
+"value": 0.0009705151482264 
 },
 {
  "date":          15891,
 "source": "TimingShare",
-"value": 0.0009642617870956 
+"value": 0.0009646486826724 
 },
 {
  "date":          15894,
 "source": "TimingShare",
-"value": 0.0009843584669954 
+"value": 0.0009847544035856 
 },
 {
  "date":          15895,
 "source": "TimingShare",
-"value": 0.000980793704762 
+"value": 0.0009811954911729 
 },
 {
  "date":          15896,
 "source": "TimingShare",
-"value": 0.000982032402255 
+"value": 0.0009824298771089 
 },
 {
  "date":          15897,
 "source": "TimingShare",
-"value": 0.0009908381906655 
+"value": 0.0009912388933395 
 },
 {
  "date":          15898,
 "source": "TimingShare",
-"value": 0.001001871505884 
+"value": 0.001002279387128 
 },
 {
  "date":          15901,
 "source": "TimingShare",
-"value": 0.001005806148762 
+"value": 0.001006215313176 
 },
 {
  "date":          15902,
 "source": "TimingShare",
-"value": 0.001030717021931 
+"value": 0.001031125414533 
 },
 {
  "date":          15903,
 "source": "TimingShare",
-"value": 0.001042102976448 
+"value": 0.001042495317634 
 },
 {
  "date":          15904,
 "source": "TimingShare",
-"value": 0.001046245098061 
+"value": 0.001046631773543 
 },
 {
  "date":          15905,
 "source": "TimingShare",
-"value": 0.001085587978667 
+"value": 0.001085991707636 
 },
 {
  "date":          15908,
 "source": "TimingShare",
-"value": 0.001117824883844 
+"value": 0.00111823659809 
 },
 {
  "date":          15909,
 "source": "TimingShare",
-"value": 0.001178294403389 
+"value": 0.001178738582835 
 },
 {
  "date":          15910,
 "source": "TimingShare",
-"value": 0.001190265816568 
+"value": 0.001190704155492 
 },
 {
  "date":          15911,
 "source": "TimingShare",
-"value": 0.001223584275161 
+"value": 0.001224031645419 
 },
 {
  "date":          15912,
 "source": "TimingShare",
-"value": 0.001243243182838 
+"value": 0.001243674833076 
 },
 {
  "date":          15915,
 "source": "TimingShare",
-"value": 0.001240231049013 
+"value": 0.001240649816788 
 },
 {
  "date":          15916,
 "source": "TimingShare",
-"value": 0.001310254058946 
+"value": 0.001310679562402 
 },
 {
  "date":          15917,
 "source": "TimingShare",
-"value": 0.001435135847784 
+"value": 0.001435590884494 
 },
 {
  "date":          15918,
 "source": "TimingShare",
-"value": 0.0006602606297058 
+"value": 0.0006606090322997 
 },
 {
  "date":          15919,
 "source": "TimingShare",
-"value": 0.0006995699030978 
+"value": 0.0006999279820918 
 },
 {
  "date":          15922,
 "source": "TimingShare",
-"value": 0.001454951062211 
+"value": 0.001455334030717 
 },
 {
  "date":          15923,
 "source": "TimingShare",
-"value": 0.001511561465247 
+"value": 0.001511855638943 
 },
 {
  "date":          15924,
 "source": "TimingShare",
-"value": 0.00166567607592 
+"value": 0.001666113275857 
 },
 {
  "date":          15925,
 "source": "TimingShare",
-"value": 0.001044329157248 
+"value": 0.001044619311582 
 },
 {
  "date":          15926,
 "source": "TimingShare",
-"value": 0.001032920916868 
+"value": 0.001033223588926 
 },
 {
  "date":          15929,
 "source": "TimingShare",
-"value": 0.0006202962232733 
+"value": 0.0006206604201932 
 },
 {
  "date":          15930,
 "source": "TimingShare",
-"value": 0.0005860791941693 
+"value": 0.0005864397194761 
 },
 {
  "date":          15931,
 "source": "TimingShare",
-"value": 0.0006534516660653 
+"value": 0.0006537457865917 
 },
 {
  "date":          15932,
 "source": "TimingShare",
-"value": 0.001301596876831 
+"value": 0.001301905463649 
 },
 {
  "date":          15933,
 "source": "TimingShare",
-"value": 0.0007842051717771 
+"value": 0.0007845349642232 
 },
 {
  "date":          15936,
 "source": "TimingShare",
-"value": 0.0007463828260218 
+"value": 0.0007467037532355 
 },
 {
  "date":          15937,
 "source": "TimingShare",
-"value": 0.0008681654735906 
+"value": 0.0008686008461546 
 },
 {
  "date":          15938,
 "source": "TimingShare",
-"value": 0.0008745650007326 
+"value": 0.0008749832186198 
 },
 {
  "date":          15939,
 "source": "TimingShare",
-"value": 0.0008205004055168 
+"value": 0.0008209403423306 
 },
 {
  "date":          15940,
 "source": "TimingShare",
-"value": 0.0008240185040617 
+"value": 0.0008244780317465 
 },
 {
  "date":          15943,
 "source": "TimingShare",
-"value": 0.0008243680899262 
+"value": 0.0008249345851782 
 },
 {
  "date":          15944,
 "source": "TimingShare",
-"value": 0.000874438940926 
+"value": 0.0008749887278212 
 },
 {
  "date":          15945,
 "source": "TimingShare",
-"value": 0.0008929325613324 
+"value": 0.0008935017394208 
 },
 {
  "date":          15946,
 "source": "TimingShare",
-"value": 0.0009154291354998 
+"value": 0.0009160073263339 
 },
 {
  "date":          15947,
 "source": "TimingShare",
-"value": 0.0009700964662406 
+"value": 0.0009706433872669 
 },
 {
  "date":          15951,
 "source": "TimingShare",
-"value": 0.0009521602569162 
+"value": 0.0009526719317856 
 },
 {
  "date":          15952,
 "source": "TimingShare",
-"value": 0.0005359853403127 
+"value": 0.0005366500698975 
 },
 {
  "date":          15953,
 "source": "TimingShare",
-"value": 0.0005687254027904 
+"value": 0.0005694071885683 
 },
 {
  "date":          15954,
 "source": "TimingShare",
-"value": 0.0007258007674832 
+"value": 0.0007265048162794 
 },
 {
  "date":          15957,
 "source": "TimingShare",
-"value": 0.0007309669423527 
+"value": 0.0007316617670645 
 },
 {
  "date":          15958,
 "source": "TimingShare",
-"value": 0.0007249908382161 
+"value": 0.0007256764249369 
 },
 {
  "date":          15959,
 "source": "TimingShare",
-"value": 0.0007232447233657 
+"value": 0.0007239501727026 
 },
 {
  "date":          15960,
 "source": "TimingShare",
-"value": 0.0006379492159818 
+"value": 0.0006386152443313 
 },
 {
  "date":          15961,
 "source": "TimingShare",
-"value": 0.0006494750303997 
+"value": 0.0006501401319687 
 },
 {
  "date":          15964,
 "source": "TimingShare",
-"value": 0.0006863994827966 
+"value": 0.0006870719945427 
 },
 {
  "date":          15965,
 "source": "TimingShare",
-"value": 0.0009130899399076 
+"value": 0.0009138092358076 
 },
 {
  "date":          15966,
 "source": "TimingShare",
-"value": 0.00112449213151 
+"value": 0.001125224131442 
 },
 {
  "date":          15967,
 "source": "TimingShare",
-"value": 0.001456160026853 
+"value": 0.001456949065542 
 },
 {
  "date":          15968,
 "source": "TimingShare",
-"value": 0.001455618799266 
+"value": 0.001456404202228 
 },
 {
  "date":          15971,
 "source": "TimingShare",
-"value": 0.001200614098741 
+"value": 0.001201472854307 
 },
 {
  "date":          15972,
 "source": "TimingShare",
-"value": 0.001209928645908 
+"value": 0.001210799735836 
 },
 {
  "date":          15973,
 "source": "TimingShare",
-"value": 0.001225955390595 
+"value": 0.001226794078733 
 },
 {
  "date":          15974,
 "source": "TimingShare",
-"value": 0.001300768026478 
+"value": 0.00130157988073 
 },
 {
  "date":          15975,
 "source": "TimingShare",
-"value": 0.001490947704124 
+"value": 0.001491769390371 
 },
 {
  "date":          15978,
 "source": "TimingShare",
-"value": 0.001187129264267 
+"value": 0.001187848456064 
 },
 {
  "date":          15979,
 "source": "TimingShare",
-"value": 0.0009451396088152 
+"value": 0.0009459719044187 
 },
 {
  "date":          15980,
 "source": "TimingShare",
-"value": 0.0009437695239429 
+"value": 0.0009446404212158 
 },
 {
  "date":          15981,
 "source": "TimingShare",
-"value": 0.0009698434481303 
+"value": 0.0009707434766083 
 },
 {
  "date":          15982,
 "source": "TimingShare",
-"value": 0.001002321045145 
+"value": 0.001003235898874 
 },
 {
  "date":          15985,
 "source": "TimingShare",
-"value": 0.0009413651797939 
+"value": 0.0009422144300003 
 },
 {
  "date":          15986,
 "source": "TimingShare",
-"value": 0.0009647842181858 
+"value": 0.0009656369281646 
 },
 {
  "date":          15987,
 "source": "TimingShare",
-"value": 0.0009823040937097 
+"value": 0.0009831501205366 
 },
 {
  "date":          15988,
 "source": "TimingShare",
-"value": 0.0008461518712087 
+"value": 0.0008470006788671 
 },
 {
  "date":          15989,
 "source": "TimingShare",
-"value": 0.0009266019345788 
+"value": 0.0009274493018282 
 },
 {
  "date":          15992,
 "source": "TimingShare",
-"value": 0.0009353608185089 
+"value": 0.000936251792818 
 },
 {
  "date":          15993,
 "source": "TimingShare",
-"value": 0.0008437105523083 
+"value": 0.0008445470612977 
 },
 {
  "date":          15994,
 "source": "TimingShare",
-"value": 0.0010531978209 
+"value": 0.001054011827931 
 },
 {
  "date":          15995,
 "source": "TimingShare",
-"value": 0.001050758136767 
+"value": 0.001051577562665 
 },
 {
  "date":          15996,
 "source": "TimingShare",
-"value": 0.001146176748717 
+"value": 0.001146991991194 
 },
 {
  "date":          15999,
 "source": "TimingShare",
-"value": 0.001125031347465 
+"value": 0.001125825422027 
 },
 {
  "date":          16000,
 "source": "TimingShare",
-"value": 0.001241664995439 
+"value": 0.001242486707931 
 },
 {
  "date":          16001,
 "source": "TimingShare",
-"value": 0.001194841715489 
+"value": 0.001195647445571 
 },
 {
  "date":          16002,
 "source": "TimingShare",
-"value": 0.0009896550963918 
+"value": 0.0009907117595202 
 },
 {
  "date":          16003,
 "source": "TimingShare",
-"value": 0.0009942511596796 
+"value": 0.0009953039890694 
 },
 {
  "date":          16006,
 "source": "TimingShare",
-"value": 3.884502567008e-06 
+"value": 4.814865234533e-06 
 },
 {
  "date":          16007,
 "source": "TimingShare",
-"value": 0.0002156742181607 
+"value": 0.0002166993908869 
 },
 {
  "date":          16008,
 "source": "TimingShare",
-"value": 0.0002632979755157 
+"value": 0.0002643250023394 
 },
 {
  "date":          16009,
@@ -9064,27 +9075,27 @@ perfComp %>>%
 {
  "date":          16015,
 "source": "TimingShare",
-"value": 0.0003644606999232 
+"value": 0.0003654714416416 
 },
 {
  "date":          16016,
 "source": "TimingShare",
-"value": 0.0002942427518853 
+"value": 0.0002952509070336 
 },
 {
  "date":          16017,
 "source": "TimingShare",
-"value": 0.0001014891381613 
+"value": 0.0001024274925565 
 },
 {
  "date":          16020,
 "source": "TimingShare",
-"value": 0.0001134814039913 
+"value": 0.000114428481194 
 },
 {
  "date":          16021,
 "source": "TimingShare",
-"value": 4.679830025151e-05 
+"value": 4.772218942238e-05 
 },
 {
  "date":          16022,
@@ -9104,772 +9115,772 @@ perfComp %>>%
 {
  "date":          16027,
 "source": "TimingShare",
-"value": 4.293371711595e-05 
+"value": 4.396570953364e-05 
 },
 {
  "date":          16028,
 "source": "TimingShare",
-"value": 7.970328646933e-05 
+"value": 8.074778050587e-05 
 },
 {
  "date":          16029,
 "source": "TimingShare",
-"value": 0.0003073313955451 
+"value": 0.0003084188077544 
 },
 {
  "date":          16030,
 "source": "TimingShare",
-"value": 0.0002824178671985 
+"value": 0.000283516956318 
 },
 {
  "date":          16031,
 "source": "TimingShare",
-"value": 0.0007475172718947 
+"value": 0.0007487316872073 
 },
 {
  "date":          16034,
 "source": "TimingShare",
-"value": 0.0007985727528353 
+"value": 0.000799768989532 
 },
 {
  "date":          16035,
 "source": "TimingShare",
-"value": 0.001852738138273 
+"value": 0.00185494479294 
 },
 {
  "date":          16036,
 "source": "TimingShare",
-"value": 0.00184054844231 
+"value": 0.001842750042274 
 },
 {
  "date":          16038,
 "source": "TimingShare",
-"value": 0.001793536194611 
+"value": 0.001795709456207 
 },
 {
  "date":          16041,
 "source": "TimingShare",
-"value": 0.001653804103991 
+"value": 0.001656036248814 
 },
 {
  "date":          16042,
 "source": "TimingShare",
-"value": 0.001664059350707 
+"value": 0.00166630187414 
 },
 {
  "date":          16043,
 "source": "TimingShare",
-"value": 0.001653157963292 
+"value": 0.00165542848235 
 },
 {
  "date":          16044,
 "source": "TimingShare",
-"value": 0.001988438396651 
+"value": 0.001990738326034 
 },
 {
  "date":          16045,
 "source": "TimingShare",
-"value": 0.002174598351576 
+"value": 0.002176945430335 
 },
 {
  "date":          16048,
 "source": "TimingShare",
-"value": 0.002270471071029 
+"value": 0.002272808325795 
 },
 {
  "date":          16049,
 "source": "TimingShare",
-"value": 0.002270499800083 
+"value": 0.002272852273842 
 },
 {
  "date":          16050,
 "source": "TimingShare",
-"value": 0.002566993228989 
+"value": 0.002569355002509 
 },
 {
  "date":          16051,
 "source": "TimingShare",
-"value": 0.002414119712707 
+"value": 0.002416524230035 
 },
 {
  "date":          16052,
 "source": "TimingShare",
-"value": 0.002454633129916 
+"value": 0.002457032711941 
 },
 {
  "date":          16055,
 "source": "TimingShare",
-"value": 0.002360744173028 
+"value": 0.002363121293531 
 },
 {
  "date":          16056,
 "source": "TimingShare",
-"value": 0.00358189447298 
+"value": 0.003584615886348 
 },
 {
  "date":          16057,
 "source": "TimingShare",
-"value": 0.003613520935049 
+"value": 0.003616142160931 
 },
 {
  "date":          16058,
 "source": "TimingShare",
-"value": 0.003228371650711 
+"value": 0.003230930383781 
 },
 {
  "date":          16059,
 "source": "TimingShare",
-"value": 0.003218274474335 
+"value": 0.003220817565495 
 },
 {
  "date":          16062,
 "source": "TimingShare",
-"value": 0.003153760477725 
+"value": 0.003156303764072 
 },
 {
  "date":          16063,
 "source": "TimingShare",
-"value": 0.00319471829883 
+"value": 0.003197245486026 
 },
 {
  "date":          16065,
 "source": "TimingShare",
-"value": 0.003285514140617 
+"value": 0.003288047729488 
 },
 {
  "date":          16066,
 "source": "TimingShare",
-"value": 0.003222316443927 
+"value": 0.003224811954926 
 },
 {
  "date":          16069,
 "source": "TimingShare",
-"value": 0.003150066047789 
+"value": 0.003152464912764 
 },
 {
  "date":          16070,
 "source": "TimingShare",
-"value": 0.003349613870959 
+"value": 0.003351960264197 
 },
 {
  "date":          16072,
 "source": "TimingShare",
-"value": 0.00335286246064 
+"value": 0.003355220799488 
 },
 {
  "date":          16073,
 "source": "TimingShare",
-"value": 0.003373774871837 
+"value": 0.00337612645855 
 },
 {
  "date":          16076,
 "source": "TimingShare",
-"value": 0.003398636838695 
+"value": 0.003400980897813 
 },
 {
  "date":          16077,
 "source": "TimingShare",
-"value": 0.00338199811784 
+"value": 0.003384320640555 
 },
 {
  "date":          16078,
 "source": "TimingShare",
-"value": 0.003650092513034 
+"value": 0.003652387899857 
 },
 {
  "date":          16079,
 "source": "TimingShare",
-"value": 0.003678814938079 
+"value": 0.003681161649762 
 },
 {
  "date":          16080,
 "source": "TimingShare",
-"value": 0.003697438933407 
+"value": 0.003699781656236 
 },
 {
  "date":          16083,
 "source": "TimingShare",
-"value": 0.003620936404527 
+"value": 0.003623297613787 
 },
 {
  "date":          16084,
 "source": "TimingShare",
-"value": 0.003586233960178 
+"value": 0.003588641752728 
 },
 {
  "date":          16085,
 "source": "TimingShare",
-"value": 0.003594989258619 
+"value": 0.003597401939512 
 },
 {
  "date":          16086,
 "source": "TimingShare",
-"value": 0.003929313259733 
+"value": 0.003931666025235 
 },
 {
  "date":          16087,
 "source": "TimingShare",
-"value": 0.003909437447965 
+"value": 0.003911828299772 
 },
 {
  "date":          16091,
 "source": "TimingShare",
-"value": 0.003834561192659 
+"value": 0.003836906073576 
 },
 {
  "date":          16092,
 "source": "TimingShare",
-"value": 0.003690125418791 
+"value": 0.003692444519518 
 },
 {
  "date":          16093,
 "source": "TimingShare",
-"value": 0.00380844531798 
+"value": 0.003810823056792 
 },
 {
  "date":          16094,
 "source": "TimingShare",
-"value": 0.003517144333723 
+"value": 0.003519342253564 
 },
 {
  "date":          16097,
 "source": "TimingShare",
-"value": 0.003474467750136 
+"value": 0.003476676388994 
 },
 {
  "date":          16098,
 "source": "TimingShare",
-"value": 0.003417916627403 
+"value": 0.00342012424702 
 },
 {
  "date":          16099,
 "source": "TimingShare",
-"value": 0.003166678471442 
+"value": 0.00316882542813 
 },
 {
  "date":          16100,
 "source": "TimingShare",
-"value": 0.003052930599851 
+"value": 0.003055075157359 
 },
 {
  "date":          16101,
 "source": "TimingShare",
-"value": 0.002739996503967 
+"value": 0.002742068460511 
 },
 {
  "date":          16104,
 "source": "TimingShare",
-"value": 0.002723811612739 
+"value": 0.00272594955599 
 },
 {
  "date":          16105,
 "source": "TimingShare",
-"value": 0.00271398002484 
+"value": 0.002716129952722 
 },
 {
  "date":          16106,
 "source": "TimingShare",
-"value": 0.002556982143753 
+"value": 0.002559099775035 
 },
 {
  "date":          16107,
 "source": "TimingShare",
-"value": 0.002560420529715 
+"value": 0.002562569152981 
 },
 {
  "date":          16108,
 "source": "TimingShare",
-"value": 0.002617109859132 
+"value": 0.002619233130453 
 },
 {
  "date":          16111,
 "source": "TimingShare",
-"value": 0.002661942117917 
+"value": 0.002664055892322 
 },
 {
  "date":          16112,
 "source": "TimingShare",
-"value": 0.00262019211112 
+"value": 0.002622273211782 
 },
 {
  "date":          16113,
 "source": "TimingShare",
-"value": 0.002566189886182 
+"value": 0.002568221786402 
 },
 {
  "date":          16114,
 "source": "TimingShare",
-"value": 0.002530935099853 
+"value": 0.002532982176259 
 },
 {
  "date":          16115,
 "source": "TimingShare",
-"value": 0.002477495968162 
+"value": 0.002479530100132 
 },
 {
  "date":          16119,
 "source": "TimingShare",
-"value": 0.002454909158825 
+"value": 0.002456989323861 
 },
 {
  "date":          16120,
 "source": "TimingShare",
-"value": 0.002438240044406 
+"value": 0.002440272842033 
 },
 {
  "date":          16121,
 "source": "TimingShare",
-"value": 0.002420774518573 
+"value": 0.002422799610886 
 },
 {
  "date":          16122,
 "source": "TimingShare",
-"value": 0.002447336188474 
+"value": 0.002449389045838 
 },
 {
  "date":          16125,
 "source": "TimingShare",
-"value": 0.002422659607329 
+"value": 0.002424725587476 
 },
 {
  "date":          16126,
 "source": "TimingShare",
-"value": 0.002512669739958 
+"value": 0.002514762740642 
 },
 {
  "date":          16127,
 "source": "TimingShare",
-"value": 0.002461705469022 
+"value": 0.002463862901322 
 },
 {
  "date":          16128,
 "source": "TimingShare",
-"value": 0.002338697421808 
+"value": 0.002340835653249 
 },
 {
  "date":          16129,
 "source": "TimingShare",
-"value": 0.002255427159657 
+"value": 0.002257530012656 
 },
 {
  "date":          16132,
 "source": "TimingShare",
-"value": 0.002132664509602 
+"value": 0.002134841480774 
 },
 {
  "date":          16133,
 "source": "TimingShare",
-"value": 0.001734874253237 
+"value": 0.001737074181701 
 },
 {
  "date":          16134,
 "source": "TimingShare",
-"value": 0.00173592428708 
+"value": 0.001738099837719 
 },
 {
  "date":          16135,
 "source": "TimingShare",
-"value": 0.001694203611135 
+"value": 0.001696320063139 
 },
 {
  "date":          16136,
 "source": "TimingShare",
-"value": 0.001787351479949 
+"value": 0.001789465391435 
 },
 {
  "date":          16139,
 "source": "TimingShare",
-"value": 0.00166419498382 
+"value": 0.00166638225658 
 },
 {
  "date":          16140,
 "source": "TimingShare",
-"value": 0.001341943452231 
+"value": 0.001343962425522 
 },
 {
  "date":          16141,
 "source": "TimingShare",
-"value": 0.001340676414741 
+"value": 0.001342700815459 
 },
 {
  "date":          16142,
 "source": "TimingShare",
-"value": 0.001432813953263 
+"value": 0.001434826701445 
 },
 {
  "date":          16143,
 "source": "TimingShare",
-"value": 0.001433230965453 
+"value": 0.001435244444915 
 },
 {
  "date":          16146,
 "source": "TimingShare",
-"value": 0.001394570961382 
+"value": 0.001396596716511 
 },
 {
  "date":          16147,
 "source": "TimingShare",
-"value": 0.001374528515321 
+"value": 0.001376532662631 
 },
 {
  "date":          16148,
 "source": "TimingShare",
-"value": 0.001344828741794 
+"value": 0.001346835108702 
 },
 {
  "date":          16149,
 "source": "TimingShare",
-"value": 0.001154184173147 
+"value": 0.001156234340305 
 },
 {
  "date":          16150,
 "source": "TimingShare",
-"value": 0.001131761954652 
+"value": 0.00113379589632 
 },
 {
  "date":          16153,
 "source": "TimingShare",
-"value": 0.001074303469924 
+"value": 0.001076251750512 
 },
 {
  "date":          16154,
 "source": "TimingShare",
-"value": 0.001027167508233 
+"value": 0.001029059592552 
 },
 {
  "date":          16155,
 "source": "TimingShare",
-"value": 0.001100636418433 
+"value": 0.001102502079456 
 },
 {
  "date":          16156,
 "source": "TimingShare",
-"value": 0.001102661740378 
+"value": 0.001104509819846 
 },
 {
  "date":          16157,
 "source": "TimingShare",
-"value": 0.001084605239394 
+"value": 0.001086449763479 
 },
 {
  "date":          16160,
 "source": "TimingShare",
-"value": 0.001109062891707 
+"value": 0.001110883286917 
 },
 {
  "date":          16161,
 "source": "TimingShare",
-"value": 0.00104620748062 
+"value": 0.001048034397639 
 },
 {
  "date":          16162,
 "source": "TimingShare",
-"value": 0.001131311822134 
+"value": 0.001133151038353 
 },
 {
  "date":          16163,
 "source": "TimingShare",
-"value": 0.001082605086036 
+"value": 0.001084427791233 
 },
 {
  "date":          16164,
 "source": "TimingShare",
-"value": 0.0009881360800444 
+"value": 0.0009899646997849 
 },
 {
  "date":          16167,
 "source": "TimingShare",
-"value": 0.001105171540673 
+"value": 0.001106989104564 
 },
 {
  "date":          16168,
 "source": "TimingShare",
-"value": 0.001025183304643 
+"value": 0.001026979338951 
 },
 {
  "date":          16169,
 "source": "TimingShare",
-"value": 0.001099012784867 
+"value": 0.001100810688636 
 },
 {
  "date":          16170,
 "source": "TimingShare",
-"value": 0.001267104170104 
+"value": 0.001268969776389 
 },
 {
  "date":          16171,
 "source": "TimingShare",
-"value": 0.001263300046532 
+"value": 0.001265130295702 
 },
 {
  "date":          16174,
 "source": "TimingShare",
-"value": 0.001379252260442 
+"value": 0.001381039523038 
 },
 {
  "date":          16175,
 "source": "TimingShare",
-"value": 0.001392393898254 
+"value": 0.00139415963318 
 },
 {
  "date":          16176,
 "source": "TimingShare",
-"value": 0.001304128504482 
+"value": 0.001305888093089 
 },
 {
  "date":          16177,
 "source": "TimingShare",
-"value": 0.001308702453756 
+"value": 0.001310466732812 
 },
 {
  "date":          16181,
 "source": "TimingShare",
-"value": 0.001312452513209 
+"value": 0.001314233079416 
 },
 {
  "date":          16182,
 "source": "TimingShare",
-"value": 0.001409986896953 
+"value": 0.001411795256241 
 },
 {
  "date":          16183,
 "source": "TimingShare",
-"value": 0.001527053441349 
+"value": 0.001528821977233 
 },
 {
  "date":          16184,
 "source": "TimingShare",
-"value": 0.001570266966161 
+"value": 0.001572016197222 
 },
 {
  "date":          16185,
 "source": "TimingShare",
-"value": 0.001515353437165 
+"value": 0.001517118622952 
 },
 {
  "date":          16188,
 "source": "TimingShare",
-"value": 0.001636094670168 
+"value": 0.00163782178739 
 },
 {
  "date":          16189,
 "source": "TimingShare",
-"value": 0.001639721356909 
+"value": 0.001641441058157 
 },
 {
  "date":          16190,
 "source": "TimingShare",
-"value": 0.001614597075988 
+"value": 0.001616294026436 
 },
 {
  "date":          16191,
 "source": "TimingShare",
-"value": 0.001585506966091 
+"value": 0.001587180782359 
 },
 {
  "date":          16192,
 "source": "TimingShare",
-"value": 0.001492079019156 
+"value": 0.00149368135007 
 },
 {
  "date":          16195,
 "source": "TimingShare",
-"value": 0.001424667469259 
+"value": 0.001426239593178 
 },
 {
  "date":          16196,
 "source": "TimingShare",
-"value": 0.001350438173026 
+"value": 0.001351999096469 
 },
 {
  "date":          16197,
 "source": "TimingShare",
-"value": 0.001380473916736 
+"value": 0.001382056052892 
 },
 {
  "date":          16198,
 "source": "TimingShare",
-"value": 0.001169254254949 
+"value": 0.001170757251557 
 },
 {
  "date":          16199,
 "source": "TimingShare",
-"value": 0.001174996076595 
+"value": 0.001176518939742 
 },
 {
  "date":          16202,
 "source": "TimingShare",
-"value": 0.001111861293315 
+"value": 0.001113371466545 
 },
 {
  "date":          16203,
 "source": "TimingShare",
-"value": 0.001052416925958 
+"value": 0.001053950773636 
 },
 {
  "date":          16204,
 "source": "TimingShare",
-"value": 0.0010354296757 
+"value": 0.001036956750574 
 },
 {
  "date":          16205,
 "source": "TimingShare",
-"value": 0.0004991738682453 
+"value": 0.0005007754058314 
 },
 {
  "date":          16206,
 "source": "TimingShare",
-"value": 0.0005506591763863 
+"value": 0.0005522441278396 
 },
 {
  "date":          16209,
 "source": "TimingShare",
-"value": 0.0002561937010302 
+"value": 0.0002576347018613 
 },
 {
  "date":          16210,
 "source": "TimingShare",
-"value": 0.0003235941577256 
+"value": 0.0003249964393927 
 },
 {
  "date":          16211,
 "source": "TimingShare",
-"value": 0.0003328080868007 
+"value": 0.0003342105643567 
 },
 {
  "date":          16212,
 "source": "TimingShare",
-"value": 0.0003137762066082 
+"value": 0.0003151955132734 
 },
 {
  "date":          16213,
 "source": "TimingShare",
-"value": 0.0002582839818927 
+"value": 0.0002596920297453 
 },
 {
  "date":          16217,
 "source": "TimingShare",
-"value": 0.0003396221226971 
+"value": 0.000341024476467 
 },
 {
  "date":          16218,
 "source": "TimingShare",
-"value": 0.000466115072788 
+"value": 0.0004675401919171 
 },
 {
  "date":          16219,
 "source": "TimingShare",
-"value": 0.000462989744383 
+"value": 0.0004644459418679 
 },
 {
  "date":          16220,
 "source": "TimingShare",
-"value": 0.001163936141054 
+"value": 0.001165552042279 
 },
 {
  "date":          16223,
 "source": "TimingShare",
-"value": 0.001313909748042 
+"value": 0.001315560827761 
 },
 {
  "date":          16224,
 "source": "TimingShare",
-"value": 0.001344217993988 
+"value": 0.001345882860938 
 },
 {
  "date":          16225,
 "source": "TimingShare",
-"value": 0.0009586680443047 
+"value": 0.0009606940446236 
 },
 {
  "date":          16226,
 "source": "TimingShare",
-"value": 0.001048193350583 
+"value": 0.001050245279847 
 },
 {
  "date":          16227,
 "source": "TimingShare",
-"value": 0.001009808179136 
+"value": 0.001011896103991 
 },
 {
  "date":          16230,
 "source": "TimingShare",
-"value": 0.001134110668651 
+"value": 0.001136211778663 
 },
 {
  "date":          16231,
 "source": "TimingShare",
-"value": 0.001280806055814 
+"value": 0.001282907320221 
 },
 {
  "date":          16232,
 "source": "TimingShare",
-"value": 0.001328412926264 
+"value": 0.001330489884805 
 },
 {
  "date":          16233,
 "source": "TimingShare",
-"value": 0.001293789403632 
+"value": 0.00129589389303 
 },
 {
  "date":          16234,
 "source": "TimingShare",
-"value": 0.001285845864274 
+"value": 0.001287985867834 
 },
 {
  "date":          16237,
 "source": "TimingShare",
-"value": 0.001247507058403 
+"value": 0.001249680608955 
 },
 {
  "date":          16238,
 "source": "TimingShare",
-"value": 0.00135366335028 
+"value": 0.001355820123402 
 },
 {
  "date":          16239,
 "source": "TimingShare",
-"value": 0.001359402952397 
+"value": 0.00136157594287 
 },
 {
  "date":          16240,
 "source": "TimingShare",
-"value": 0.001355259686609 
+"value": 0.00135737499795 
 },
 {
  "date":          16241,
 "source": "TimingShare",
-"value": 0.001107067030654 
+"value": 0.001109229035336 
 },
 {
  "date":          16244,
 "source": "TimingShare",
-"value": 0.0009978924751557 
+"value": 0.001000107257019 
 },
 {
  "date":          16245,
 "source": "TimingShare",
-"value": 0.0009575090867248 
+"value": 0.0009597426396248 
 },
 {
  "date":          16246,
 "source": "TimingShare",
-"value": 0.0009525540647982 
+"value": 0.0009548182790584 
 },
 {
  "date":          16247,
 "source": "TimingShare",
-"value": 0.001029960181997 
+"value": 0.00103218497121 
 },
 {
  "date":          16248,
 "source": "TimingShare",
-"value": 0.001597248076559 
+"value": 0.001599454256272 
 },
 {
  "date":          16251,
 "source": "TimingShare",
-"value": 0.001572564676069 
+"value": 0.001574750889261 
 } 
 ]
   
