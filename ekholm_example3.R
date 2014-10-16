@@ -37,12 +37,13 @@ source( paste0(
   "/raw/e124379f19225fcdee18f30cb848da6fc6cae764/ekholm.R"
 ))
 
+
 # let's have a look at SMB and HML decomposition
 c( "SMB", "HML" ) %>>%
   (~ lapply(
     .
     ,function(ticker) {
-      f[,c( ticker, colnames(f)[1] )] %>>%
+      f[,c( ticker, colnames(f)[1], "RF" )] %>>%
         na.omit %>>%
         rollapply (
           FUN= function(x){
@@ -135,6 +136,7 @@ f %>>%
       merge(
         .
         , r[,1]
+        , r[,"RF"]
       )
     )
   ) %>>%

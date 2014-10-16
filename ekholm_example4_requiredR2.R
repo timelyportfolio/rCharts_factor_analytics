@@ -17,9 +17,20 @@ plot.zoo(
 # let's calculate the Rmkt - Rf on rolling basis
 RmktlessRf = (( f.cumul / stats::lag(f.cumul,nyear) ) ^ ( 1/nyear ) - 1)[,1]
 
+# since my math is failing me, run a simulation assuming r2 = 0 to 1
+x= seq(0,1,0.005)
+y = ((x/(1-x))^0.5) / ( 1 - x )
+plot(x=x,y=y,type="l")
+# a reference table
+data.frame(x=x,y=y)
+
 # let's assume a 1% expense ratio
 #   and a Beta of 1
 # the rolling 5 year R^2 necessary would be
+RmktlessRf = 0.07
+reqRsq <- ( 1^2 * ifelse(RmktlessRf<0, NA, RmktlessRf ^ 2 ) ) / 
+          ( ( 0.011 ^ 2 ) + ( 1^2 * ifelse(RmktlessRf<0, NA, RmktlessRf ^ 2 ) ) )
+          
 reqRsq <- 1 /
   (
     1 + 
